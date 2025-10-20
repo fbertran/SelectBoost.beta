@@ -12,10 +12,8 @@
 #'   with 0 for unselected variables.
 #' @seealso [gamlss::gamlss()], [gamlss::ri()], [gamlss.dist::BE()]
 #' @examples
-#' \dontrun{
 #' set.seed(1); X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[,1]); Y <- rbeta(100, Y*30, (1-Y)*30)
 #' betareg_lasso_gamlss(X, Y, method = "GAIC", k = 2)
-#' }
 #' @export
 betareg_lasso_gamlss <- function(
   X, Y, method = c("ML", "GAIC"), k = 2, df = NULL, lambda = NULL, trace = FALSE
@@ -49,10 +47,8 @@ betareg_lasso_gamlss <- function(
 #' @return Named numeric vector of coefficients as in [betareg_lasso_gamlss()].
 #' @seealso [gamlss.lasso::gnet()], [gamlss::gamlss()], [gamlss.dist::BE()]
 #' @examples
-#' \dontrun{
 #' set.seed(1); X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[,1]); Y <- rbeta(100, Y*30, (1-Y)*30)
 #' betareg_enet_gamlss(X, Y, method = "IC", ICpen = "BIC", alpha = 0.8)
-#' }
 #' @export
 betareg_enet_gamlss <- function(
   X, Y, method = c("IC", "CV"), ICpen = c("BIC", "AIC", "HQC"), alpha = 1, trace = FALSE

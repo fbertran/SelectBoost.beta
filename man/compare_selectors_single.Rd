@@ -26,9 +26,7 @@ when available), and the pure glmnet IRLS selector, then collates coefficients
 into a long table for comparison.
 }
 \examples{
-\dontrun{
 set.seed(1); X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[,1])
 Y <- rbeta(100, Y*30, (1-Y)*30); out <- compare_selectors_single(X, Y)
 head(out$table)
-}
 }

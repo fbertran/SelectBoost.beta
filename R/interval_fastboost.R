@@ -21,7 +21,6 @@
 #'   \item{freq}{Named vector of selection frequencies for each predictor.}
 #' }
 #' @examples
-#' \dontrun{
 #' # suppose you have interval data (Y_low, Y_high)
 #' set.seed(1)
 #' n <- 120; p <- 6
@@ -32,7 +31,6 @@
 #'        func = function(X,y) betareg_glmnet(X,y, choose="bic", prestandardize=TRUE),
 #'        B = 40)
 #' sort(fb$freq, decreasing = TRUE)
-#' }
 #' @export
 fastboost_interval <- function(
   X, Y_low, Y_high,

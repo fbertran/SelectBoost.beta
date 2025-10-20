@@ -16,7 +16,5 @@ A \code{ggplot} object when \code{ggplot2} is available; otherwise draws a base 
 Visual comparison of bootstrap selection frequencies by selector. Requires \code{ggplot2}.
 }
 \examples{
-\dontrun{
-# plot_compare_freq(freq)
-}
+plot_compare_freq(freq)
 }

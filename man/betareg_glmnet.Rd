@@ -62,11 +62,9 @@ Runs an IRLS loop with Beta working responses/weights and calls
 model choice and an optional \code{prestandardize} speedup.
 }
 \examples{
-\dontrun{
 set.seed(1); X <- matrix(rnorm(500), 100, 5); Y <- plogis(X[,1]-0.5*X[,3])
 Y <- rbeta(100, Y*40, (1-Y)*40)
 betareg_glmnet(X, Y, alpha = 1, choose = "bic", prestandardize = TRUE)
-}
 }
 \seealso{
 \code{\link[glmnet:glmnet]{glmnet::glmnet()}}, \code{\link[glmnet:cv.glmnet]{glmnet::cv.glmnet()}}

@@ -25,9 +25,7 @@ Bootstraps the dataset \code{B} times and records how often each variable is
 selected by each selector.
 }
 \examples{
-\dontrun{
 set.seed(1); X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[,1])
 Y <- rbeta(100, Y*30, (1-Y)*30); fr <- compare_selectors_bootstrap(X, Y, B = 20)
 head(fr)
-}
 }

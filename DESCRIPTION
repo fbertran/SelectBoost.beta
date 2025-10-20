@@ -13,7 +13,6 @@ Imports:
     MASS,
     Rcpp,
     rlang,
-    SelectBoost,
     stats
 Suggests:
     gamlss.lasso,
@@ -29,12 +28,12 @@ Authors@R: c(
 Author: Frederic Bertrand [cre, aut] (<https://orcid.org/0000-0002-0837-8281>)
 Maintainer: Frederic Bertrand <frederic.bertrand@lecnam.net>
 Description: Adds variable-selection functions for Beta regression models
-    (mean submodel) so they can be used within the SelectBoost algorithm.
-    Includes stepwise AIC/BIC/AICc on betareg fits, GAMLSS-based LASSO/Elastic-Net,
-    a pure glmnet IRLS-based selector with an optional pre-standardization speedup,
-    and C++ helpers for IRLS working steps and precision updates. Also provides
-    a 'fastboost_interval()' variant for interval responses, comparison helpers,
-    and a flexible simulator 'simulation_DATA.beta()' for interval-valued data.
+    (mean submodel) so they can be used within the 'SelectBoost' algorithm.
+    Includes stepwise 'AIC'/'BIC'/'AICc' on betareg() fits, 'GAMLSS'-based LASSO/Elastic-Net,
+    a pure 'glmnet' 'IRLS'-based selector with an optional standardization speedup,
+    and C++ helpers for 'IRLS' working steps and precision updates. Also provides
+    a fastboost_interval() variant for interval responses, comparison helpers,
+    and a flexible simulator simulation_DATA.beta() for interval-valued data.
 License: GPL-3
 Encoding: UTF-8
 Classification/MSC: 62H11, 62J12, 62J99

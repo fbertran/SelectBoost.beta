@@ -38,10 +38,8 @@ Uses \code{gamlss::ri()} (L1 penalty) in a \code{gamlss(dist = BE)} mean submode
 select variables.
 }
 \examples{
-\dontrun{
 set.seed(1); X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[,1]); Y <- rbeta(100, Y*30, (1-Y)*30)
 betareg_lasso_gamlss(X, Y, method = "GAIC", k = 2)
-}
 }
 \seealso{
 \code{\link[gamlss:gamlss]{gamlss::gamlss()}}, \code{\link[gamlss:ri]{gamlss::ri()}}, \code{\link[gamlss.dist:BE]{gamlss.dist::BE()}}

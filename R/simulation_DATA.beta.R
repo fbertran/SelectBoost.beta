@@ -2,7 +2,7 @@
 # #' @inheritParams stats::rnorm
 #' @param n,p Sample size and number of predictors.
 #' @param s Number of active (nonzero) coefficients.
-#' @param beta_size Scalar (alternating ±) or numeric vector of length ≥ s.
+#' @param beta_size Scalar (alternating ±) or numeric vector of length greater then equal s.
 #' @param a0 Intercept (logit scale).
 #' @param X_dist Distribution for X: `"gaussian"`, `"t"`, or `"bernoulli"`.
 #' @param corr Correlation structure: `"indep"`, `"ar1"`, or `"block"`.

@@ -6,7 +6,7 @@
 \alias{SelectBoost.beta}
 \title{SelectBoost.beta: Stability-Selection via Correlated Resampling for Beta-Regression Models}
 \description{
-Adds variable-selection functions for Beta regression models (mean submodel) so they can be used within the SelectBoost algorithm. Includes stepwise AIC/BIC/AICc on betareg fits, GAMLSS-based LASSO/Elastic-Net, a pure glmnet IRLS-based selector with an optional pre-standardization speedup, and C++ helpers for IRLS working steps and precision updates. Also provides a 'fastboost_interval()' variant for interval responses, comparison helpers, and a flexible simulator 'simulation_DATA.beta()' for interval-valued data.
+Adds variable-selection functions for Beta regression models (mean submodel) so they can be used within the 'SelectBoost' algorithm. Includes stepwise 'AIC'/'BIC'/'AICc' on betareg() fits, 'GAMLSS'-based LASSO/Elastic-Net, a pure 'glmnet' 'IRLS'-based selector with an optional standardization speedup, and C++ helpers for 'IRLS' working steps and precision updates. Also provides a fastboost_interval() variant for interval responses, comparison helpers, and a flexible simulator simulation_DATA.beta() for interval-valued data.
 }
 \examples{
 

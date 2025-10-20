@@ -16,7 +16,5 @@ A \code{ggplot} object when \code{ggplot2} is available; otherwise draws a base 
 Visual comparison of coefficients returned by each selector. Requires \code{ggplot2}.
 }
 \examples{
-\dontrun{
-# plot_compare_coeff(single$table)
-}
+plot_compare_coeff(single$table)
 }

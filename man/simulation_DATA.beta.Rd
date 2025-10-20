@@ -38,7 +38,7 @@ simulation_DATA.beta(
 
 \item{s}{Number of active (nonzero) coefficients.}
 
-\item{beta_size}{Scalar (alternating ±) or numeric vector of length ≥ s.}
+\item{beta_size}{Scalar (alternating ±) or numeric vector of length greater then equal s.}
 
 \item{a0}{Intercept (logit scale).}
 

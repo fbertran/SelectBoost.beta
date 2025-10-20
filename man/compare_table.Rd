@@ -18,7 +18,5 @@ Merged data frame.
 Merge single-run results and bootstrap frequencies
 }
 \examples{
-\dontrun{
-# tbl <- compare_table(single$table, freq)
-}
+tbl <- compare_table(single$table, freq)
 }

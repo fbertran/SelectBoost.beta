@@ -50,7 +50,6 @@ from each interval (uniformly or midpoint), tallying variable selection
 frequencies across \code{B} replicates.
 }
 \examples{
-\dontrun{
 # suppose you have interval data (Y_low, Y_high)
 set.seed(1)
 n <- 120; p <- 6
@@ -61,5 +60,4 @@ fb <- fastboost_interval(X, Y_low, Y_high,
        func = function(X,y) betareg_glmnet(X,y, choose="bic", prestandardize=TRUE),
        B = 40)
 sort(fb$freq, decreasing = TRUE)
-}
 }

@@ -13,9 +13,11 @@
 #'   \item{table}{Long data frame with columns `selector`, `variable`, `coef`, `selected`.}
 #' }
 #' @examples
-#' set.seed(1); X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[,1])
-#' Y <- rbeta(100, Y*30, (1-Y)*30); out <- compare_selectors_single(X, Y)
-#' head(out$table)
+#' set.seed(1)
+#' X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[, 1])
+#' Y <- rbeta(100, Y * 30, (1 - Y) * 30)
+#' single <- compare_selectors_single(X, Y, include_enet = FALSE)
+#' head(single$table)
 #' @export
 compare_selectors_single <- function(X, Y, include_enet = TRUE) {
   if (!is.matrix(X)) X <- as.matrix(X)
@@ -50,9 +52,11 @@ compare_selectors_single <- function(X, Y, include_enet = TRUE) {
 #'
 #' @return Long data frame with columns `selector`, `variable`, `freq` in `[0,1]`.
 #' @examples
-#' set.seed(1); X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[,1])
-#' Y <- rbeta(100, Y*30, (1-Y)*30); fr <- compare_selectors_bootstrap(X, Y, B = 20)
-#' head(fr)
+#' set.seed(1)
+#' X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[, 1])
+#' Y <- rbeta(100, Y * 30, (1 - Y) * 30)
+#' freq <- compare_selectors_bootstrap(X, Y, B = 10, include_enet = FALSE)
+#' head(freq)
 #' @export
 compare_selectors_bootstrap <- function(X, Y, B = 50, include_enet = TRUE, seed = NULL) {
   if (!is.matrix(X)) X <- as.matrix(X)
@@ -89,7 +93,18 @@ compare_selectors_bootstrap <- function(X, Y, B = 50, include_enet = TRUE, seed 
 #' @param freq_tab Optional frequency table from [compare_selectors_bootstrap()].
 #' @return Merged data frame.
 #' @examples
-#' tbl <- compare_table(single$table, freq)
+#' single_tab <- data.frame(
+#'   selector = rep(c("AIC", "BIC"), each = 3),
+#'   variable = rep(paste0("x", 1:3), times = 2),
+#'   coef = c(0.5, 0, -0.2, 0.6, 0.1, -0.3)
+#' )
+#' single_tab$selected <- single_tab$coef != 0
+#' freq_tab <- data.frame(
+#'   selector = rep(c("AIC", "BIC"), each = 3),
+#'   variable = rep(paste0("x", 1:3), times = 2),
+#'   freq = c(0.9, 0.15, 0.4, 0.85, 0.3, 0.25)
+#' )
+#' compare_table(single_tab, freq_tab)
 #' @export
 compare_table <- function(single_tab, freq_tab = NULL) {
   if (!is.null(freq_tab)) {
@@ -106,7 +121,13 @@ compare_table <- function(single_tab, freq_tab = NULL) {
 #' @return A `ggplot` object when `ggplot2` is available; otherwise draws a base R image.
 #' @importFrom rlang .data
 #' @examples
-#' plot_compare_coeff(single$table)
+#' demo_tab <- data.frame(
+#'   selector = rep(c("AIC", "BIC"), each = 3),
+#'   variable = rep(paste0("x", 1:3), times = 2),
+#'   coef = c(0.6, 0, -0.2, 0.55, 0.05, -0.3)
+#' )
+#' demo_tab$selected <- demo_tab$coef != 0
+#' plot_compare_coeff(demo_tab)
 #' @export
 plot_compare_coeff <- function(single_tab) {
   if (requireNamespace("ggplot2", quietly = TRUE)) {
@@ -139,7 +160,12 @@ plot_compare_coeff <- function(single_tab) {
 #' @return A `ggplot` object when `ggplot2` is available; otherwise draws a base R image.
 #' @importFrom rlang .data
 #' @examples
-#' plot_compare_freq(freq)
+#' freq_tab <- data.frame(
+#'   selector = rep(c("AIC", "BIC"), each = 3),
+#'   variable = rep(paste0("x", 1:3), times = 2),
+#'   freq = c(0.85, 0.2, 0.45, 0.75, 0.35, 0.3)
+#' )
+#' plot_compare_freq(freq_tab)
 #' @export
 plot_compare_freq <- function(freq_tab) {
   if (requireNamespace("ggplot2", quietly = TRUE)) {

@@ -20,11 +20,13 @@
 }
 
 .coef_glmnet_style <- function(fit, xnames) {
-  cf <- coef(fit)$mean
+  cf <- stats::coef(fit)
+  mean_cf <- if (is.list(cf)) cf$mean else cf
   beta <- setNames(numeric(length(xnames)), xnames)
-  common <- intersect(names(cf), xnames)
-  if (length(common)) beta[common] <- cf[common]
-  c("(Intercept)" = unname(cf["(Intercept)"]), beta)
+  common <- intersect(names(mean_cf), xnames)
+  if (length(common)) beta[common] <- mean_cf[common]
+  intercept <- if ("(Intercept)" %in% names(mean_cf)) unname(mean_cf["(Intercept)"]) else 0
+  c("(Intercept)" = intercept, beta)
 }
 
 .scope_beta <- function(xnames) {

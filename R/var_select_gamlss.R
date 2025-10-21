@@ -25,9 +25,16 @@ betareg_lasso_gamlss <- function(
   n <- length(Y)
   y <- pmin(pmax((as.numeric(Y) * (n - 1) + 0.5) / n, .Machine$double.eps), 1 - .Machine$double.eps)
   dat <- data.frame(y = y, X, check.names = TRUE)
-  ri_term <- gamlss::ri(x.vars = xnames, Lp = 1, df = df, lambda = lambda, method = method, k = k)
-  fit <- gamlss::gamlss(formula = y ~ ri_term, sigma.fo = ~ 1,
-                        family = gamlss.dist::BE(), data = dat, trace = trace)
+  smooth_data <- dat[, xnames, drop = FALSE]  
+  fit <- gamlss::gamlss(
+    formula = y ~ gamlss::ri(
+      x.vars = xnames, Data = smooth_data,
+      Lp = 1, df = df, lambda = lambda,
+      method = method, k = k
+    ),
+    sigma.fo = ~ 1,
+    family = gamlss.dist::BE(), data = dat, trace = trace
+  )  
   intercept <- unname(gamlss::coefAll(fit, what = "mu")["(Intercept)"])
   smo_list <- gamlss::getSmo(fit, "mu"); beta_hat <- tail(smo_list, 1)[[1]]$beta
   beta <- setNames(numeric(length(xnames)), xnames)
@@ -61,11 +68,15 @@ betareg_enet_gamlss <- function(
   xnames <- colnames(X)
   n <- length(Y)
   y <- pmin(pmax((as.numeric(Y) * (n - 1) + 0.5) / n, .Machine$double.eps), 1 - .Machine$double.eps)
-  dat <- data.frame(y = y, X, check.names = TRUE)
-  gnet_term <- gamlss.lasso::gnet(x.vars = xnames, method = method, ICpen = ICpen,
-                                  control = gamlss.lasso::gnet.control(alpha = alpha, standardize = TRUE))
-  fit <- gamlss::gamlss(formula = y ~ gnet_term, sigma.fo = ~ 1,
-                        family = gamlss.dist::BE(), data = dat, trace = trace)
+  dat <- data.frame(y = y, check.names = TRUE)
+  fit <- gamlss::gamlss(
+    formula = y ~ gamlss.lasso::gnet(
+      X = X, x.vars = xnames, method = method, ICpen = ICpen,
+      control = gamlss.lasso::gnet.control(alpha = alpha, standardize = TRUE)
+    ),
+    sigma.fo = ~ 1,
+    family = gamlss.dist::BE(), data = dat, trace = trace
+  )
   intercept <- unname(gamlss::coefAll(fit, what = "mu")["(Intercept)"])
   smo_list  <- gamlss::getSmo(fit, "mu"); beta_hat <- tail(smo_list, 1)[[1]]$beta
   beta <- setNames(numeric(length(xnames)), xnames)

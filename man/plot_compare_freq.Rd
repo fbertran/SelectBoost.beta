@@ -16,5 +16,10 @@ A \code{ggplot} object when \code{ggplot2} is available; otherwise draws a base 
 Visual comparison of bootstrap selection frequencies by selector. Requires \code{ggplot2}.
 }
 \examples{
-plot_compare_freq(freq)
+freq_tab <- data.frame(
+  selector = rep(c("AIC", "BIC"), each = 3),
+  variable = rep(paste0("x", 1:3), times = 2),
+  freq = c(0.85, 0.2, 0.45, 0.75, 0.35, 0.3)
+)
+plot_compare_freq(freq_tab)
 }

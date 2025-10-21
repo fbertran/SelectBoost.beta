@@ -18,5 +18,16 @@ Merged data frame.
 Merge single-run results and bootstrap frequencies
 }
 \examples{
-tbl <- compare_table(single$table, freq)
+single_tab <- data.frame(
+  selector = rep(c("AIC", "BIC"), each = 3),
+  variable = rep(paste0("x", 1:3), times = 2),
+  coef = c(0.5, 0, -0.2, 0.6, 0.1, -0.3)
+)
+single_tab$selected <- single_tab$coef != 0
+freq_tab <- data.frame(
+  selector = rep(c("AIC", "BIC"), each = 3),
+  variable = rep(paste0("x", 1:3), times = 2),
+  freq = c(0.9, 0.15, 0.4, 0.85, 0.3, 0.25)
+)
+compare_table(single_tab, freq_tab)
 }

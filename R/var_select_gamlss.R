@@ -25,12 +25,22 @@ betareg_lasso_gamlss <- function(
   n <- length(Y)
   y <- pmin(pmax((as.numeric(Y) * (n - 1) + 0.5) / n, .Machine$double.eps), 1 - .Machine$double.eps)
   dat <- data.frame(y = y, X, check.names = TRUE)
+  smooth_term <- substitute(
+    gamlss::ri(
+      x.vars = XN,
+      Lp = 1, df = DF, lambda = LAMBDA,
+      method = METHOD, k = K
+    ),
+    list(
+      XN = xnames, DF = df, LAMBDA = lambda,
+      METHOD = method, K = k
+    )
+  )
   smooth_data <- dat[, xnames, drop = FALSE]  
   fit <- gamlss::gamlss(
-    formula = y ~ gamlss::ri(
-      x.vars = xnames, Data = smooth_data,
-      Lp = 1, df = df, lambda = lambda,
-      method = method, k = k
+    formula = as.formula(
+      substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
+      env = environment()
     ),
     sigma.fo = ~ 1,
     family = gamlss.dist::BE(), data = dat, trace = trace
@@ -68,12 +78,22 @@ betareg_enet_gamlss <- function(
   xnames <- colnames(X)
   n <- length(Y)
   y <- pmin(pmax((as.numeric(Y) * (n - 1) + 0.5) / n, .Machine$double.eps), 1 - .Machine$double.eps)
-  dat <- data.frame(y = y, check.names = TRUE)
-  fit <- gamlss::gamlss(
-    formula = y ~ gamlss.lasso::gnet(
-      X = X, x.vars = xnames, method = method, ICpen = ICpen,
-      control = gamlss.lasso::gnet.control(alpha = alpha, standardize = TRUE)
+  dat <- data.frame(y = y, X, check.names = TRUE)
+  smooth_term <- substitute(
+    gamlss.lasso::gnet(
+      x.vars = XN, method = METHOD, ICpen = ICPEN,
+      control = gamlss.lasso::gnet.control(alpha = ALPHA, standardize = TRUE)
     ),
+    list(
+      XN = xnames, METHOD = method, ICPEN = ICpen,
+      ALPHA = alpha
+    )
+  )
+  fit <- gamlss::gamlss(
+    formula = as.formula(
+      substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
+      env = environment()
+      ),
     sigma.fo = ~ 1,
     family = gamlss.dist::BE(), data = dat, trace = trace
   )

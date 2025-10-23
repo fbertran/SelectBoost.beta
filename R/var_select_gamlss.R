@@ -25,8 +25,14 @@ betareg_lasso_gamlss <- function(
   n <- length(Y)
   y <- pmin(pmax((as.numeric(Y) * (n - 1) + 0.5) / n, .Machine$double.eps), 1 - .Machine$double.eps)
   dat <- data.frame(y = y, X, check.names = TRUE)
+  data_id <- paste0(".sb_gamlss_dat_", as.integer(proc.time()[3] * 1e6))
+  assign(data_id, dat, envir = .GlobalEnv)
+  on.exit(remove(list = data_id, envir = .GlobalEnv), add = TRUE)
+  data_sym <- as.name(data_id)
+  gamlss <- get("gamlss", asNamespace("gamlss"))
+  ri <- get("ri", asNamespace("gamlss"))
   smooth_term <- substitute(
-    gamlss::ri(
+    ri(
       x.vars = XN,
       Lp = 1, df = DF, lambda = LAMBDA,
       method = METHOD, k = K
@@ -37,16 +43,36 @@ betareg_lasso_gamlss <- function(
     )
   )
   smooth_data <- dat[, xnames, drop = FALSE]  
-  fit <- gamlss::gamlss(
-    formula = as.formula(
-      substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
-      env = environment()
-    ),
-    sigma.fo = ~ 1,
-    family = gamlss.dist::BE(), data = dat, trace = trace
+  fit <- eval(
+    substitute(
+      gamlss(
+        formula = as.formula(
+          substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
+          env = environment()
+        ),
+        sigma.fo = ~ 1,
+        family = gamlss.dist::BE(), data = DATA, trace = trace
+      ),
+      list(DATA = data_sym)
+    )
   )  
-  intercept <- unname(gamlss::coefAll(fit, what = "mu")["(Intercept)"])
-  smo_list <- gamlss::getSmo(fit, "mu"); beta_hat <- tail(smo_list, 1)[[1]]$beta
+  mu_coef <- gamlss::coefAll(fit, what = "mu")[[1]]
+  intercept <- unname(mu_coef["(Intercept)"])
+  smo_list <- gamlss::getSmo(fit, "mu")
+  if (length(smo_list) == 0) {
+    beta_hat <- NULL
+  } else if (!is.null(smo_list$coef)) {
+    beta_hat <- drop(smo_list$coef)
+  } else {
+    last_smo <- tail(smo_list, 1)[[1]]
+    beta_hat <- if (!is.null(last_smo$beta)) {
+      last_smo$beta
+    } else if (!is.null(last_smo$coef)) {
+      drop(last_smo$coef)
+    } else {
+      NULL
+    }
+  }
   beta <- setNames(numeric(length(xnames)), xnames)
   if (!is.null(beta_hat)) beta[names(beta_hat)] <- beta_hat
   c("(Intercept)" = intercept, beta)
@@ -79,26 +105,52 @@ betareg_enet_gamlss <- function(
   n <- length(Y)
   y <- pmin(pmax((as.numeric(Y) * (n - 1) + 0.5) / n, .Machine$double.eps), 1 - .Machine$double.eps)
   dat <- data.frame(y = y, X, check.names = TRUE)
+  data_id <- paste0(".sb_gamlss_dat_", as.integer(proc.time()[3] * 1e6))
+  assign(data_id, dat, envir = .GlobalEnv)
+  on.exit(remove(list = data_id, envir = .GlobalEnv), add = TRUE)
+  data_sym <- as.name(data_id)
+  gamlss <- get("gamlss", asNamespace("gamlss"))
+  gnet <- get("gnet", asNamespace("gamlss.lasso"))
+  gnet_control <- get("gnet.control", asNamespace("gamlss.lasso"))
   smooth_term <- substitute(
-    gamlss.lasso::gnet(
+    gnet(
       x.vars = XN, method = METHOD, ICpen = ICPEN,
-      control = gamlss.lasso::gnet.control(alpha = ALPHA, standardize = TRUE)
-    ),
+      control = gnet_control(alpha = ALPHA, standardize = TRUE)    ),
     list(
       XN = xnames, METHOD = method, ICPEN = ICpen,
       ALPHA = alpha
     )
   )
-  fit <- gamlss::gamlss(
-    formula = as.formula(
-      substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
-      env = environment()
+  fit <- eval(
+    substitute(
+      gamlss(
+        formula = as.formula(
+          substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
+          env = environment()
+        ),
+        sigma.fo = ~ 1,
+        family = gamlss.dist::BE(), data = DATA, trace = trace
       ),
-    sigma.fo = ~ 1,
-    family = gamlss.dist::BE(), data = dat, trace = trace
+      list(DATA = data_sym)
+    )
   )
-  intercept <- unname(gamlss::coefAll(fit, what = "mu")["(Intercept)"])
-  smo_list  <- gamlss::getSmo(fit, "mu"); beta_hat <- tail(smo_list, 1)[[1]]$beta
+  mu_coef <- gamlss::coefAll(fit, what = "mu")[[1]]
+  intercept <- unname(mu_coef["(Intercept)"])
+  smo_list <- gamlss::getSmo(fit, "mu")
+  if (length(smo_list) == 0) {
+    beta_hat <- NULL
+  } else if (!is.null(smo_list$coef)) {
+    beta_hat <- drop(smo_list$coef)
+  } else {
+    last_smo <- tail(smo_list, 1)[[1]]
+    beta_hat <- if (!is.null(last_smo$beta)) {
+      last_smo$beta
+    } else if (!is.null(last_smo$coef)) {
+      drop(last_smo$coef)
+    } else {
+      NULL
+    }
+  }
   beta <- setNames(numeric(length(xnames)), xnames)
   if (!is.null(beta_hat)) beta[names(beta_hat)] <- beta_hat
   c("(Intercept)" = intercept, beta)

@@ -1,5 +1,40 @@
 test_that("sb_normalize centres and scales columns", {
   set.seed(123)
+  X <- matrix(rnorm(200), ncol = 4)
+  X_norm <- sb_normalize(X)
+  expect_equal(colMeans(X_norm), rep(0, ncol(X)), tolerance = 1e-10)
+  expect_equal(sqrt(colSums(X_norm^2)), rep(1, ncol(X)), tolerance = 1e-10)
+  expect_null(colnames(X_norm))
+  expect_equal(attr(X_norm, "center"), colMeans(X))
+  expect_equal(attr(X_norm, "scale"), sqrt(colSums(sweep(X,2,colMeans(X),`-`)^2)))
+})
+
+test_that("sb_normalize handles custom centering/scaling", {
+  X <- matrix(rep(1:5, each = 3), ncol = 3)
+  cn <- c(2, 3, 4)
+  sc <- c(1, 2, 3)
+  X_norm <- sb_normalize(X, center = cn, scale = sc)
+  expect_equal(colMeans(X_norm), colMeans(scale(X,center=cn,scale=sc)), tolerance = 1e-10)
+  expect_equal(attr(X_norm, "center"), rep(cn, length.out = ncol(X)))
+  expect_equal(attr(X_norm, "scale"), rep(sc, length.out = ncol(X)))
+})
+
+test_that("sb_resample_groups generates correlated draws", {
+  set.seed(99)
+  X <- matrix(rnorm(1000), ncol = 4)
+  X[, 2] <- X[, 1] * 0.8 + rnorm(nrow(X), sd = 0.1)
+  groups <- c(1, 1, 2, 2)
+  mat <- sb_resample_groups(X, groups, B = 2000, seed = 42)
+  expect_equal(length(mat), 2000)
+  expect_equal(dim(mat[[1]]),c(250, 4))
+  expect_null(colnames(mat[[1]]))
+  expect_gt(cor(mat[[1]][, 1], mat[[1]][, 2]), 0.4)
+  expect_lt(abs(cor(mat[[1]][, 1], mat[[1]][, 3])), 0.2)
+  expect_equal(attr(mat[[1]], "groups"), groups)
+})
+
+test_that("sb_normalize centres and scales columns", {
+  set.seed(123)
   X <- matrix(rnorm(40), nrow = 10, ncol = 4)
   colnames(X) <- paste0("x", seq_len(ncol(X)))
   X_norm <- sb_normalize(X)

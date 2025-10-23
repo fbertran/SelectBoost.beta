@@ -1,13 +1,28 @@
 ---
-title: "Simulating interval Beta data (no wrapper)"
+title: "Simulating interval Beta data"
+shorttitle: "Simulating interval Beta data"
+author: 
+- name: "Frédéric Bertrand"
+  affiliation: 
+  - Cedric, Cnam, Paris
+  email: frederic.bertrand@lecnam.net
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Simulating interval Beta data (no wrapper)}
+  %\VignetteIndexEntry{Simulating interval Beta data}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```{r setup, include = FALSE}
+#file.edit(normalizePath("~/.Renviron"))
+LOCAL <- identical(Sys.getenv("LOCAL"), "TRUE")
+#LOCAL=TRUE
+knitr::opts_chunk$set(purl = LOCAL)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 suppressPackageStartupMessages(library(SelectBoost.beta))
 set.seed(1)
 ```

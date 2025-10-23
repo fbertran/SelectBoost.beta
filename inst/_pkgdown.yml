@@ -1,0 +1,27 @@
+
+template:
+  bootstrap: 5
+  bslib:
+    pkgdown-nav-height: 60px
+    base_font: {google: "Inter"}
+    heading_font: {google: "Inter"}
+  bootswatch: flatly
+  includes:
+    in_header: |
+      <style>
+        .navbar-brand img { height: 28px; }
+      </style>
+
+url: https://fbertran.github.io/SelectBoost.beta/
+title: "SelectBoost.beta"
+lang: en
+favicon: man/figures/logo.svg
+logo: man/figures/logo.svg
+
+news:
+  one_page: true
+
+footer:
+  structure:
+    left: developed_by
+    right: built_with

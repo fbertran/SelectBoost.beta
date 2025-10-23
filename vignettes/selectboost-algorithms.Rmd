@@ -1,0 +1,123 @@
+---
+title: "SelectBoost.beta algorithms"
+shorttitle: "SelectBoost.beta algorithms"
+author: 
+- name: "Frédéric Bertrand"
+  affiliation: 
+  - Cedric, Cnam, Paris
+  email: frederic.bertrand@lecnam.net
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SelectBoost.beta algorithms}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+#file.edit(normalizePath("~/.Renviron"))
+LOCAL <- identical(Sys.getenv("LOCAL"), "TRUE")
+#LOCAL=TRUE
+knitr::opts_chunk$set(purl = LOCAL)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+suppressPackageStartupMessages(library(SelectBoost.beta))
+set.seed(321)
+```
+
+## Motivation
+
+`SelectBoost.beta` re-uses the correlated-resampling machinery introduced by the
+original SelectBoost package and combines it with Beta-regression selectors.
+This vignette summarises the main routines and presents pseudo-code for their
+internal logic. The goal is to make it easy to re-implement or extend the
+algorithms in other contexts.
+
+## Building blocks
+
+The following helpers expose the canonical SelectBoost stages.
+
+- `sb_normalize()` centres and \(\ell_2\)-normalises the design matrix columns.
+- `sb_compute_corr()` computes a correlation (or user-supplied association)
+  matrix from the normalised design.
+- `sb_group_variables()` converts the correlation matrix into groups of highly
+  associated predictors for a given threshold \(c_0\).
+- `sb_resample_groups()` regenerates correlated predictors for each group by
+  drawing from a multivariate normal approximation and re-normalising.
+- `sb_apply_selector_manual()` applies a selector to each resampled design and
+  collects the resulting coefficient vectors.
+- `sb_selection_frequency()` converts the matrix of coefficients into selection
+  frequencies while respecting the selector's coefficient convention.
+
+## Pseudo-code: manual workflow
+
+The manual SelectBoost workflow follows the same steps regardless of the base
+selector. Pseudo-code for producing selection frequencies at a single threshold
+is given below.
+
+```text
+Procedure ManualSelectBoost(X, Y, selector, c0, B):
+  1. X_norm <- sb_normalize(X)
+  2. Corr <- sb_compute_corr(X_norm)
+  3. Groups <- sb_group_variables(Corr, c0)
+  4. Resamples <- sb_resample_groups(X_norm, Groups, B)
+  5. CoefMatrix <- sb_apply_selector_manual(X_norm, Resamples, Y, selector)
+  6. Frequencies <- sb_selection_frequency(CoefMatrix, version = "glmnet")
+  7. Return Frequencies
+```
+
+In practice `sb_resample_groups()` preserves singletons untouched. Only groups
+with two or more predictors receive correlated draws.
+
+## Pseudo-code: correlation grid driver
+
+`sb_beta()` extends the manual workflow by iterating over a grid of correlation
+thresholds. The following pseudo-code matches the behaviour of the exported
+function.
+
+```text
+Algorithm sb_beta(X, Y, selector, B, step.num, steps.seq, version, squeeze):
+  1. If squeeze, transform Y into the open unit interval.
+  2. X_norm <- sb_normalize(X)
+  3. Corr <- sb_compute_corr(X_norm)
+  4. Grid <- {1} ∪ .sb_c0_sequence(Corr, step.num, steps.seq) ∪ {0}
+  5. For each c0 in Grid:
+       a. Groups <- sb_group_variables(Corr, c0)
+       b. If every group has size 1:
+            i. CoefMatrix <- selector(X_norm, Y)
+          Else:
+            i. Resamples <- sb_resample_groups(X_norm, Groups, B)
+           ii. For each design in Resamples:
+                  - CoefMatrix[, b] <- selector(design, Y)
+       c. Freq[c0, ] <- sb_selection_frequency(CoefMatrix, version)
+  6. Attach attributes (B, selector, c0 sequence) and return Freq
+```
+
+The selector argument can be any function returning a numeric vector of
+coefficients with optional names. When `version = "glmnet"`, the first entry is
+interpreted as the intercept and excluded from the selection frequencies.
+
+## Extending the algorithms
+
+The modular helpers are designed to be recomposed. For example, it is possible
+to plug in a custom grouping routine before calling `sb_resample_groups()` or to
+supply a selector that implements cross-validation or penalisation strategies.
+Because each helper only relies on basic R primitives, the pseudo-code above
+translates readily into other languages.
+
+
+## Conference communications
+
+The SelectBoost4Beta concepts described here were showcased by Frédéric
+Bertrand and Myriam Maumy in 2023 at:
+
+- Joint Statistical Meetings 2023 (Toronto, Canada): "Improving variable
+  selection in Beta regression models using correlated resampling".
+- BioC2023 (Boston, USA): "SelectBoost4Beta: Improving variable selection in
+  Beta regression models".
+
+These communications detailed how correlation-aware resampling strengthens
+variable selection performance for Beta regression under strong predictor
+dependencies.

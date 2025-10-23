@@ -13,9 +13,44 @@ bibentry(bibtype="Manual",
          note         = vers,
 #         url          = "https://CRAN.R-project.org/package=SelectBoost.beta",
 #         doi         = doi,
-         textVersion = 
-         paste("Frédéric Bertrand (",year ,"). ", 
+         textVersion =
+         paste("Frédéric Bertrand (",year ,"). ",
                titl, ", ", vers, ".", sep=""
 #               titl, ", ", vers, ". doi:", doi, ".", sep=""
                )
+)
+
+bibentry(
+  bibtype = "InProceedings",
+  title = "Improving variable selection in Beta regression models using correlated resampling",
+  author = c(
+    person(given = "Frédéric", family = "Bertrand"),
+    person(given = "Myriam", family = "Maumy")
+  ),
+  year = "2023",
+  booktitle = "Joint Statistical Meetings 2023",
+  address = "Toronto, Canada",
+  keywords = c("generalized linear models", "linear models", "resampling", "simulation", "variable selection"),
+  textVersion = paste(
+    "Frédéric Bertrand and Myriam Maumy (2023).",
+    "Improving variable selection in Beta regression models using correlated resampling.",
+    "Joint Statistical Meetings 2023, Toronto, Canada."
+  )
+)
+
+bibentry(
+  bibtype = "InProceedings",
+  title = "SelectBoost4Beta: Improving variable selection in Beta regression models",
+  author = c(
+    person(given = "Frédéric", family = "Bertrand"),
+    person(given = "Myriam", family = "Maumy")
+  ),
+  year = "2023",
+  booktitle = "BioC2023",
+  address = "Boston, MA, USA",
+  textVersion = paste(
+    "Frédéric Bertrand and Myriam Maumy (2023).",
+    "SelectBoost4Beta: Improving variable selection in Beta regression models.",
+    "BioC2023, Boston, MA, USA."
+  )
 )

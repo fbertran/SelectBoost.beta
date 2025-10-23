@@ -1,7 +1,13 @@
 #' @keywords internal
 #' @aliases SelectBoost.beta-package SelectBoost.beta NULL
 #'
-#' @references TODO
+#' @references
+#' Bertrand, F. and Maumy, M. (2023). Improving variable selection in Beta
+#' regression models using correlated resampling. Presented at Joint
+#' Statistical Meetings 2023, Toronto, Canada.
+#'
+#' Bertrand, F. and Maumy, M. (2023). SelectBoost4Beta: Improving variable
+#' selection in Beta regression models. Presented at BioC2023, Boston, USA.
 #'
 #' @author This package was written by Frédéric Bertrand.
 #' Maintainer: Frédéric Bertrand <frederic.bertrand@@lecnam.net>

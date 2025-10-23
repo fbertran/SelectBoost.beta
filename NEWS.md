@@ -1,10 +1,14 @@
 # SelectBoost.beta 0.4.5
+- Added a pseudo-code vignette, refreshed the README with workflow details, and
+  expanded the unit test suite for the new helpers.
 - Fixed code and descriptions to get rid of notes during CRAN checks.
 
 # SelectBoost.beta 0.4.4
 - Add **NEWS.md** documenting development history.
 
 # SelectBoost.beta 0.4.3
+- Added `sb_beta()` to run the full SelectBoost correlated-resampling loop with
+  beta-regression selectors, plus a vignette illustrating the workflow.
 - Added vignette section demonstrating the extended simulator and interval selection.
 
 # SelectBoost.beta 0.4.2

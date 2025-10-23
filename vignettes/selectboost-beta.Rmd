@@ -1,0 +1,168 @@
+---
+title: "SelectBoost for Beta regression"
+shorttitle: "SelectBoost for Beta regression"
+author: 
+- name: "Frédéric Bertrand"
+  affiliation: 
+  - Cedric, Cnam, Paris
+  email: frederic.bertrand@lecnam.net
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SelectBoost for Beta regression}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+#file.edit(normalizePath("~/.Renviron"))
+LOCAL <- identical(Sys.getenv("LOCAL"), "TRUE")
+#LOCAL=TRUE
+knitr::opts_chunk$set(purl = LOCAL)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+suppressPackageStartupMessages(library(SelectBoost.beta))
+set.seed(321)
+```
+
+## Overview
+
+The new `sb_beta()` helper glues the beta-regression selectors provided by this
+package to a SelectBoost-style correlated-resampling loop implemented directly
+in `SelectBoost.beta`. It takes care of squeezing the response inside the open
+unit interval and tagging the output with the selector that was used.
+
+This vignette walks through two complementary perspectives:
+
+1. Reconstructing the SelectBoost workflow step by step with
+   `betareg_step_aic()` to highlight where correlated resampling happens.
+2. Calling `sb_beta()` to obtain the same result with a single function call.
+
+Throughout the examples we rely on the built-in simulator to generate correlated
+design matrices with a handful of truly associated predictors.
+
+```{r simulate-data}
+sim <- simulation_DATA.beta(
+  n = 150, p = 6, s = 3, beta_size = c(1, -0.8, 0.6),
+  corr = "ar1", rho = 0.25,
+  mechanism = "jitter"
+)
+str(sim$X)
+summary(sim$Y)
+```
+
+## Manual SelectBoost workflow with beta selectors
+
+The classic SelectBoost algorithm first normalises the design matrix, computes
+pairwise correlations, groups variables above a chosen threshold and finally
+resamples the predictors before applying the selector. All of those stages are
+available directly in `SelectBoost.beta`.
+
+```{r manual-workflow}
+# Normalise the predictors (centre + L2 scale)
+X_norm <- sb_normalize(sim$X)
+
+# Compute correlations
+corr_mat <- sb_compute_corr(X_norm)
+
+# Group variables whose absolute correlation exceeds 0.6
+raw_groups <- sb_group_variables(corr_mat, c0 = 0.6)
+
+# Draw eight correlated replicas for the grouped variables
+X_draws <- sb_resample_groups(X_norm, raw_groups, B = 8, seed = 11)
+
+dim(X_draws[[1]])
+```
+
+Each element of `X_draws` stores a correlated copy of the normalised design.
+Feeding these matrices to `sb_apply_selector_manual()` together with a
+beta-regression selector yields coefficient estimates for every resampled data
+set.
+
+```{r apply-selector}
+coef_path <- sb_apply_selector_manual(
+  X_norm, X_draws, sim$Y, selector = betareg_step_aic
+)
+
+dim(coef_path)
+coef_path[, 1:3]
+```
+
+Finally, the `sb_selection_frequency()` helper counts how often each variable
+appears with a non-zero coefficient across the replicates. Because
+`betareg_step_aic()` returns a `glmnet`-style coefficient vector (intercept plus
+predictors), we set `version = "glmnet"` when computing the selection
+frequencies.
+
+```{r selection-frequencies}
+sel_freq <- sb_selection_frequency(coef_path, version = "glmnet")
+sel_freq
+```
+
+This manual exercise confirms that the correlated resampling loop from the
+original SelectBoost package plugs seamlessly into the beta selectors shipped in
+`SelectBoost.beta`.
+
+## Running the entire loop with `sb_beta()`
+
+The `sb_beta()` wrapper performs the same steps internally while exposing the
+arguments most relevant to beta regression. By default it uses
+`betareg_step_aic()` as the base selector, but any of the exported functions
+(`"betareg_step_bic"`, `betareg_glmnet`, etc.) can be passed either by name or
+as a function.
+
+```{r sb-beta}
+sb <- sb_beta(
+  sim$X, sim$Y,
+  B = 60,
+  step.num = 0.5,
+  steps.seq = c(0.9, 0.7, 0.5)
+)
+
+class(sb)
+attr(sb, "selector")
+rownames(sb)
+round(sb, 3)
+```
+
+Changing the selector is simply a matter of passing a different routine. The
+call below uses the GAMLSS-based elastic-net variant and asks `sb_beta()` to pass
+`choose = "bic"` to the underlying `betareg_glmnet()` implementation.
+
+```{r sb-alternative}
+sb_enet <- sb_beta(
+  sim$X, sim$Y,
+  selector = betareg_glmnet,
+  B = 60,
+  step.num = 0.5,
+  version = "glmnet",
+  choose = "bic",
+  prestandardize = TRUE
+)
+
+attr(sb_enet, "selector")
+colMeans(sb_enet)
+```
+
+Because the wrapper always builds on the same correlated resamples, results are
+directly comparable across selectors as long as they adopt the `glmnet`-style
+coefficient convention. This makes it straightforward to run stability analyses
+for interval responses by pairing `sb_beta()` with `fastboost_interval()` or to
+compare several beta selectors under the exact same resampled design matrices.
+
+
+## Conference communications
+
+The SelectBoost4Beta workflow and its correlated resampling foundations were
+presented by Frédéric Bertrand and Myriam Maumy in 2023 at two conferences:
+
+- **Joint Statistical Meetings 2023 (Toronto, Canada)** — "Improving variable
+  selection in Beta regression models using correlated resampling".
+- **BioC2023 (Boston, USA)** — "SelectBoost4Beta: Improving variable selection
+  in Beta regression models".
+
+Both communications emphasised how leveraging correlation-aware resampling improves the
+recall and precision of variable selection in high-dimensional Beta regression
+settings.

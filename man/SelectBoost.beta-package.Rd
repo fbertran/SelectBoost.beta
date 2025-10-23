@@ -6,7 +6,7 @@
 \alias{SelectBoost.beta}
 \title{SelectBoost.beta: Stability-Selection via Correlated Resampling for Beta-Regression Models}
 \description{
-Adds variable-selection functions for Beta regression models (mean submodel) so they can be used within the 'SelectBoost' algorithm. Includes stepwise 'AIC'/'BIC'/'AICc' on betareg() fits, 'GAMLSS'-based LASSO/Elastic-Net, a pure 'glmnet' 'IRLS'-based selector with an optional standardization speedup, and C++ helpers for 'IRLS' working steps and precision updates. Also provides a fastboost_interval() variant for interval responses, comparison helpers, and a flexible simulator simulation_DATA.beta() for interval-valued data.
+Adds variable-selection functions for Beta regression models (mean submodel) so they can be used within the 'SelectBoost' algorithm. Includes stepwise 'AIC'/'BIC'/'AICc' on betareg() fits, 'GAMLSS'-based LASSO/Elastic-Net, a pure 'glmnet' 'IRLS'-based selector with an optional standardization speedup, and C++ helpers for 'IRLS' working steps and precision updates. Also provides a fastboost_interval() variant for interval responses, comparison helpers, and a flexible simulator simulation_DATA.beta() for interval-valued data. The SelectBoost4Beta framework was presented by Bertrand and Maumy (2023) at Joint Statistical Meetings 2023 (Toronto, Canada) and BioC2023 (Boston, USA), highlighting correlated resampling for Beta-regression variable selection.
 }
 \examples{
 
@@ -23,7 +23,12 @@ betareg_step_aicc(X, Y)
 
 }
 \references{
-TODO
+Bertrand, F. and Maumy, M. (2023). Improving variable selection in Beta
+regression models using correlated resampling. Presented at Joint
+Statistical Meetings 2023, Toronto, Canada.
+
+Bertrand, F. and Maumy, M. (2023). SelectBoost4Beta: Improving variable
+selection in Beta regression models. Presented at BioC2023, Boston, USA.
 }
 \seealso{
 Useful links:

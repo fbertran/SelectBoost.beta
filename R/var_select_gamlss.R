@@ -25,10 +25,6 @@ betareg_lasso_gamlss <- function(
   n <- length(Y)
   y <- pmin(pmax((as.numeric(Y) * (n - 1) + 0.5) / n, .Machine$double.eps), 1 - .Machine$double.eps)
   dat <- data.frame(y = y, X, check.names = TRUE)
-  data_id <- paste0(".sb_gamlss_dat_", as.integer(proc.time()[3] * 1e6))
-  assign(data_id, dat, envir = .GlobalEnv)
-  on.exit(remove(list = data_id, envir = .GlobalEnv), add = TRUE)
-  data_sym <- as.name(data_id)
   gamlss <- get("gamlss", asNamespace("gamlss"))
   ri <- get("ri", asNamespace("gamlss"))
   smooth_term <- substitute(
@@ -42,20 +38,18 @@ betareg_lasso_gamlss <- function(
       METHOD = method, K = k
     )
   )
-  smooth_data <- dat[, xnames, drop = FALSE]  
+  call_env <- list2env(list(dat = dat), parent = environment())
   fit <- eval(
-    substitute(
-      gamlss(
-        formula = as.formula(
-          substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
-          env = environment()
-        ),
-        sigma.fo = ~ 1,
-        family = gamlss.dist::BE(), data = DATA, trace = trace
+    quote(gamlss(
+      formula = as.formula(
+        substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
+        env = environment()
       ),
-      list(DATA = data_sym)
-    )
-  )  
+      sigma.fo = ~ 1,
+      family = gamlss.dist::BE(), data = dat, trace = trace
+    )),
+    envir = call_env
+  )
   mu_coef <- gamlss::coefAll(fit, what = "mu")[[1]]
   intercept <- unname(mu_coef["(Intercept)"])
   smo_list <- gamlss::getSmo(fit, "mu")
@@ -105,10 +99,6 @@ betareg_enet_gamlss <- function(
   n <- length(Y)
   y <- pmin(pmax((as.numeric(Y) * (n - 1) + 0.5) / n, .Machine$double.eps), 1 - .Machine$double.eps)
   dat <- data.frame(y = y, X, check.names = TRUE)
-  data_id <- paste0(".sb_gamlss_dat_", as.integer(proc.time()[3] * 1e6))
-  assign(data_id, dat, envir = .GlobalEnv)
-  on.exit(remove(list = data_id, envir = .GlobalEnv), add = TRUE)
-  data_sym <- as.name(data_id)
   gamlss <- get("gamlss", asNamespace("gamlss"))
   gnet <- get("gnet", asNamespace("gamlss.lasso"))
   gnet_control <- get("gnet.control", asNamespace("gamlss.lasso"))
@@ -121,18 +111,17 @@ betareg_enet_gamlss <- function(
       ALPHA = alpha
     )
   )
+  call_env <- list2env(list(dat = dat), parent = environment())
   fit <- eval(
-    substitute(
-      gamlss(
-        formula = as.formula(
-          substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
-          env = environment()
-        ),
-        sigma.fo = ~ 1,
-        family = gamlss.dist::BE(), data = DATA, trace = trace
+    quote(gamlss(
+      formula = as.formula(
+        substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
+        env = environment()
       ),
-      list(DATA = data_sym)
-    )
+      sigma.fo = ~ 1,
+      family = gamlss.dist::BE(), data = dat, trace = trace
+    )),
+    envir = call_env
   )
   mu_coef <- gamlss::coefAll(fit, what = "mu")[[1]]
   intercept <- unname(mu_coef["(Intercept)"])

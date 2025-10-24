@@ -6,7 +6,7 @@
 \alias{sb_group_variables}
 \title{Core helpers for SelectBoost-style beta regression}
 \usage{
-sb_normalize(X, eps = 1e-08)
+sb_normalize(X, center = NULL, scale = NULL, eps = 1e-08)
 
 sb_compute_corr(X, corrfunc = "cor")
 
@@ -14,6 +14,12 @@ sb_group_variables(corr_mat, c0)
 }
 \arguments{
 \item{X}{Numeric matrix of predictors.}
+
+\item{center}{Optional centering vector recycled to the number of columns.
+Defaults to the column means of \code{X}.}
+
+\item{scale}{Optional scaling vector recycled to the number of columns.
+Defaults to the column-wise \eqn{\ell_2} norms of the centred matrix.}
 
 \item{eps}{Small positive constant used when normalising columns.}
 

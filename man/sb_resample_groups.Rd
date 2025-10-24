@@ -9,7 +9,9 @@ sb_resample_groups(X_norm, groups, B = 100, jitter = 1e-06, seed = NULL)
 \arguments{
 \item{X_norm}{Normalised design matrix.}
 
-\item{groups}{List as returned by \code{\link[=sb_group_variables]{sb_group_variables()}}.}
+\item{groups}{Correlation structure. Either a list as returned by
+\code{\link[=sb_group_variables]{sb_group_variables()}} or a vector of group labels matching the columns of
+\code{X_norm}.}
 
 \item{B}{Number of replicates to generate.}
 

@@ -30,7 +30,8 @@ user-provided selector on each resampled design."><style>
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/selectboost-beta.html">SelectBoost for Beta regression</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/selectboost-algorithms.html">SelectBoost.beta algorithms</a></li>
+    <li><a class="dropdown-item" href="../articles/selectboost-beta.html">SelectBoost for Beta regression</a></li>
     <li><a class="dropdown-item" href="../articles/simulate-interval-beta.html">Simulating interval Beta data</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -61,7 +62,7 @@ user-provided selector on each resampled design.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sb_normalize</span><span class="op">(</span><span class="va">X</span>, eps <span class="op">=</span> <span class="fl">1e-08</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sb_normalize</span><span class="op">(</span><span class="va">X</span>, center <span class="op">=</span> <span class="cn">NULL</span>, scale <span class="op">=</span> <span class="cn">NULL</span>, eps <span class="op">=</span> <span class="fl">1e-08</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">sb_compute_corr</span><span class="op">(</span><span class="va">X</span>, corrfunc <span class="op">=</span> <span class="st">"cor"</span><span class="op">)</span></span>
 <span></span>
@@ -74,6 +75,16 @@ user-provided selector on each resampled design.</p>
 
 <dl><dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Numeric matrix of predictors.</p></dd>
+
+
+<dt id="arg-center">center<a class="anchor" aria-label="anchor" href="#arg-center"></a></dt>
+<dd><p>Optional centering vector recycled to the number of columns.
+Defaults to the column means of <code>X</code>.</p></dd>
+
+
+<dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
+<dd><p>Optional scaling vector recycled to the number of columns.
+Defaults to the column-wise \(\ell_2\) norms of the centred matrix.</p></dd>
 
 
 <dt id="arg-eps">eps<a class="anchor" aria-label="anchor" href="#arg-eps"></a></dt>
@@ -104,12 +115,16 @@ variable, describing the correlated group it belongs to.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">sb_normalize</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]        [,2]        [,3]       [,4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.5783289  0.33811804 -0.69163269  0.1982533</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.5157848 -0.02726555 -0.29829359  0.7439537</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] -0.3469389 -0.31850801  0.51782060 -0.5281400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] -0.3732982  0.62970959  0.07313399 -0.0611383</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] -0.3738765 -0.62205407  0.39897168 -0.3529287</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]        [,2]       [,3]       [,4]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.3151447 -0.01950574  0.2440691  0.3051062</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.5242220 -0.54491941 -0.4022885  0.1989476</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.2564657  0.76188516  0.7687388 -0.1054358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] -0.1502584 -0.32535540 -0.2800823 -0.8225125</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.7331595  0.12789540 -0.3304371  0.4238945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"center")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.362358849  0.324218844 -0.224694673  0.008141732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"scale")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.433633 1.431647 2.769985 2.826877</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

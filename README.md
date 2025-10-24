@@ -2,7 +2,7 @@
 
 
 
-# SelectBoost.beta <img src="man/figures/logo.png" align="right" width="200"/>
+# SelectBoost.beta <img src="man/figures/logo.svg" align="right" width="200"/>
 
 <!-- badges: start -->
 [![DOI](https://img.shields.io/badge/doi-10.32614/CRAN.package.SelectBoost.beta-blue.svg)](https://doi.org/10.32614/CRAN.package.SelectBoost.beta)

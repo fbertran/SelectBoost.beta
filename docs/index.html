@@ -14,6 +14,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Stability-Selection via Correlated Resampling for Beta-Regression Models">
 <meta name="description" content="Adds variable-selection functions for Beta regression models (mean submodel) so they can be used within the SelectBoost algorithm. Includes stepwise AIC/BIC/AICc on betareg() fits, GAMLSS-based LASSO/Elastic-Net, a pure glmnet IRLS-based selector with an optional standardization speedup, and C++ helpers for IRLS working steps and precision updates. Also provides a fastboost_interval() variant for interval responses, comparison helpers, and a flexible simulator simulation_DATA.beta() for interval-valued data. The SelectBoost4Beta framework was presented by Bertrand and Maumy (2023) at Joint Statistical Meetings 2023 (Toronto, Canada) and BioC2023 (Boston, USA), highlighting correlated resampling for Beta-regression variable selection.">
 <meta property="og:description" content="Adds variable-selection functions for Beta regression models (mean submodel) so they can be used within the SelectBoost algorithm. Includes stepwise AIC/BIC/AICc on betareg() fits, GAMLSS-based LASSO/Elastic-Net, a pure glmnet IRLS-based selector with an optional standardization speedup, and C++ helpers for IRLS working steps and precision updates. Also provides a fastboost_interval() variant for interval responses, comparison helpers, and a flexible simulator simulation_DATA.beta() for interval-valued data. The SelectBoost4Beta framework was presented by Bertrand and Maumy (2023) at Joint Statistical Meetings 2023 (Toronto, Canada) and BioC2023 (Boston, USA), highlighting correlated resampling for Beta-regression variable selection.">
+<meta property="og:image" content="https://fbertran.github.io/SelectBoost.beta/logo.svg">
 <style>
   .navbar-brand img { height: 28px; }
 </style>
@@ -59,8 +60,10 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="selectboostbeta-">SelectBoost.beta <img src="reference/figures/logo.png" align="right" width="200"><a class="anchor" aria-label="anchor" href="#selectboostbeta-"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.svg" class="logo" alt=""><h1 id="selectboostbeta-">SelectBoost.beta <a class="anchor" aria-label="anchor" href="#selectboostbeta-"></a>
+</h1>
+</div>
 <!-- badges: start -->
 
 <p>With the growth of big data, variable selection has become one of the major challenges in statistics. Although many methods have been proposed in the literature their performance in terms of recall and precision are limited in a context where the number of variables by far exceeds the number of observations or in a high correlated setting.</p>

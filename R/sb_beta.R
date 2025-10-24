@@ -8,27 +8,55 @@
 #' user-provided selector on each resampled design.
 #'
 #' @param X Numeric matrix of predictors.
+#' @param center Optional centering vector recycled to the number of columns.
+#'   Defaults to the column means of `X`.
+#' @param scale Optional scaling vector recycled to the number of columns.
+#'   Defaults to the column-wise \eqn{\ell_2} norms of the centred matrix.
 #' @param eps Small positive constant used when normalising columns.
 #' @return `sb_normalize()` returns a centred, \eqn{\ell_2}-scaled copy of `X`.
 #' @examples
 #' sb_normalize(matrix(rnorm(20), 5))
 #' @export
-sb_normalize <- function(X, eps = 1e-8) {
+sb_normalize <- function(X, center = NULL, scale = NULL, eps = 1e-8) {
   if (!is.matrix(X)) {
     X <- as.matrix(X)
   }
   if (!is.numeric(X)) {
     storage.mode(X) <- "double"
   }
-  center <- colMeans(X, na.rm = TRUE)
-  X <- sweep(X, 2L, center, check.margin = FALSE)
-  colnorm2 <- function(v) {
+  p <- ncol(X)
+  if (p == 0L) {
+    attr(X, "center") <- numeric(0)
+    attr(X, "scale") <- numeric(0)
+    return(X)
+  }
+  if (is.null(center)) {
+    center_vec <- colMeans(X, na.rm = TRUE)
+  } else {
+    center_vec <- rep_len(as.numeric(center), p)
+  }
+  if (!is.null(colnames(X))) {
+    names(center_vec) <- colnames(X)
+  }
+  X_centered <- sweep(X, 2L, center_vec, FUN = "-", check.margin = FALSE)
+  col_l2 <- function(v) {
     v <- v[is.finite(v)]
     norm <- sqrt(sum(v * v))
     if (!is.finite(norm) || norm < eps) 1 else norm
   }
-  scale <- apply(X, 2L, colnorm2)
-  sweep(X, 2L, scale, "/", check.margin = FALSE)
+  if (is.null(scale)) {
+    scale_vec <- vapply(seq_len(p), function(j) col_l2(X_centered[, j]), numeric(1))
+  } else {
+    scale_vec <- rep_len(as.numeric(scale), p)
+    scale_vec[!is.finite(scale_vec) | scale_vec < eps] <- 1
+  }
+  if (!is.null(colnames(X))) {
+    names(scale_vec) <- colnames(X)
+  }
+  X_scaled <- sweep(X_centered, 2L, scale_vec, FUN = "/", check.margin = FALSE)
+  attr(X_scaled, "center") <- center_vec
+  attr(X_scaled, "scale") <- scale_vec
+  X_scaled
 }
 
 #' @rdname sb_normalize
@@ -111,7 +139,9 @@ sb_group_variables <- function(corr_mat, c0) {
 #' Generate correlated design replicates for a set of groups
 #'
 #' @param X_norm Normalised design matrix.
-#' @param groups List as returned by [sb_group_variables()].
+#' @param groups Correlation structure. Either a list as returned by
+#'   [sb_group_variables()] or a vector of group labels matching the columns of
+#'   `X_norm`.
 #' @param B Number of replicates to generate.
 #' @param jitter Numeric value added to covariance diagonals for stability.
 #' @param seed Optional integer seed for reproducibility.
@@ -119,20 +149,64 @@ sb_group_variables <- function(corr_mat, c0) {
 #' @export
 sb_resample_groups <- function(X_norm, groups, B = 100, jitter = 1e-6, seed = NULL) {
   if (!is.null(seed)) set.seed(seed)
+  if (!is.matrix(X_norm)) {
+    X_norm <- as.matrix(X_norm)
+  }
+  if (!is.numeric(X_norm)) {
+    storage.mode(X_norm) <- "double"
+  }
+  original_groups <- groups
+  p <- ncol(X_norm)
+  as_group_list <- function(g) {
+    if (is.list(g)) {
+      lapply(g, function(idx) {
+        idx <- unique(as.integer(idx))
+        idx[!is.na(idx) & idx >= 1 & idx <= p]
+      })
+    } else {
+      if (length(g) != p) {
+        stop("`groups` must have length equal to the number of columns when supplied as a vector.")
+      }
+      f <- as.factor(g)
+      split_idx <- split(seq_len(p), f)
+      lapply(seq_len(p), function(j) {
+        grp <- f[j]
+        sort(unname(split_idx[[as.character(grp)]]))
+      })
+    }
+  }
+  group_list <- as_group_list(groups)
+  if (!length(group_list)) {
+    return(replicate(B, {
+      Xb <- X_norm
+      attr(Xb, "groups") <- original_groups
+      Xb
+    }, simplify = FALSE))
+  }
+  normalised_list <- lapply(group_list, function(idx) sort(unique(idx)))
+  keys <- vapply(normalised_list, function(idx) paste(idx, collapse = ","), character(1))
+  unique_pos <- which(keys != "" & !duplicated(keys))
+  unique_groups <- normalised_list[unique_pos]
+  cov_cache <- vector("list", length(unique_groups))
+  for (i in seq_along(unique_groups)) {
+    idx <- unique_groups[[i]]
+    if (length(idx) < 2) {
+      cov_cache[[i]] <- NULL
+    } else {
+      cov_cache[[i]] <- stats::cov(X_norm[, idx, drop = FALSE])
+    }
+  }
   res <- vector("list", B)
-  base_cov <- lapply(groups, function(idx) {
-    if (length(idx) < 2) return(NULL)
-    stats::cov(X_norm[, idx, drop = FALSE])
-  })
   for (b in seq_len(B)) {
     Xb <- X_norm
-    for (j in seq_along(groups)) {
-      idx <- groups[[j]]
+    for (i in seq_along(unique_groups)) {
+      idx <- unique_groups[[i]]
       if (length(idx) < 2) next
-      Sigma <- base_cov[[j]]
+      Sigma <- cov_cache[[i]]
       draws <- .sb_sample_group(X_norm[, idx, drop = FALSE], Sigma = Sigma, jitter = jitter)
       Xb[, idx] <- draws
     }
+    attr(Xb, "groups") <- original_groups
     res[[b]] <- Xb
   }
   res
@@ -205,8 +279,8 @@ sb_selection_frequency <- function(coef_matrix, version = c("glmnet", "lars"), t
 #' SelectBoost for beta-regression models
 #'
 #' @description
-#' `sb_beta()` orchestrates all SelectBoost stages—normalisation, correlation
-#' analysis, grouping, correlated resampling, and stability tallying—while using
+#' `sb_beta()` orchestrates all SelectBoost stages-normalisation, correlation
+#' analysis, grouping, correlated resampling, and stability tallying-while using
 #' the beta-regression selectors provided by this package.
 #'
 #' @inheritParams sb_resample_groups
@@ -271,7 +345,7 @@ sb_beta <- function(
   for (i in seq_along(c0_levels)) {
     c0 <- c0_levels[i]
     groups <- sb_group_variables(corr_mat, c0)
-    if (verbose) message(sprintf("  • c0 = %.3f", c0))
+    if (verbose) message(sprintf("c0 = %.3f", c0))
     big_groups <- Filter(function(idx) length(idx) >= 2, groups)
     if (!length(big_groups)) {
       coef_mat <- matrix(template, ncol = 1L)

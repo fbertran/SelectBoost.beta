@@ -52,8 +52,8 @@ object carries the class \code{"sb_beta"} and records attributes comparable to t
 historical SelectBoost implementation.
 }
 \description{
-\code{sb_beta()} orchestrates all SelectBoost stages—normalisation, correlation
-analysis, grouping, correlated resampling, and stability tallying—while using
+\code{sb_beta()} orchestrates all SelectBoost stages-normalisation, correlation
+analysis, grouping, correlated resampling, and stability tallying-while using
 the beta-regression selectors provided by this package.
 }
 \examples{

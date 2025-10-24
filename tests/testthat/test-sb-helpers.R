@@ -38,9 +38,12 @@ test_that("sb_normalize centres and scales columns", {
   X <- matrix(rnorm(40), nrow = 10, ncol = 4)
   colnames(X) <- paste0("x", seq_len(ncol(X)))
   X_norm <- sb_normalize(X)
-  
-  expect_equal(colMeans(X_norm), rep(0, ncol(X)), tolerance = 1e-8)
-  expect_equal(sqrt(colSums(X_norm^2)), rep(1, ncol(X)), tolerance = 1e-8)
+  zero = rep(0, ncol(X))
+  names(zero) <- paste0("x", seq_len(ncol(X)))
+  expect_equal(colMeans(X_norm), zero, tolerance = 1e-8)
+  ones = rep(1, ncol(X))
+  names(ones) <- paste0("x", seq_len(ncol(X)))
+  expect_equal(sqrt(colSums(X_norm^2)), ones, tolerance = 1e-8)
 })
 
 test_that("sb_group_variables builds correlation groups", {
@@ -72,8 +75,12 @@ test_that("sb_resample_groups generates correlated draws", {
     expect_equal(dim(mat), dim(X_norm))
     expect_equal(rownames(mat), NULL)
     expect_equal(colnames(mat), colnames(X_norm))
-    expect_equal(colMeans(mat[, 1:2, drop = FALSE]), c(0, 0), tolerance = 1e-7)
-    expect_equal(sqrt(colSums(mat[, 1:2, drop = FALSE]^2)), c(1, 1), tolerance = 1e-7)
+    zeros <- c(0, 0)
+    names(zeros) <- paste0("x", seq_len(length(zeros)))
+    expect_equal(colMeans(mat[, 1:2, drop = FALSE]), zeros, tolerance = 1e-7)
+    ones <- c(1, 1)
+    names(ones) <- paste0("x", seq_len(length(ones)))
+    expect_equal(sqrt(colSums(mat[, 1:2, drop = FALSE]^2)), ones, tolerance = 1e-7)
   })
 })
 

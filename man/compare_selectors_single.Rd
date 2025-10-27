@@ -23,7 +23,8 @@ A list with:
 \description{
 Convenience wrapper that runs AIC/BIC/AICc stepwise, GAMLSS LASSO (and ENet
 when available), and the pure glmnet IRLS selector, then collates coefficients
-into a long table for comparison.
+into a long table for comparison. Observations containing \code{NA} in either \code{X}
+or \code{Y} are removed prior to fitting.
 }
 \examples{
 set.seed(1)

@@ -2,7 +2,8 @@
 #'
 #' Convenience wrapper that runs AIC/BIC/AICc stepwise, GAMLSS LASSO (and ENet
 #' when available), and the pure glmnet IRLS selector, then collates coefficients
-#' into a long table for comparison.
+#' into a long table for comparison. Observations containing `NA` in either `X`
+#' or `Y` are removed prior to fitting.
 #'
 #' @inheritParams betareg_step_aic
 #' @param include_enet Logical; include ENet if `gamlss.lasso` is installed.
@@ -20,7 +21,21 @@
 #' head(single$table)
 #' @export
 compare_selectors_single <- function(X, Y, include_enet = TRUE) {
+  Y <- as.numeric(Y)
   if (!is.matrix(X)) X <- as.matrix(X)
+  if (length(Y) != nrow(X)) {
+    stop("`Y` must have length equal to `nrow(X)`.")
+  }
+  
+  keep <- stats::complete.cases(X) & !is.na(Y)
+  if (!all(keep)) {
+    X <- X[keep, , drop = FALSE]
+    Y <- Y[keep]
+  }
+  if (!nrow(X)) {
+    stop("No complete cases available after removing missing values.")
+  }
+  
   if (is.null(colnames(X))) colnames(X) <- paste0("X", seq_len(ncol(X)))
   sels <- list(
     AIC   = betareg_step_aic,
@@ -44,7 +59,8 @@ compare_selectors_single <- function(X, Y, include_enet = TRUE) {
 #' Bootstrap selection frequencies across selectors
 #'
 #' Bootstraps the dataset `B` times and records how often each variable is
-#' selected by each selector.
+#' selected by each selector. Observations containing `NA` in either `X` or `Y`
+#' are removed prior to resampling.
 #'
 #' @inheritParams compare_selectors_single
 #' @param B Number of bootstrap replications.
@@ -59,6 +75,21 @@ compare_selectors_single <- function(X, Y, include_enet = TRUE) {
 #' head(freq)
 #' @export
 compare_selectors_bootstrap <- function(X, Y, B = 50, include_enet = TRUE, seed = NULL) {
+  Y <- as.numeric(Y)
+  if (!is.matrix(X)) X <- as.matrix(X)
+  if (length(Y) != nrow(X)) {
+    stop("`Y` must have length equal to `nrow(X)`.")
+  }
+  
+  keep <- stats::complete.cases(X) & !is.na(Y)
+  if (!all(keep)) {
+    X <- X[keep, , drop = FALSE]
+    Y <- Y[keep]
+  }
+  if (!nrow(X)) {
+    stop("No complete cases available after removing missing values.")
+  }
+  
   if (!is.matrix(X)) X <- as.matrix(X)
   if (is.null(colnames(X))) colnames(X) <- paste0("X", seq_len(ncol(X)))
   if (!is.null(seed)) set.seed(seed)

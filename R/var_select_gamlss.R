@@ -25,31 +25,30 @@ betareg_lasso_gamlss <- function(
   n <- length(Y)
   y <- pmin(pmax((as.numeric(Y) * (n - 1) + 0.5) / n, .Machine$double.eps), 1 - .Machine$double.eps)
   dat <- data.frame(y = y, X, check.names = TRUE)
+  gamlss_env <- list2env(list(dat = dat), parent = asNamespace("gamlss"))
   gamlss <- get("gamlss", asNamespace("gamlss"))
   ri <- get("ri", asNamespace("gamlss"))
   smooth_term <- substitute(
     ri(
       x.vars = XN,
       Lp = 1, df = DF, lambda = LAMBDA,
-      method = METHOD, k = K
+      method = METHOD, k = K,
+      X = XM_OBJ
     ),
     list(
       XN = xnames, DF = df, LAMBDA = lambda,
-      METHOD = method, K = k
+      METHOD = method, K = k,
+      XM_OBJ = dat
     )
   )
-  call_env <- list2env(list(dat = dat), parent = environment())
-  fit <- eval(
-    quote(gamlss(
-      formula = as.formula(
-        substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
-        env = environment()
-      ),
-      sigma.fo = ~ 1,
-      family = gamlss.dist::BE(), data = dat, trace = trace
-    )),
-    envir = call_env
+  fit <- gamlss(
+    formula = as.formula(
+      substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
+      env = environment()
   )
+  )
+  if (exists(data_ref$key, envir = data_ref$namespace, inherits = FALSE))
+    remove(list = data_ref$key, envir = data_ref$namespace)
   mu_coef <- gamlss::coefAll(fit, what = "mu")[[1]]
   intercept <- unname(mu_coef["(Intercept)"])
   smo_list <- gamlss::getSmo(fit, "mu")
@@ -103,25 +102,30 @@ betareg_enet_gamlss <- function(
   gnet <- get("gnet", asNamespace("gamlss.lasso"))
   gnet_control <- get("gnet.control", asNamespace("gamlss.lasso"))
   smooth_term <- substitute(
-    gnet(
-      x.vars = XN, method = METHOD, ICpen = ICPEN,
-      control = gnet_control(alpha = ALPHA, standardize = TRUE)    ),
+    (function(dat, Xm) {
+      gnet(
+        x.vars = XN, method = METHOD, ICpen = ICPEN,
+        control = gnet_control(alpha = ALPHA, standardize = TRUE),
+        X = Xm
+      )
+    })(DATA_OBJ, XM_OBJ),
     list(
       XN = xnames, METHOD = method, ICPEN = ICpen,
-      ALPHA = alpha
+      ALPHA = alpha,
+      DATA_OBJ = dat,
+      XM_OBJ = X
     )
   )
-  call_env <- list2env(list(dat = dat), parent = environment())
-  fit <- eval(
-    quote(gamlss(
+  fit <- evalq(
+    gamlss(
       formula = as.formula(
         substitute(y ~ SMOOTH, list(SMOOTH = smooth_term)),
         env = environment()
       ),
       sigma.fo = ~ 1,
       family = gamlss.dist::BE(), data = dat, trace = trace
-    )),
-    envir = call_env
+    ),
+    envir = environment()
   )
   mu_coef <- gamlss::coefAll(fit, what = "mu")[[1]]
   intercept <- unname(mu_coef["(Intercept)"])

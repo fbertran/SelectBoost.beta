@@ -7,14 +7,12 @@ test_that("compare_selectors_single drops incomplete cases", {
   Y[c(1, 5)] <- NA_real_
   X[c(2, 3), 4] <- NA_real_
   
-  expect_error(
-    compare_selectors_single(X, Y, include_enet = FALSE),
-    NA
+  expect_no_error(
+    compare_selectors_single(X, Y, include_enet = FALSE)
   )
   
-  expect_error(
-    compare_selectors_bootstrap(X, Y, B = 4, include_enet = FALSE, seed = 99),
-    NA
+  expect_no_error(
+    compare_selectors_bootstrap(X, Y, B = 4, include_enet = FALSE, seed = 99)
   )
 })
 

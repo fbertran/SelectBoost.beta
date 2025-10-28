@@ -36,19 +36,45 @@ compare_selectors_single <- function(X, Y, include_enet = TRUE) {
     stop("No complete cases available after removing missing values.")
   }
   
+  ss <- SelectBoost.beta:::.shorten_colnames(X)
+  Xs <- ss$X; map <- ss$map
+  
   if (is.null(colnames(X))) colnames(X) <- paste0("X", seq_len(ncol(X)))
   sels <- list(
     AIC   = betareg_step_aic,
     BIC   = betareg_step_bic,
-    AICc  = betareg_step_aicc,
-    LASSO = betareg_lasso_gamlss,
-    GLMNET= function(X,Y) betareg_glmnet(X,Y, choose="bic", n_iter=5, prestandardize=TRUE)
+    AICc  = betareg_step_aicc
   )
-  if (include_enet && requireNamespace("gamlss.lasso", quietly = TRUE)) {
-    sels$ENET <- function(X,Y) betareg_enet_gamlss(X, Y, method="IC", ICpen="BIC", alpha=0.8)
+  has_gamlss <- requireNamespace("gamlss", quietly = TRUE)
+  if (has_gamlss) {
+    sels$LASSO <- betareg_lasso_gamlss
   }
-  coefs <- lapply(sels, function(f) f(X,Y))
-  vars <- colnames(X)
+  sels$GLMNET <- function(X, Y) betareg_glmnet(X, Y, choose = "bic", n_iter = 5, prestandardize = TRUE)
+  if (has_gamlss && include_enet && requireNamespace("gamlss.lasso", quietly = TRUE)) {
+    sels$ENET <- function(X, Y) betareg_enet_gamlss(X, Y, method = "IC", ICpen = "BIC", alpha = 0.8)
+  }
+
+#  sels$AIC(Xs,Y)
+#  sels$BIC(Xs,Y)
+#  sels$AICc(Xs,Y)
+#  sels$LASSO(Xs,Y)
+#  sels$GLMNET(Xs,Y)
+#  sels$ENET(Xs,Y)
+  
+  coefs <- lapply(sels, function(f) suppressWarnings(f(Xs, Y)))
+  # remap names back to original for outputs
+  coefs <- lapply(coefs, function(b) {
+    out <- b
+    nm <- names(b)
+    # keep intercept, remap others via 'map'
+    if (length(nm) > 1) {
+      short <- nm[-1]
+      orig  <- unname(map[short])
+      names(out) <- c("(Intercept)", orig)
+    }
+    out
+  })
+  vars <- unname(map[colnames(Xs)])
   tab <- do.call(rbind, lapply(names(coefs), function(nm) {
     b <- coefs[[nm]][vars]
     data.frame(selector = nm, variable = vars, coef = as.numeric(b), selected = b != 0)
@@ -93,17 +119,25 @@ compare_selectors_bootstrap <- function(X, Y, B = 50, include_enet = TRUE, seed 
   if (!is.matrix(X)) X <- as.matrix(X)
   if (is.null(colnames(X))) colnames(X) <- paste0("X", seq_len(ncol(X)))
   if (!is.null(seed)) set.seed(seed)
+  
+  ss <- SelectBoost.beta:::.shorten_colnames(X)
+  Xs <- ss$X; map <- ss$map
+  
   n <- nrow(X); vars <- colnames(X)
   base <- list(
     AIC   = betareg_step_aic,
     BIC   = betareg_step_bic,
-    AICc  = betareg_step_aicc,
-    LASSO = betareg_lasso_gamlss,
-    GLMNET= function(X,Y) betareg_glmnet(X,Y, choose="bic", n_iter=4, prestandardize=TRUE)
+    AICc  = betareg_step_aicc
   )
-  if (include_enet && requireNamespace("gamlss.lasso", quietly = TRUE)) {
-    base$ENET <- function(X,Y) betareg_enet_gamlss(X, Y, method="IC", ICpen="BIC", alpha=0.8)
+  has_gamlss <- requireNamespace("gamlss", quietly = TRUE)
+  if (has_gamlss) {
+    base$LASSO <- betareg_lasso_gamlss
   }
+  base$GLMNET <- function(X, Y) betareg_glmnet(X, Y, choose = "bic", n_iter = 4, prestandardize = TRUE)
+  if (has_gamlss && include_enet && requireNamespace("gamlss.lasso", quietly = TRUE)) {
+    base$ENET <- function(X, Y) betareg_enet_gamlss(X, Y, method = "IC", ICpen = "BIC", alpha = 0.8)
+  }
+  
   freq_list <- lapply(names(base), function(nm) {
     f <- base[[nm]]
     sel <- matrix(FALSE, B, length(vars)); colnames(sel) <- vars

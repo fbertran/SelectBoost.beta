@@ -34,8 +34,13 @@ Uses \code{gamlss.lasso::gnet()} to fit ENet on the mean submodel of
 \code{gamlss(dist = BE)}.
 }
 \examples{
-set.seed(1); X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[,1]); Y <- rbeta(100, Y*30, (1-Y)*30)
-betareg_enet_gamlss(X, Y, method = "IC", ICpen = "BIC", alpha = 0.8)
+if (requireNamespace("gamlss.lasso", quietly = TRUE)) {
+  set.seed(1)
+  X <- matrix(rnorm(300), 100, 3)
+  Y <- plogis(X[, 1])
+  Y <- rbeta(100, Y * 30, (1 - Y) * 30)
+  betareg_enet_gamlss(X, Y, method = "IC", ICpen = "BIC", alpha = 0.8)
+}
 }
 \seealso{
 \code{\link[gamlss.lasso:gnet]{gamlss.lasso::gnet()}}, \code{\link[gamlss:gamlss]{gamlss::gamlss()}}, \code{\link[gamlss.dist:BE]{gamlss.dist::BE()}}

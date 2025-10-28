@@ -9,15 +9,22 @@ knitr::opts_chunk$set(
   dpi=300,fig.width=7,
   fig.keep="all"
 )
+
+#file.edit(normalizePath("~/.Renviron"))
+LOCAL <- identical(Sys.getenv("LOCAL"), "TRUE")
+#LOCAL=TRUE
+knitr::opts_chunk$set(purl = LOCAL)
 ```
 
 # SelectBoost.beta <img src="man/figures/logo.svg" align="right" width="200"/>
 
 <!-- badges: start -->
-[![DOI](https://img.shields.io/badge/doi-10.32614/CRAN.package.SelectBoost.beta-blue.svg)](https://doi.org/10.32614/CRAN.package.SelectBoost.beta)
-[![R-CMD-check](https://github.com/fbertran/SelectBoost.beta/workflows/R-CMD-check/badge.svg)](https://github.com/fbertran/SelectBoost.beta/actions)
-[![CRAN status](https://www.r-pkg.org/badges/version/SelectBoost.beta)](https://cran.r-project.org/package=SelectBoost.beta)
+<!-- [![DOI](https://img.shields.io/badge/doi-10.32614/CRAN.package.SelectBoost.beta-blue.svg)](https://doi.org/10.32614/CRAN.package.SelectBoost.beta) -->
+<!-- [![CRAN status](https://www.r-pkg.org/badges/version/SelectBoost.beta)](https://cran.r-project.org/package=SelectBoost.beta) -->
+[![R-CMD-check](https://github.com/fbertran/SelectBoost.beta/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fbertran/SelectBoost.beta/actions/workflows/R-CMD-check.yaml)
+[![R-hub](https://github.com/fbertran/SelectBoost.beta/actions/workflows/rhub.yaml/badge.svg)](https://github.com/fbertran/SelectBoost.beta/actions/workflows/rhub.yaml)
 <!-- badges: end -->
+
 
 With the growth of big data, variable selection has become one of the major challenges in statistics. Although many methods have been proposed in the literature their performance in terms of recall and precision are limited in a context where the number of variables by far exceeds the number of observations or in a high correlated setting. 
 
@@ -73,7 +80,7 @@ packages will be pulled in automatically when installing from source.
 Simulate a correlated design, run the manual SelectBoost steps with
 `betareg_step_aic()`, and compute selection frequencies:
 
-```{r manual, eval = FALSE}
+```{r, cache=TRUE, eval=LOCAL}
 library(SelectBoost.beta)
 set.seed(42)
 
@@ -90,11 +97,32 @@ sel_freq
 The `sb_beta()` wrapper performs the entire loop internally and returns a matrix
 indexed by the correlation thresholds used during resampling:
 
-```{r sb-beta, eval = FALSE}
+```{r, cache=TRUE, eval=LOCAL}
 sb <- sb_beta(sim$X, sim$Y, B = 50, step.num = 0.25)
 print(sb)
+```
+
+```{r, cache=TRUE, eval=LOCAL}
 attr(sb, "selector")
 attr(sb, "c0.seq")
+```
+
+
+```{r, cache=TRUE, eval=LOCAL}
+freq <- suppressWarnings(compare_selectors_bootstrap(
+  sim$X, sim$Y, B = 100, include_enet = TRUE, seed = 321
+))
+head(freq)
+```
+
+
+```{r, cache=TRUE, eval=LOCAL}
+plot_compare_coeff(single$table)
+```
+
+
+```{r, cache=TRUE, eval=LOCAL}
+plot_compare_freq(freq)
 ```
 
 Refer to the vignettes for a more detailed walk-through of the workflow and the

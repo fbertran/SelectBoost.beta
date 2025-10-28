@@ -284,6 +284,8 @@ sb_selection_frequency <- function(coef_matrix, version = c("glmnet", "lars"), t
 #' the beta-regression selectors provided by this package.
 #'
 #' @inheritParams sb_resample_groups
+#' @param X Numeric design matrix. Coerced with [as.matrix()] and normalised via
+#'   [sb_normalize()].
 #' @param Y Numeric response vector. Values are squeezed to the open unit
 #'   interval unless `squeeze = FALSE`.
 #' @param selector Selection routine. Defaults to [betareg_step_aic()].
@@ -293,8 +295,11 @@ sb_selection_frequency <- function(coef_matrix, version = c("glmnet", "lars"), t
 #'   thresholds.
 #' @param version Either `"glmnet"` (intercept in first row) or `"lars"`.
 #' @param squeeze Logical; ensure the response lies in `(0, 1)`.
+#' @param use.parallel Logical; reserved for future implementations of parallel
+#'   resampling. Currently ignored.
 #' @param verbose Logical; emit progress messages.
 #' @param threshold Numeric tolerance for considering a coefficient selected.
+#' @param ... Additional arguments forwarded to `selector`.
 #' @return Matrix of selection frequencies with one row per `c0` level. The
 #'   object carries the class `"sb_beta"` and records attributes comparable to the
 #'   historical SelectBoost implementation.

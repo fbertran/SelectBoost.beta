@@ -36,7 +36,7 @@ compare_selectors_single <- function(X, Y, include_enet = TRUE) {
     stop("No complete cases available after removing missing values.")
   }
   
-  ss <- SelectBoost.beta:::.shorten_colnames(X)
+  ss <- .shorten_colnames(X)
   Xs <- ss$X; map <- ss$map
   
   if (is.null(colnames(X))) colnames(X) <- paste0("X", seq_len(ncol(X)))
@@ -120,7 +120,7 @@ compare_selectors_bootstrap <- function(X, Y, B = 50, include_enet = TRUE, seed 
   if (is.null(colnames(X))) colnames(X) <- paste0("X", seq_len(ncol(X)))
   if (!is.null(seed)) set.seed(seed)
   
-  ss <- SelectBoost.beta:::.shorten_colnames(X)
+  ss <- .shorten_colnames(X)
   Xs <- ss$X; map <- ss$map
   
   n <- nrow(X); vars <- colnames(X)

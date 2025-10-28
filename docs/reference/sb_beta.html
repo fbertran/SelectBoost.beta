@@ -74,7 +74,12 @@ the beta-regression selectors provided by this package.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-y">Y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
+<dl><dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>Numeric design matrix. Coerced with <code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix()</a></code> and normalised via
+<code><a href="sb_normalize.html">sb_normalize()</a></code>.</p></dd>
+
+
+<dt id="arg-y">Y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p>Numeric response vector. Values are squeezed to the open unit
 interval unless <code>squeeze = FALSE</code>.</p></dd>
 
@@ -108,6 +113,11 @@ thresholds.</p></dd>
 <dd><p>Logical; ensure the response lies in <code>(0, 1)</code>.</p></dd>
 
 
+<dt id="arg-use-parallel">use.parallel<a class="anchor" aria-label="anchor" href="#arg-use-parallel"></a></dt>
+<dd><p>Logical; reserved for future implementations of parallel
+resampling. Currently ignored.</p></dd>
+
+
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>Optional integer seed for reproducibility.</p></dd>
 
@@ -118,6 +128,10 @@ thresholds.</p></dd>
 
 <dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
 <dd><p>Numeric tolerance for considering a coefficient selected.</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Additional arguments forwarded to <code>selector</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

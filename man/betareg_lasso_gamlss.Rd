@@ -23,11 +23,11 @@ betareg_lasso_gamlss(
 
 \item{k}{Penalty multiplier for GAIC when \code{method = "GAIC"}.}
 
+\item{degf}{Optional degrees of freedom for the L1 term.}
+
 \item{lambda}{Optional penalty strength.}
 
 \item{trace}{Logical; print stepwise trace.}
-
-\item{df}{Optional degrees of freedom for the L1 term.}
 }
 \value{
 Named numeric vector of coefficients \code{(Intercept)} + \code{colnames(X)},

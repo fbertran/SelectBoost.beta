@@ -70,6 +70,8 @@
 </h1>
 </div>
 <!-- badges: start -->
+<!-- [![DOI](https://img.shields.io/badge/doi-10.32614/CRAN.package.SelectBoost.beta-blue.svg)](https://doi.org/10.32614/CRAN.package.SelectBoost.beta) -->
+<!-- [![CRAN status](https://www.r-pkg.org/badges/version/SelectBoost.beta)](https://cran.r-project.org/package=SelectBoost.beta) -->
 
 <p>With the growth of big data, variable selection has become one of the major challenges in statistics. Although many methods have been proposed in the literature their performance in terms of recall and precision are limited in a context where the number of variables by far exceeds the number of observations or in a high correlated setting.</p>
 <p>Results:</p>
@@ -112,13 +114,60 @@
 <span><span class="va">resamples</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_resample_groups.html">sb_resample_groups</a></span><span class="op">(</span><span class="va">X_norm</span>, <span class="va">groups</span>, B <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span><span class="va">coef_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_apply_selector_manual.html">sb_apply_selector_manual</a></span><span class="op">(</span><span class="va">X_norm</span>, <span class="va">resamples</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, <span class="va">betareg_step_aic</span><span class="op">)</span></span>
 <span><span class="va">sel_freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_selection_frequency.html">sb_selection_frequency</a></span><span class="op">(</span><span class="va">coef_path</span>, version <span class="op">=</span> <span class="st">"glmnet"</span><span class="op">)</span></span>
-<span><span class="va">sel_freq</span></span></code></pre></div>
+<span><span class="va">sel_freq</span></span>
+<span><span class="co">#&gt; x1 x2 x3 x4 x5 x6 </span></span>
+<span><span class="co">#&gt;  1  1  1  0  0  0</span></span></code></pre></div>
 <p>The <code><a href="reference/sb_beta.html">sb_beta()</a></code> wrapper performs the entire loop internally and returns a matrix indexed by the correlation thresholds used during resampling:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_beta.html">sb_beta</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">50</span>, step.num <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sb</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"selector"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"c0.seq"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt;              x1   x2   x3   x4   x5   x6</span></span>
+<span><span class="co">#&gt; c0 = 1.000 1.00 1.00 1.00 0.00 0.00 0.00</span></span>
+<span><span class="co">#&gt; c0 = 0.089 0.22 0.18 0.10 0.18 0.18 0.16</span></span>
+<span><span class="co">#&gt; c0 = 0.059 0.10 0.12 0.20 0.20 0.16 0.28</span></span>
+<span><span class="co">#&gt; c0 = 0.030 0.16 0.20 0.12 0.08 0.16 0.14</span></span>
+<span><span class="co">#&gt; c0 = 0.000 0.28 0.22 0.12 0.08 0.18 0.18</span></span>
+<span><span class="co">#&gt; attr(,"c0.seq")</span></span>
+<span><span class="co">#&gt; [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000</span></span>
+<span><span class="co">#&gt; attr(,"steps.seq")</span></span>
+<span><span class="co">#&gt; [1] 0.08894615 0.05949716 0.03010630</span></span>
+<span><span class="co">#&gt; attr(,"B")</span></span>
+<span><span class="co">#&gt; [1] 50</span></span>
+<span><span class="co">#&gt; attr(,"selector")</span></span>
+<span><span class="co">#&gt; [1] "betareg_step_aic"</span></span>
+<span><span class="co">#&gt; attr(,"class")</span></span>
+<span><span class="co">#&gt; [1] "sb_beta" "matrix"  "array"</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"selector"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "betareg_step_aic"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"c0.seq"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="reference/compare_selectors_bootstrap.html">compare_selectors_bootstrap</a></span><span class="op">(</span></span>
+<span>  <span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">100</span>, include_enet <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">321</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    selector variable freq</span></span>
+<span><span class="co">#&gt; x1      AIC       x1 1.00</span></span>
+<span><span class="co">#&gt; x2      AIC       x2 1.00</span></span>
+<span><span class="co">#&gt; x3      AIC       x3 1.00</span></span>
+<span><span class="co">#&gt; x4      AIC       x4 0.27</span></span>
+<span><span class="co">#&gt; x5      AIC       x5 0.14</span></span>
+<span><span class="co">#&gt; x6      AIC       x6 0.19</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_coeff.html">plot_compare_coeff</a></span><span class="op">(</span><span class="va">single</span><span class="op">$</span><span class="va">table</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="reference/figures/README-unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-7
+</p>
+</div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_freq.html">plot_compare_freq</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="reference/figures/README-unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-8
+</p>
+</div>
 <p>Refer to the vignettes for a more detailed walk-through of the workflow and the pseudo-code underpinning the algorithms.</p>
 </div>
 </div>
@@ -155,9 +204,8 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://doi.org/10.32614/CRAN.package.SelectBoost.beta" class="external-link"><img src="https://img.shields.io/badge/doi-10.32614/CRAN.package.SelectBoost.beta-blue.svg" alt="DOI"></a></li>
-<li><a href="https://github.com/fbertran/SelectBoost.beta/actions" class="external-link"><img src="https://github.com/fbertran/SelectBoost.beta/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://cran.r-project.org/package=SelectBoost.beta" class="external-link"><img src="https://www.r-pkg.org/badges/version/SelectBoost.beta" alt="CRAN status"></a></li>
+<li><a href="https://github.com/fbertran/SelectBoost.beta/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/fbertran/SelectBoost.beta/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/fbertran/SelectBoost.beta/actions/workflows/rhub.yaml" class="external-link"><img src="https://github.com/fbertran/SelectBoost.beta/actions/workflows/rhub.yaml/badge.svg" alt="R-hub"></a></li>
 </ul>
 </div>
 

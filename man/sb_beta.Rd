@@ -22,6 +22,9 @@ sb_beta(
 )
 }
 \arguments{
+\item{X}{Numeric design matrix. Coerced with \code{\link[=as.matrix]{as.matrix()}} and normalised via
+\code{\link[=sb_normalize]{sb_normalize()}}.}
+
 \item{Y}{Numeric response vector. Values are squeezed to the open unit
 interval unless \code{squeeze = FALSE}.}
 
@@ -40,11 +43,16 @@ thresholds.}
 
 \item{squeeze}{Logical; ensure the response lies in \verb{(0, 1)}.}
 
+\item{use.parallel}{Logical; reserved for future implementations of parallel
+resampling. Currently ignored.}
+
 \item{seed}{Optional integer seed for reproducibility.}
 
 \item{verbose}{Logical; emit progress messages.}
 
 \item{threshold}{Numeric tolerance for considering a coefficient selected.}
+
+\item{...}{Additional arguments forwarded to \code{selector}.}
 }
 \value{
 Matrix of selection frequencies with one row per \code{c0} level. The

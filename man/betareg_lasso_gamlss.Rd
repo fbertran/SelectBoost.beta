@@ -9,7 +9,7 @@ betareg_lasso_gamlss(
   Y,
   method = c("ML", "GAIC"),
   k = 2,
-  df = NULL,
+  degf = NULL,
   lambda = NULL,
   trace = FALSE
 )
@@ -23,7 +23,7 @@ betareg_lasso_gamlss(
 
 \item{k}{Penalty multiplier for GAIC when \code{method = "GAIC"}.}
 
-\item{df}{Optional degrees of freedom for the L1 term.}
+\item{degf}{Optional degrees of freedom for the L1 term.}
 
 \item{lambda}{Optional penalty strength.}
 

@@ -58,3 +58,16 @@
   if (length(vars) == 0) as.formula("y ~ 1")
   else as.formula(paste0("y ~ ", paste(vars, collapse = " + ")))
 }
+
+.shorten_colnames <- function(X, maxlen = 30) {
+  xn <- colnames(X)
+  if (is.null(xn)) {
+    colnames(X) <- paste0("X", seq_len(ncol(X)))
+    return(list(X = X, map = setNames(colnames(X), colnames(X))))
+  }
+  xn_short <- abbreviate(xn, minlength = min(maxlen, max(nchar(xn))))
+  xn_short <- make.names(xn_short, unique = TRUE)
+  map <- setNames(xn, xn_short)  # short -> original
+  colnames(X) <- xn_short
+  list(X = X, map = map)
+}

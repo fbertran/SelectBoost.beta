@@ -22,7 +22,8 @@ Long data frame with columns \code{selector}, \code{variable}, \code{freq} in \v
 }
 \description{
 Bootstraps the dataset \code{B} times and records how often each variable is
-selected by each selector.
+selected by each selector. Observations containing \code{NA} in either \code{X} or \code{Y}
+are removed prior to resampling.
 }
 \examples{
 set.seed(1)

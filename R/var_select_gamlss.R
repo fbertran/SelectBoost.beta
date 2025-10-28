@@ -104,19 +104,10 @@ betareg_lasso_gamlss <- function(
 #' @param alpha Elastic-net mixing (1 = LASSO, 0 = ridge).
 #' @return Named numeric vector of coefficients as in [betareg_lasso_gamlss()].
 #' @seealso [gamlss.lasso::gnet()], [gamlss::gamlss()], [gamlss.dist::BE()]
-#' @examples
-#' if (requireNamespace("gamlss.lasso", quietly = TRUE)) {
-#'   set.seed(1)
-#'   X <- matrix(rnorm(300), 100, 3)
-#'   Y <- plogis(X[, 1])
-#'   Y <- rbeta(100, Y * 30, (1 - Y) * 30)
-#'   betareg_enet_gamlss(X, Y, method = "IC", ICpen = "BIC", alpha = 0.8)
-#' }
 #' @export
 betareg_enet_gamlss <- function(
   X, Y, method = c("IC", "CV"), ICpen = c("BIC", "AIC", "HQC"), alpha = 1, trace = FALSE
 ) {
-  requireNamespace("gamlss", quietly = TRUE)
   if (!requireNamespace("gamlss.lasso", quietly = TRUE))
     stop("Please install 'gamlss.lasso' to use betareg_enet_gamlss().")
   method <- match.arg(method); ICpen <- match.arg(ICpen)

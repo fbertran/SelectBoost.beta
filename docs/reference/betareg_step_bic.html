@@ -55,7 +55,10 @@
 <span>  type <span class="op">=</span> <span class="st">"ML"</span>,</span>
 <span>  trace <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  max_steps <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  epsilon <span class="op">=</span> <span class="fl">1e-08</span></span>
+<span>  epsilon <span class="op">=</span> <span class="fl">1e-08</span>,</span>
+<span>  X_phi <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  direction_phi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"both"</span>, <span class="st">"forward"</span>, <span class="st">"backward"</span><span class="op">)</span>,</span>
+<span>  weights <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -64,7 +67,7 @@
 
 
 <dl><dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Numeric matrix (n × p) of predictors.</p></dd>
+<dd><p>Numeric matrix (n × p) of mean-submodel predictors.</p></dd>
 
 
 <dt id="arg-y">Y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
@@ -72,15 +75,17 @@
 
 
 <dt id="arg-direction">direction<a class="anchor" aria-label="anchor" href="#arg-direction"></a></dt>
-<dd><p>Stepwise direction: <code>"both"</code>, <code>"forward"</code>, or <code>"backward"</code>.</p></dd>
+<dd><p>Stepwise direction for the mean submodel: <code>"both"</code>,
+<code>"forward"</code>, or <code>"backward"</code>.</p></dd>
 
 
 <dt id="arg-link">link<a class="anchor" aria-label="anchor" href="#arg-link"></a></dt>
-<dd><p>Link for the mean submodel (passed to <code>betareg</code>), default <code>"logit"</code>.</p></dd>
+<dd><p>Link for the mean submodel (passed to <code>betareg</code>). Default
+<code>"logit"</code>.</p></dd>
 
 
 <dt id="arg-link-phi">link.phi<a class="anchor" aria-label="anchor" href="#arg-link-phi"></a></dt>
-<dd><p>Link for precision parameter, default <code>"log"</code>.</p></dd>
+<dd><p>Link for precision parameter. Default <code>"log"</code>.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
@@ -96,7 +101,25 @@
 
 
 <dt id="arg-epsilon">epsilon<a class="anchor" aria-label="anchor" href="#arg-epsilon"></a></dt>
-<dd><p>Numeric; minimum AIC improvement required to accept a move (default <code>1e-8</code>).</p></dd>
+<dd><p>Numeric; minimum improvement required to accept a move
+(default <code>1e-8</code>).</p></dd>
+
+
+<dt id="arg-x-phi">X_phi<a class="anchor" aria-label="anchor" href="#arg-x-phi"></a></dt>
+<dd><p>Optional matrix of candidate predictors for the precision (phi)
+submodel. When <code>direction_phi</code> enables precision updates and <code>X_phi</code> is
+<code>NULL</code>, the function reuses <code>X</code>.</p></dd>
+
+
+<dt id="arg-direction-phi">direction_phi<a class="anchor" aria-label="anchor" href="#arg-direction-phi"></a></dt>
+<dd><p>Stepwise direction for the precision submodel.
+Defaults to <code>"none"</code> (no phi selection). Supported values mirror
+<code>direction</code>.</p></dd>
+
+
+<dt id="arg-weights">weights<a class="anchor" aria-label="anchor" href="#arg-weights"></a></dt>
+<dd><p>Optional non-negative observation weights passed to
+<code>betareg()</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -106,10 +129,15 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>; <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span><span class="op">)</span>, <span class="fl">100</span>, <span class="fl">3</span><span class="op">)</span>; <span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span>; <span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="fl">100</span>, <span class="va">Y</span><span class="op">*</span><span class="fl">30</span>, <span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">Y</span><span class="op">)</span><span class="op">*</span><span class="fl">30</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>; <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span><span class="op">)</span>, <span class="fl">100</span>, <span class="fl">3</span><span class="op">)</span>;</span></span>
+<span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span>;</span></span>
 <span class="r-in"><span><span class="fu">betareg_step_bic</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  (Intercept)           X1           X2           X3 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.001531718  0.932506105  0.000000000  0.000000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     (Intercept)              X1              X2              X3 phi|(Intercept) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    9.240039e-05    9.864092e-01    0.000000e+00    0.000000e+00    1.357490e+01 </span>
+<span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="fl">100</span>, <span class="va">Y</span><span class="op">*</span><span class="fl">30</span>, <span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">Y</span><span class="op">)</span><span class="op">*</span><span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">betareg_step_bic</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     (Intercept)              X1              X2              X3 phi|(Intercept) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    -0.001531718     0.932506105     0.000000000     0.000000000     3.533825847 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -181,6 +181,7 @@ betareg_step_aicc <- function(
       stop("`weights` must be non-negative finite numbers.")
     }
   }
+#  obs_weights <- weights
   
   if (direction_phi == "none") {
     X_phi <- NULL
@@ -225,15 +226,23 @@ betareg_step_aicc <- function(
     .beta_formula_from_vars(mean_set, phi_set)
   }
   
+  betareg_base_args <- list(
+    data = dat,
+    link = link,
+    link.phi = link.phi,
+    type = type
+  )
+  if (!is.null(weights)) {
+    betareg_base_args$weights <- weights
+  }
+  
+  fit_betareg <- function(mean_set, phi_set) {
+    args_br <- c(list(formula = build_formula(mean_set, phi_set)), betareg_base_args)
+    do.call(betareg::betareg, args_br)
+  }
+  
   current_fit <- try(
-    betareg::betareg(
-      build_formula(mean_vars, phi_vars),
-      data = dat,
-      weights = weights,
-      link = link,
-      link.phi = link.phi,
-      type = type
-    ),
+    fit_betareg(mean_vars, phi_vars),
     silent = TRUE
   )
   if (inherits(current_fit, "try-error")) {
@@ -264,16 +273,8 @@ betareg_step_aicc <- function(
       to_add <- setdiff(mean_candidates, mean_vars)
       for (v in to_add) {
         m_vars <- sort(c(mean_vars, v))
-        fml <- build_formula(m_vars, phi_vars)
         fit <- try(
-          betareg::betareg(
-            fml,
-            data = dat,
-            weights = weights,
-            link = link,
-            link.phi = link.phi,
-            type = type
-          ),
+          fit_betareg(m_vars, phi_vars),
           silent = TRUE
         )
         if (!inherits(fit, "try-error")) {
@@ -287,16 +288,8 @@ betareg_step_aicc <- function(
     if (can_backward && length(mean_vars)) {
       for (v in mean_vars) {
         m_vars <- setdiff(mean_vars, v)
-        fml <- build_formula(m_vars, phi_vars)
         fit <- try(
-          betareg::betareg(
-            fml,
-            data = dat,
-            weights = weights,
-            link = link,
-            link.phi = link.phi,
-            type = type
-          ),
+          fit_betareg(m_vars, phi_vars),
           silent = TRUE
         )
         if (!inherits(fit, "try-error")) {
@@ -311,16 +304,8 @@ betareg_step_aicc <- function(
       to_add_phi <- setdiff(phi_candidates, phi_vars)
       for (v in to_add_phi) {
         p_vars <- sort(c(phi_vars, v))
-        fml <- build_formula(mean_vars, p_vars)
         fit <- try(
-          betareg::betareg(
-            fml,
-            data = dat,
-            weights = weights,
-            link = link,
-            link.phi = link.phi,
-            type = type
-          ),
+          fit_betareg(m_vars, p_vars),
           silent = TRUE
         )
         if (!inherits(fit, "try-error")) {
@@ -334,16 +319,8 @@ betareg_step_aicc <- function(
     if (can_backward_phi && length(phi_vars)) {
       for (v in phi_vars) {
         p_vars <- setdiff(phi_vars, v)
-        fml <- build_formula(mean_vars, p_vars)
         fit <- try(
-          betareg::betareg(
-            fml,
-            data = dat,
-            weights = weights,
-            link = link,
-            link.phi = link.phi,
-            type = type
-          ),
+          fit_betareg(mean_vars, p_vars),
           silent = TRUE
         )
         if (!inherits(fit, "try-error")) {

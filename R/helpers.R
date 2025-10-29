@@ -26,12 +26,12 @@
     phi_prefix = "phi|",
     phi_name_map = NULL
 ) {
-  cf <- stats::coef(fit)
-  if (is.list(cf)) {
-    mean_cf <- cf[["mean"]]
-    phi_cf <- cf[["precision"]]
+  
+  if (is.list(fit$coefficients)) {
+    mean_cf <- fit$coefficients[["mean"]]
+    phi_cf <- fit$coefficients[["precision"]]
   } else {
-    mean_cf <- cf
+    mean_cf <- cf <- stats::coef(fit)
     phi_cf <- NULL
   }
   

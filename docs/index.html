@@ -78,10 +78,11 @@
 <p><code>SelectBoost.beta</code> brings the correlation-aware resampling strategy of the original SelectBoost package to <strong>beta</strong> regression by implementing an extension of the <strong>SelectBoost</strong> algorithm, F. Bertrand, I. Aouadi, N. Jung, R. Carapito, L. Vallat, S. Bahram, M. Maumy-Bertrand (2015) <a href="https://doi.org/10.1093/bioinformatics/btaa855" class="external-link uri">https://doi.org/10.1093/bioinformatics/btaa855</a> and <a href="https://doi.org/10.32614/CRAN.package.SelectBoost" class="external-link uri">https://doi.org/10.32614/CRAN.package.SelectBoost</a>.</p>
 <p>It ships with:</p>
 <ul>
-<li>wrappers such as <code><a href="reference/betareg_step_aic.html">betareg_step_aic()</a></code> and <code><a href="reference/betareg_glmnet.html">betareg_glmnet()</a></code> that act as base selectors for beta-distributed outcomes;</li>
+<li>wrappers such as <code><a href="reference/betareg_step_aic.html">betareg_step_aic()</a></code> and <code><a href="reference/betareg_glmnet.html">betareg_glmnet()</a></code> that act as base selectors for beta-distributed outcomes, now including optional precision (phi) submodel search and observation weights;</li>
 <li>helper functions (<code><a href="reference/sb_normalize.html">sb_normalize()</a></code>, <code><a href="reference/sb_normalize.html">sb_group_variables()</a></code>, <code><a href="reference/sb_resample_groups.html">sb_resample_groups()</a></code>, …) mirroring the core stages of SelectBoost; and</li>
 <li>the high-level <code><a href="reference/sb_beta.html">sb_beta()</a></code> driver that orchestrates normalisation, correlation analysis, grouped resampling and stability tallying in a single call.</li>
 </ul>
+<p>Each resampling call returns per-group diagnostics (cached draws, observed correlation summaries) and <code><a href="reference/sb_beta.html">sb_beta()</a></code> threads the same correlated surrogates across all thresholds so cross-level comparisons remain aligned. Interval responses are supported through the <code>interval</code> argument, which reuses the <code><a href="reference/fastboost_interval.html">fastboost_interval()</a></code> logic directly inside <code><a href="reference/sb_beta.html">sb_beta()</a></code>.</p>
 <p>The package is designed so that each stage of the workflow remains reusable on its own. Users can plug in custom grouping strategies or selectors while still benefiting from correlated resampling.</p>
 <div class="section level2">
 <h2 id="conference-presentations">Conference presentations<a class="anchor" aria-label="anchor" href="#conference-presentations"></a>
@@ -113,8 +114,19 @@
 <span><span class="va">coef_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_apply_selector_manual.html">sb_apply_selector_manual</a></span><span class="op">(</span><span class="va">X_norm</span>, <span class="va">resamples</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, <span class="va">betareg_step_aic</span><span class="op">)</span></span>
 <span><span class="va">sel_freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_selection_frequency.html">sb_selection_frequency</a></span><span class="op">(</span><span class="va">coef_path</span>, version <span class="op">=</span> <span class="st">"glmnet"</span><span class="op">)</span></span>
 <span><span class="va">sel_freq</span></span>
-<span><span class="co">#&gt; x1 x2 x3 x4 x5 x6 </span></span>
-<span><span class="co">#&gt;  1  1  1  0  0  0</span></span></code></pre></div>
+<span><span class="co">#&gt;              x1              x2              x3              x4              x5              x6 </span></span>
+<span><span class="co">#&gt;               1               1               1               0               0               0 </span></span>
+<span><span class="co">#&gt; phi|(Intercept) </span></span>
+<span><span class="co">#&gt;               1</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">resamples</span>, <span class="st">"diagnostics"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1    x1    1           0  FALSE                 NA                      NA                  NA</span></span>
+<span><span class="co">#&gt; 2    x2    1           0  FALSE                 NA                      NA                  NA</span></span>
+<span><span class="co">#&gt; 3    x3    1           0  FALSE                 NA                      NA                  NA</span></span>
+<span><span class="co">#&gt; 4    x4    1           0  FALSE                 NA                      NA                  NA</span></span>
+<span><span class="co">#&gt; 5    x5    1           0  FALSE                 NA                      NA                  NA</span></span>
+<span><span class="co">#&gt; 6    x6    1           0  FALSE                 NA                      NA                  NA</span></span></code></pre></div>
 <p>The <code><a href="reference/sb_beta.html">sb_beta()</a></code> wrapper performs the entire loop internally and returns a matrix indexed by the correlation thresholds used during resampling:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_beta.html">sb_beta</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">50</span>, step.num <span class="op">=</span> <span class="fl">0.25</span>,use.parallel <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -122,14 +134,15 @@
 <span><span class="co">#&gt; SelectBoost beta selection frequencies</span></span>
 <span><span class="co">#&gt; Selector: betareg_step_aic</span></span>
 <span><span class="co">#&gt; Resamples per threshold: 50</span></span>
+<span><span class="co">#&gt; Interval mode: none</span></span>
 <span><span class="co">#&gt; c0 grid: 1.000, 0.089, 0.059, 0.030, 0.000</span></span>
 <span><span class="co">#&gt; Inner thresholds: 0.089, 0.059, 0.030</span></span>
-<span><span class="co">#&gt;              x1   x2   x3   x4   x5   x6</span></span>
-<span><span class="co">#&gt; c0 = 1.000 1.00 1.00 1.00 0.00 0.00 0.00</span></span>
-<span><span class="co">#&gt; c0 = 0.089 0.22 0.18 0.10 0.18 0.18 0.16</span></span>
-<span><span class="co">#&gt; c0 = 0.059 0.10 0.12 0.20 0.20 0.16 0.28</span></span>
-<span><span class="co">#&gt; c0 = 0.030 0.16 0.20 0.12 0.08 0.16 0.14</span></span>
-<span><span class="co">#&gt; c0 = 0.000 0.28 0.22 0.12 0.08 0.18 0.18</span></span>
+<span><span class="co">#&gt;              x1   x2   x3   x4   x5   x6 phi|(Intercept)</span></span>
+<span><span class="co">#&gt; c0 = 1.000 1.00 1.00 1.00 0.00 0.00 0.00               1</span></span>
+<span><span class="co">#&gt; c0 = 0.089 0.24 0.14 0.14 0.18 0.14 0.18               1</span></span>
+<span><span class="co">#&gt; c0 = 0.059 0.16 0.14 0.26 0.10 0.12 0.16               1</span></span>
+<span><span class="co">#&gt; c0 = 0.030 0.20 0.14 0.14 0.12 0.18 0.20               1</span></span>
+<span><span class="co">#&gt; c0 = 0.000 0.16 0.12 0.12 0.14 0.18 0.14               1</span></span>
 <span><span class="co">#&gt; attr(,"c0.seq")</span></span>
 <span><span class="co">#&gt; [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000</span></span>
 <span><span class="co">#&gt; attr(,"steps.seq")</span></span>
@@ -137,36 +150,105 @@
 <span><span class="co">#&gt; attr(,"B")</span></span>
 <span><span class="co">#&gt; [1] 50</span></span>
 <span><span class="co">#&gt; attr(,"selector")</span></span>
-<span><span class="co">#&gt; [1] "betareg_step_aic"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "betareg_step_aic"</span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")</span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 1.000`</span></span>
+<span><span class="co">#&gt; [1] group                   size                    regenerated            </span></span>
+<span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
+<span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.089`</span></span>
+<span><span class="co">#&gt;      group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; 1    x1,x4    2          50  FALSE         0.08894615              0.10146558</span></span>
+<span><span class="co">#&gt; 2 x2,x3,x6    3          50  FALSE         0.07694401              0.09829963</span></span>
+<span><span class="co">#&gt; 3 x2,x3,x5    3          50  FALSE         0.08217406              0.09634851</span></span>
+<span><span class="co">#&gt; 4    x3,x5    2          50  FALSE         0.09286939              0.09536360</span></span>
+<span><span class="co">#&gt; 5    x2,x6    2          50  FALSE         0.10556609              0.11060608</span></span>
+<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1          0.07089570</span></span>
+<span><span class="co">#&gt; 2          0.06673431</span></span>
+<span><span class="co">#&gt; 3          0.06390166</span></span>
+<span><span class="co">#&gt; 4          0.05329723</span></span>
+<span><span class="co">#&gt; 5          0.07179976</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.059`</span></span>
+<span><span class="co">#&gt;            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; 1    x1,x2,x3,x4    4          50  FALSE         0.06136428              0.08621443</span></span>
+<span><span class="co">#&gt; 2 x1,x2,x3,x5,x6    5          50  FALSE         0.06152013              0.08582089</span></span>
+<span><span class="co">#&gt; 3    x1,x2,x3,x5    4          50  FALSE         0.07198271              0.08974742</span></span>
+<span><span class="co">#&gt; 4       x1,x4,x5    3          50  FALSE         0.06290784              0.07535777</span></span>
+<span><span class="co">#&gt; 5    x2,x3,x4,x5    4          50  FALSE         0.05766823              0.08028623</span></span>
+<span><span class="co">#&gt; 6          x2,x6    2           0   TRUE         0.10556609              0.11060608</span></span>
+<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1          0.06598362</span></span>
+<span><span class="co">#&gt; 2          0.06337853</span></span>
+<span><span class="co">#&gt; 3          0.06489135</span></span>
+<span><span class="co">#&gt; 4          0.06047434</span></span>
+<span><span class="co">#&gt; 5          0.06062214</span></span>
+<span><span class="co">#&gt; 6          0.07179976</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.030`</span></span>
+<span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; 1    x1,x2,x3,x4,x5    5          50  FALSE         0.06203296              0.08360476</span></span>
+<span><span class="co">#&gt; 2    x1,x2,x3,x5,x6    5           0   TRUE         0.06152013              0.08582089</span></span>
+<span><span class="co">#&gt; 3       x1,x4,x5,x6    4          50  FALSE         0.04694388              0.07252823</span></span>
+<span><span class="co">#&gt; 4 x1,x2,x3,x4,x5,x6    6          50  FALSE         0.05666305              0.08518211</span></span>
+<span><span class="co">#&gt; 5    x2,x3,x4,x5,x6    5          50  FALSE         0.05591031              0.08187888</span></span>
+<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1          0.06487303</span></span>
+<span><span class="co">#&gt; 2          0.06337853</span></span>
+<span><span class="co">#&gt; 3          0.06954473</span></span>
+<span><span class="co">#&gt; 4          0.06383341</span></span>
+<span><span class="co">#&gt; 5          0.06182501</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.000`</span></span>
+<span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; 1 x1,x2,x3,x4,x5,x6    6           0   TRUE         0.05666305              0.08518211</span></span>
+<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1          0.06383341</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"interval")</span></span>
+<span><span class="co">#&gt; [1] "none"</span></span></code></pre></div>
 <p>The result stores the selector used, the number of resamples, and the correlation thresholds in its attributes. Dedicated methods make these easier to inspect programmatically:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sb</span><span class="op">)</span></span>
 <span><span class="co">#&gt; SelectBoost beta summary</span></span>
 <span><span class="co">#&gt; Selector: betareg_step_aic</span></span>
 <span><span class="co">#&gt; Resamples per threshold: 50</span></span>
+<span><span class="co">#&gt; Interval mode: none</span></span>
 <span><span class="co">#&gt; c0 grid: 1.000, 0.089, 0.059, 0.030, 0.000</span></span>
 <span><span class="co">#&gt; Inner thresholds: 0.089, 0.059, 0.030</span></span>
 <span><span class="co">#&gt; Top rows:</span></span>
-<span><span class="co">#&gt;        c0 variable frequency</span></span>
-<span><span class="co">#&gt; 1  1.0000       x1      1.00</span></span>
-<span><span class="co">#&gt; 2  1.0000       x2      0.22</span></span>
-<span><span class="co">#&gt; 3  1.0000       x3      0.10</span></span>
-<span><span class="co">#&gt; 4  1.0000       x4      0.16</span></span>
-<span><span class="co">#&gt; 5  1.0000       x5      0.28</span></span>
-<span><span class="co">#&gt; 6  1.0000       x6      1.00</span></span>
-<span><span class="co">#&gt; 7  0.0889       x1      0.18</span></span>
-<span><span class="co">#&gt; 8  0.0889       x2      0.12</span></span>
-<span><span class="co">#&gt; 9  0.0889       x3      0.20</span></span>
-<span><span class="co">#&gt; 10 0.0889       x4      0.22</span></span>
+<span><span class="co">#&gt;        c0        variable frequency</span></span>
+<span><span class="co">#&gt; 1  1.0000              x1      1.00</span></span>
+<span><span class="co">#&gt; 2  1.0000              x2      0.24</span></span>
+<span><span class="co">#&gt; 3  1.0000              x3      0.16</span></span>
+<span><span class="co">#&gt; 4  1.0000              x4      0.20</span></span>
+<span><span class="co">#&gt; 5  1.0000              x5      0.16</span></span>
+<span><span class="co">#&gt; 6  1.0000              x6      1.00</span></span>
+<span><span class="co">#&gt; 7  1.0000 phi|(Intercept)      0.14</span></span>
+<span><span class="co">#&gt; 8  0.0889              x1      0.14</span></span>
+<span><span class="co">#&gt; 9  0.0889              x2      0.14</span></span>
+<span><span class="co">#&gt; 10 0.0889              x3      0.12</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">autoplot</span><span class="op">(</span><span class="va">sb</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; Error in autoplot(sb): could not find function "autoplot"</span></span></code></pre></div>
+<span>  <span class="fu"><a href="reference/sb_beta_methods.html">autoplot.sb_beta</a></span><span class="op">(</span><span class="va">sb</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<div class="figure">
+<img src="reference/figures/README-unnamed-chunk-28-1.png" alt="plot of chunk unnamed-chunk-28" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-28
+</p>
+</div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"selector"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "betareg_step_aic"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"c0.seq"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"resample_diagnostics"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="co">#&gt; [1] group                   size                    regenerated            </span></span>
+<span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
+<span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/compare_selectors_single.html">compare_selectors_single</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, include_enet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -184,22 +266,66 @@
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_coeff.html">plot_compare_coeff</a></span><span class="op">(</span><span class="va">single</span><span class="op">$</span><span class="va">table</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="reference/figures/README-unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8" width="100%"><p class="caption">
-plot of chunk unnamed-chunk-8
+<img src="reference/figures/README-unnamed-chunk-32-1.png" alt="plot of chunk unnamed-chunk-32" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-32
 </p>
 </div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_freq.html">plot_compare_freq</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="reference/figures/README-unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9" width="100%"><p class="caption">
-plot of chunk unnamed-chunk-9
+<img src="reference/figures/README-unnamed-chunk-33-1.png" alt="plot of chunk unnamed-chunk-33" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-33
 </p>
+</div>
+<div class="section level3">
+<h3 id="interval-outcomes">Interval outcomes<a class="anchor" aria-label="anchor" href="#interval-outcomes"></a>
+</h3>
+<p><code><a href="reference/sb_beta.html">sb_beta()</a></code> can draw pseudo-responses from observed intervals by supplying <code>Y_low</code>, <code>Y_high</code>, and an <code>interval</code> mode:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">interval_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_beta.html">sb_beta</a></span><span class="op">(</span></span>
+<span>  <span class="va">sim</span><span class="op">$</span><span class="va">X</span>,</span>
+<span>  Y_low <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">Y</span> <span class="op">-</span> <span class="fl">0.05</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  Y_high <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">Y</span> <span class="op">+</span> <span class="fl">0.05</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"uniform"</span>,</span>
+<span>  B <span class="op">=</span> <span class="fl">30</span>,</span>
+<span>  step.num <span class="op">=</span> <span class="fl">0.5</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">interval_fit</span>, <span class="st">"interval"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "uniform"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">interval_fit</span>, <span class="st">"resample_diagnostics"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $`c0 = 1.000`</span></span>
+<span><span class="co">#&gt; [1] group                   size                    regenerated            </span></span>
+<span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
+<span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`c0 = 0.059`</span></span>
+<span><span class="co">#&gt;            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; 1    x1,x2,x3,x4    4          30  FALSE         0.06136428              0.08625551</span></span>
+<span><span class="co">#&gt; 2 x1,x2,x3,x5,x6    5          30  FALSE         0.06152013              0.08351693</span></span>
+<span><span class="co">#&gt; 3    x1,x2,x3,x5    4          30  FALSE         0.07198271              0.09395737</span></span>
+<span><span class="co">#&gt; 4       x1,x4,x5    3          30  FALSE         0.06290784              0.08889440</span></span>
+<span><span class="co">#&gt; 5    x2,x3,x4,x5    4          30  FALSE         0.05766823              0.08401650</span></span>
+<span><span class="co">#&gt; 6          x2,x6    2          30  FALSE         0.10556609              0.08760037</span></span>
+<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1          0.06004899</span></span>
+<span><span class="co">#&gt; 2          0.07278975</span></span>
+<span><span class="co">#&gt; 3          0.06294279</span></span>
+<span><span class="co">#&gt; 4          0.07196982</span></span>
+<span><span class="co">#&gt; 5          0.06221965</span></span>
+<span><span class="co">#&gt; 6          0.06647446</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`c0 = 0.000`</span></span>
+<span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; 1 x1,x2,x3,x4,x5,x6    6          30  FALSE         0.05666305              0.08808704</span></span>
+<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1          0.05790142</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="parallel-resampling">Parallel resampling<a class="anchor" aria-label="anchor" href="#parallel-resampling"></a>
 </h3>
 <p>Setting <code>use.parallel = TRUE</code> instructs <code><a href="reference/sb_beta.html">sb_beta()</a></code> and <code><a href="reference/sb_resample_groups.html">sb_resample_groups()</a></code> to dispatch resamples and selector fits through <a href="https://future.apply.futureverse.org/" class="external-link"><code>future.apply</code></a>. Bring your own <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code> to select the desired backend (e.g. <code>multisession</code> on desktops):</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span><span class="op">)</span></span>
 <span><span class="va">sb_parallel</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_beta.html">sb_beta</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">50</span>, step.num <span class="op">=</span> <span class="fl">0.25</span>, use.parallel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">)</span></span></code></pre></div>

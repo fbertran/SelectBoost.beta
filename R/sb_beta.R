@@ -302,7 +302,7 @@ sb_resample_groups <- function(
         mean_abs_corr_cross = NA_real_,
         stringsAsFactors = FALSE
       )
-      group_draws[[i]] <- NULL
+      group_draws[i] <- list(NULL)
       next
     }
     
@@ -322,21 +322,29 @@ sb_resample_groups <- function(
         seed = if (!is.null(seed)) seed + i else NULL
       )
       base_diag <- .sb_group_diagnostics(X_norm[, idx, drop = FALSE], draws)
-      stored <- list(draws = draws, diag = base_diag)
+      stored <- list(draws = draws, diag = base_diag, B = B)
       assign(key, stored, envir = cache_env)
-      diag_call <- transform(base_diag,
-                             group = label,
-                             size = length(idx),
-                             regenerated = B,
-                             cached = FALSE)
-    } else {
+      diag_call <- transform(
+        base_diag,
+        group = label,
+        size = length(idx),
+        regenerated = B,
+        cached = FALSE
+      )
+      } else {
       draws <- stored$draws
       base_diag <- stored$diag
-      diag_call <- transform(base_diag,
-                             group = label,
-                             size = length(idx),
-                             regenerated = 0L,
-                             cached = TRUE)
+      stored_B <- stored$B
+      if (is.null(stored_B) || !is.finite(stored_B)) {
+        stored_B <- length(draws)
+      }
+      diag_call <- transform(
+        base_diag,
+        group = label,
+        size = length(idx),
+        regenerated = if (isTRUE(use.parallel)) stored_B else 0L,
+        cached = !isTRUE(use.parallel)
+      )
     }
     group_draws[[i]] <- draws
     diag_entries[[i]] <- diag_call[, c("group", "size", "regenerated", "cached",
@@ -579,7 +587,6 @@ sb_beta <- function(
     message("Running sb_beta over ", length(c0_levels), " correlation thresholds")
   }
   fun <- if (is.character(selector)) get(selector, mode = "function", envir = parent.frame()) else selector
-  template <- fun(X, y, ...)
   template <- fun(X, y_template, ...)
   coef_len <- length(template)
   coef_names <- names(template)

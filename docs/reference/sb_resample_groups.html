@@ -52,7 +52,8 @@
 <span>  B <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  jitter <span class="op">=</span> <span class="fl">1e-06</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  use.parallel <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  use.parallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cache <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -86,10 +87,19 @@
 <dd><p>Logical; when <code>TRUE</code>, compute the resampled designs using
 a parallel backend when available.</p></dd>
 
+
+<dt id="arg-cache">cache<a class="anchor" aria-label="anchor" href="#arg-cache"></a></dt>
+<dd><p>Optional environment or named list used to cache previously
+generated surrogates. Passing the same cache across calls reuses draws for
+identical groups.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list of length <code>B</code>, each element being a resampled design matrix.</p>
+    <p>An object of class <code>sb_resamples</code>, i.e. a list of length <code>B</code> whose
+elements are resampled design matrices. The object exposes per-group
+diagnostics in its <code>"diagnostics"</code> attribute and returns the cache via the
+<code>"cache"</code> attribute for reuse.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

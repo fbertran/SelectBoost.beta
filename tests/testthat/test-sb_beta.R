@@ -6,7 +6,7 @@ test_that("sb_beta performs correlated resampling and tallies frequencies", {
   fit <- sb_beta(sim$X, sim$Y, B = 5, step.num = 0.5, version = "glmnet", threshold = 1e-6)
   
   expect_true("sb_beta" %in% class(fit))
-  expect_equal(ncol(fit), ncol(sim$X))
+  expect_equal(ncol(fit)-1, ncol(sim$X))
   expect_equal(attr(fit, "B"), 5)
   expect_identical(attr(fit, "selector"), "betareg_step_aic")
   expect_true(all(is.finite(fit)))

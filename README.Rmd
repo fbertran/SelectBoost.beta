@@ -117,7 +117,7 @@ inspect programmatically:
 ```{r, cache=TRUE, eval=LOCAL}
 summary(sb)
 if (requireNamespace("ggplot2", quietly = TRUE)) {
-  autoplot(sb)
+  autoplot.sb_beta(sb)
 }
 ```
 
@@ -163,7 +163,7 @@ interval_fit <- sb_beta(
   step.num = 0.5
 )
 attr(interval_fit, "interval")
-head(attr(interval_fit, "resample_diagnostics")[[length(interval_fit)]])
+attr(interval_fit, "resample_diagnostics")
 ```
 
 ### Parallel resampling

@@ -83,17 +83,22 @@ X_norm <- sb_normalize(sim$X)
 corr_mat <- sb_compute_corr(X_norm)
 groups <- sb_group_variables(corr_mat, c0 = 0.6)
 resamples <- sb_resample_groups(X_norm, groups, B = 50)
-#> Error in group_draws[[i]]: subscript out of bounds
 coef_path <- sb_apply_selector_manual(X_norm, resamples, sim$Y, betareg_step_aic)
-#> Error in .betareg_step_engine(X = X, Y = Y, criterion_fun = function(fit) .aic_betareg(fit, : Initial betareg fit failed: Error in model.frame.default(terms(formula, lhs = lhs, rhs = rhs, data = data,  : 
-#>   invalid type (closure) for variable '(weights)'
 sel_freq <- sb_selection_frequency(coef_path, version = "glmnet")
 sel_freq
-#> x1 x2 x3 x4 x5 x6 
-#>  1  1  1  0  0  0
+#>              x1              x2              x3              x4              x5              x6 
+#>               1               1               1               0               0               0 
+#> phi|(Intercept) 
+#>               1
 
 attr(resamples, "diagnostics")
-#> NULL
+#>   group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross
+#> 1    x1    1           0  FALSE                 NA                      NA                  NA
+#> 2    x2    1           0  FALSE                 NA                      NA                  NA
+#> 3    x3    1           0  FALSE                 NA                      NA                  NA
+#> 4    x4    1           0  FALSE                 NA                      NA                  NA
+#> 5    x5    1           0  FALSE                 NA                      NA                  NA
+#> 6    x6    1           0  FALSE                 NA                      NA                  NA
 ```
 
 The `sb_beta()` wrapper performs the entire loop internally and returns a matrix
@@ -106,14 +111,15 @@ print(sb)
 #> SelectBoost beta selection frequencies
 #> Selector: betareg_step_aic
 #> Resamples per threshold: 50
+#> Interval mode: none
 #> c0 grid: 1.000, 0.089, 0.059, 0.030, 0.000
 #> Inner thresholds: 0.089, 0.059, 0.030
-#>              x1   x2   x3   x4   x5   x6
-#> c0 = 1.000 1.00 1.00 1.00 0.00 0.00 0.00
-#> c0 = 0.089 0.22 0.18 0.10 0.18 0.18 0.16
-#> c0 = 0.059 0.10 0.12 0.20 0.20 0.16 0.28
-#> c0 = 0.030 0.16 0.20 0.12 0.08 0.16 0.14
-#> c0 = 0.000 0.28 0.22 0.12 0.08 0.18 0.18
+#>              x1   x2   x3   x4   x5   x6 phi|(Intercept)
+#> c0 = 1.000 1.00 1.00 1.00 0.00 0.00 0.00               1
+#> c0 = 0.089 0.24 0.14 0.14 0.18 0.14 0.18               1
+#> c0 = 0.059 0.16 0.14 0.26 0.10 0.12 0.16               1
+#> c0 = 0.030 0.20 0.14 0.14 0.12 0.18 0.20               1
+#> c0 = 0.000 0.16 0.12 0.12 0.14 0.18 0.14               1
 #> attr(,"c0.seq")
 #> [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000
 #> attr(,"steps.seq")
@@ -122,6 +128,65 @@ print(sb)
 #> [1] 50
 #> attr(,"selector")
 #> [1] "betareg_step_aic"
+#> attr(,"resample_diagnostics")
+#> attr(,"resample_diagnostics")$`c0 = 1.000`
+#> [1] group                   size                    regenerated            
+#> [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate
+#> [7] mean_abs_corr_cross    
+#> <0 rows> (or 0-length row.names)
+#> 
+#> attr(,"resample_diagnostics")$`c0 = 0.089`
+#>      group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
+#> 1    x1,x4    2          50  FALSE         0.08894615              0.10146558
+#> 2 x2,x3,x6    3          50  FALSE         0.07694401              0.09829963
+#> 3 x2,x3,x5    3          50  FALSE         0.08217406              0.09634851
+#> 4    x3,x5    2          50  FALSE         0.09286939              0.09536360
+#> 5    x2,x6    2          50  FALSE         0.10556609              0.11060608
+#>   mean_abs_corr_cross
+#> 1          0.07089570
+#> 2          0.06673431
+#> 3          0.06390166
+#> 4          0.05329723
+#> 5          0.07179976
+#> 
+#> attr(,"resample_diagnostics")$`c0 = 0.059`
+#>            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
+#> 1    x1,x2,x3,x4    4          50  FALSE         0.06136428              0.08621443
+#> 2 x1,x2,x3,x5,x6    5          50  FALSE         0.06152013              0.08582089
+#> 3    x1,x2,x3,x5    4          50  FALSE         0.07198271              0.08974742
+#> 4       x1,x4,x5    3          50  FALSE         0.06290784              0.07535777
+#> 5    x2,x3,x4,x5    4          50  FALSE         0.05766823              0.08028623
+#> 6          x2,x6    2           0   TRUE         0.10556609              0.11060608
+#>   mean_abs_corr_cross
+#> 1          0.06598362
+#> 2          0.06337853
+#> 3          0.06489135
+#> 4          0.06047434
+#> 5          0.06062214
+#> 6          0.07179976
+#> 
+#> attr(,"resample_diagnostics")$`c0 = 0.030`
+#>               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
+#> 1    x1,x2,x3,x4,x5    5          50  FALSE         0.06203296              0.08360476
+#> 2    x1,x2,x3,x5,x6    5           0   TRUE         0.06152013              0.08582089
+#> 3       x1,x4,x5,x6    4          50  FALSE         0.04694388              0.07252823
+#> 4 x1,x2,x3,x4,x5,x6    6          50  FALSE         0.05666305              0.08518211
+#> 5    x2,x3,x4,x5,x6    5          50  FALSE         0.05591031              0.08187888
+#>   mean_abs_corr_cross
+#> 1          0.06487303
+#> 2          0.06337853
+#> 3          0.06954473
+#> 4          0.06383341
+#> 5          0.06182501
+#> 
+#> attr(,"resample_diagnostics")$`c0 = 0.000`
+#>               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
+#> 1 x1,x2,x3,x4,x5,x6    6           0   TRUE         0.05666305              0.08518211
+#>   mean_abs_corr_cross
+#> 1          0.06383341
+#> 
+#> attr(,"interval")
+#> [1] "none"
 ```
 
 The result stores the selector used, the number of resamples, and the
@@ -134,25 +199,30 @@ summary(sb)
 #> SelectBoost beta summary
 #> Selector: betareg_step_aic
 #> Resamples per threshold: 50
+#> Interval mode: none
 #> c0 grid: 1.000, 0.089, 0.059, 0.030, 0.000
 #> Inner thresholds: 0.089, 0.059, 0.030
 #> Top rows:
-#>        c0 variable frequency
-#> 1  1.0000       x1      1.00
-#> 2  1.0000       x2      0.22
-#> 3  1.0000       x3      0.10
-#> 4  1.0000       x4      0.16
-#> 5  1.0000       x5      0.28
-#> 6  1.0000       x6      1.00
-#> 7  0.0889       x1      0.18
-#> 8  0.0889       x2      0.12
-#> 9  0.0889       x3      0.20
-#> 10 0.0889       x4      0.22
+#>        c0        variable frequency
+#> 1  1.0000              x1      1.00
+#> 2  1.0000              x2      0.24
+#> 3  1.0000              x3      0.16
+#> 4  1.0000              x4      0.20
+#> 5  1.0000              x5      0.16
+#> 6  1.0000              x6      1.00
+#> 7  1.0000 phi|(Intercept)      0.14
+#> 8  0.0889              x1      0.14
+#> 9  0.0889              x2      0.14
+#> 10 0.0889              x3      0.12
 if (requireNamespace("ggplot2", quietly = TRUE)) {
-  autoplot(sb)
+  autoplot.sb_beta(sb)
 }
-#> Error in autoplot(sb): could not find function "autoplot"
 ```
+
+<div class="figure">
+<img src="man/figures/README-unnamed-chunk-28-1.png" alt="plot of chunk unnamed-chunk-28" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-28</p>
+</div>
 
 
 ``` r
@@ -161,7 +231,10 @@ attr(sb, "selector")
 attr(sb, "c0.seq")
 #> [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000
 attr(sb, "resample_diagnostics")[[1]]
-#> NULL
+#> [1] group                   size                    regenerated            
+#> [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate
+#> [7] mean_abs_corr_cross    
+#> <0 rows> (or 0-length row.names)
 ```
 
 
@@ -191,8 +264,8 @@ plot_compare_coeff(single$table)
 ```
 
 <div class="figure">
-<img src="man/figures/README-unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8" width="100%" />
-<p class="caption">plot of chunk unnamed-chunk-8</p>
+<img src="man/figures/README-unnamed-chunk-32-1.png" alt="plot of chunk unnamed-chunk-32" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-32</p>
 </div>
 
 
@@ -202,8 +275,8 @@ plot_compare_freq(freq)
 ```
 
 <div class="figure">
-<img src="man/figures/README-unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9" width="100%" />
-<p class="caption">plot of chunk unnamed-chunk-9</p>
+<img src="man/figures/README-unnamed-chunk-33-1.png" alt="plot of chunk unnamed-chunk-33" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-33</p>
 </div>
 
 ### Interval outcomes
@@ -221,11 +294,36 @@ interval_fit <- sb_beta(
   B = 30,
   step.num = 0.5
 )
-#> Error in sb_beta(sim$X, Y_low = pmax(sim$Y - 0.05, 0), Y_high = pmin(sim$Y + : object 'y' not found
 attr(interval_fit, "interval")
-#> Error: object 'interval_fit' not found
-head(attr(interval_fit, "resample_diagnostics")[[length(interval_fit)]])
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'interval_fit' not found
+#> [1] "uniform"
+attr(interval_fit, "resample_diagnostics")
+#> $`c0 = 1.000`
+#> [1] group                   size                    regenerated            
+#> [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate
+#> [7] mean_abs_corr_cross    
+#> <0 rows> (or 0-length row.names)
+#> 
+#> $`c0 = 0.059`
+#>            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
+#> 1    x1,x2,x3,x4    4          30  FALSE         0.06136428              0.08625551
+#> 2 x1,x2,x3,x5,x6    5          30  FALSE         0.06152013              0.08351693
+#> 3    x1,x2,x3,x5    4          30  FALSE         0.07198271              0.09395737
+#> 4       x1,x4,x5    3          30  FALSE         0.06290784              0.08889440
+#> 5    x2,x3,x4,x5    4          30  FALSE         0.05766823              0.08401650
+#> 6          x2,x6    2          30  FALSE         0.10556609              0.08760037
+#>   mean_abs_corr_cross
+#> 1          0.06004899
+#> 2          0.07278975
+#> 3          0.06294279
+#> 4          0.07196982
+#> 5          0.06221965
+#> 6          0.06647446
+#> 
+#> $`c0 = 0.000`
+#>               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
+#> 1 x1,x2,x3,x4,x5,x6    6          30  FALSE         0.05666305              0.08808704
+#>   mean_abs_corr_cross
+#> 1          0.05790142
 ```
 
 ### Parallel resampling

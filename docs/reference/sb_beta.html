@@ -54,7 +54,7 @@ the beta-regression selectors provided by this package.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sb_beta</span><span class="op">(</span></span>
 <span>  <span class="va">X</span>,</span>
-<span>  <span class="va">Y</span>,</span>
+<span>  Y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  selector <span class="op">=</span> <span class="va">betareg_step_aic</span>,</span>
 <span>  corrfunc <span class="op">=</span> <span class="st">"cor"</span>,</span>
 <span>  B <span class="op">=</span> <span class="fl">100</span>,</span>
@@ -66,6 +66,9 @@ the beta-regression selectors provided by this package.</p>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  threshold <span class="op">=</span> <span class="fl">1e-04</span>,</span>
+<span>  interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"uniform"</span>, <span class="st">"midpoint"</span><span class="op">)</span>,</span>
+<span>  Y_low <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  Y_high <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -81,7 +84,8 @@ the beta-regression selectors provided by this package.</p>
 
 <dt id="arg-y">Y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p>Numeric response vector. Values are squeezed to the open unit
-interval unless <code>squeeze = FALSE</code>.</p></dd>
+interval unless <code>squeeze = FALSE</code>. Optional when interval bounds are
+supplied.</p></dd>
 
 
 <dt id="arg-selector">selector<a class="anchor" aria-label="anchor" href="#arg-selector"></a></dt>
@@ -130,6 +134,17 @@ when supported by the current R session.</p></dd>
 <dd><p>Numeric tolerance for considering a coefficient selected.</p></dd>
 
 
+<dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
+<dd><p>Interval-resampling mode: <code>"none"</code> reuses <code>Y</code>, whereas
+<code>"uniform"</code> and <code>"midpoint"</code> draw pseudo-responses between <code>Y_low</code> and
+<code>Y_high</code> for each replicate.</p></dd>
+
+
+<dt id="arg-y-low-y-high">Y_low, Y_high<a class="anchor" aria-label="anchor" href="#arg-y-low-y-high"></a></dt>
+<dd><p>Interval bounds in <code>[0, 1]</code> paired with the rows of <code>X</code>
+when <code>interval</code> is not <code>"none"</code>.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments forwarded to <code>selector</code>.</p></dd>
 
@@ -138,7 +153,8 @@ when supported by the current R session.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Matrix of selection frequencies with one row per <code>c0</code> level. The
 object carries the class <code>"sb_beta"</code> and records attributes comparable to the
-historical SelectBoost implementation.</p>
+historical SelectBoost implementation, with additional <code>"resample_diagnostics"</code>
+(per-threshold summaries of the cached draws) and <code>"interval"</code> metadata.</p>
     </div>
 
     <div class="section level2">
@@ -150,14 +166,15 @@ historical SelectBoost implementation.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> SelectBoost beta selection frequencies</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Selector: betareg_step_aic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Resamples per threshold: 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Interval mode: none</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> c0 grid: 1.000, 0.126, 0.113, 0.025, 0.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Inner thresholds: 0.126, 0.113, 0.025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             x1  x2  x3  x4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 1.000 1.0 1.0 0.0 0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.126 0.2 1.0 0.3 0.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.113 0.0 0.2 0.0 0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.025 0.1 0.3 0.2 0.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.000 0.2 0.0 0.3 0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             x1  x2  x3  x4 phi|(Intercept)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 1.000 1.0 1.0 0.0 0.0               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.126 0.1 1.0 0.3 0.2               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.113 0.3 0.0 0.4 0.2               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.025 0.3 0.0 0.4 0.2               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.000 0.2 0.1 0.2 0.4               1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"c0.seq")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.00000000 0.12616304 0.11291203 0.02454839 0.00000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"steps.seq")</span>
@@ -166,6 +183,51 @@ historical SelectBoost implementation.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"selector")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "betareg_step_aic"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")$`c0 = 1.000`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] group                   size                    regenerated            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [7] mean_abs_corr_cross    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")$`c0 = 0.126`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    x1,x4    2          10  FALSE          0.1275181               0.1195504</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    x3,x4    2          10  FALSE          0.1261630               0.1249398</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 x1,x3,x4    3          10  FALSE          0.1225041               0.1323147</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mean_abs_corr_cross</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          0.09746687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          0.07453088</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          0.06767065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")$`c0 = 0.113`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         group size regenerated cached mean_abs_corr_orig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 x1,x2,x3,x4    4          10  FALSE         0.08541194</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       x1,x2    2          10  FALSE         0.11291203</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    x1,x3,x4    3           0   TRUE         0.12250411</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mean_abs_corr_surrogate mean_abs_corr_cross</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               0.1262968          0.08154752</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               0.1424752          0.08312880</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3               0.1323147          0.06767065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")$`c0 = 0.025`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         group size regenerated cached mean_abs_corr_orig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 x1,x2,x3,x4    4           0   TRUE         0.08541194</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    x1,x2,x4    3          10  FALSE         0.08832617</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    x1,x3,x4    3           0   TRUE         0.12250411</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mean_abs_corr_surrogate mean_abs_corr_cross</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               0.1262968          0.08154752</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               0.1083570          0.10442578</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3               0.1323147          0.06767065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")$`c0 = 0.000`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         group size regenerated cached mean_abs_corr_orig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 x1,x2,x3,x4    4           0   TRUE         0.08541194</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mean_abs_corr_surrogate mean_abs_corr_cross</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               0.1262968          0.08154752</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"interval")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "none"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

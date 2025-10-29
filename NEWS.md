@@ -12,7 +12,9 @@
 - Added reproducible resampling caches and quality diagnostics to
   `sb_resample_groups()`/`sb_beta()`, including interval-response support that
   reuses pseudo-responses across correlation thresholds.
-
+- Documented interval workflows more prominently by adding `sb_beta_interval()`,
+  expanding the README/CRAN vignette guidance for selector choice and interval
+  stability, and clarifying comparison-helper outputs and response squeezing.
   
 # SelectBoost.beta 0.4.4
 - Add **NEWS.md** documenting development history.

@@ -1,7 +1,8 @@
 #' Beta regression LASSO via GAMLSS
 #'
 #' Uses `gamlss::ri()` (L1 penalty) in a `gamlss(dist = BE)` mean submodel to
-#' select variables.
+#' select variables. The helper works on complete cases of `X`/`Y`, targets the
+#' mean component, and does not yet expose offset handling.
 #'
 #' @inheritParams betareg_step_aic
 #' @param method `"ML"` or `"GAIC"` (see `gamlss::ri`).
@@ -96,7 +97,8 @@ betareg_lasso_gamlss <- function(
 #' Beta regression Elastic-Net via GAMLSS (gamlss.lasso)
 #'
 #' Uses `gamlss.lasso::gnet()` to fit ENet on the mean submodel of
-#' `gamlss(dist = BE)`.
+#' `gamlss(dist = BE)`. The routine assumes complete cases and does not expose
+#' offsets or precision-model terms.
 #'
 #' @inheritParams betareg_step_aic
 #' @param method `"IC"` (information criterion) or `"CV"`.

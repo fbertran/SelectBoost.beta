@@ -447,16 +447,18 @@ sb_selection_frequency <- function(coef_matrix, version = c("glmnet", "lars"), t
 #' SelectBoost for beta-regression models
 #'
 #' @description
-#' `sb_beta()` orchestrates all SelectBoost stages-normalisation, correlation
-#' analysis, grouping, correlated resampling, and stability tallying-while using
-#' the beta-regression selectors provided by this package.
+#' `sb_beta()` orchestrates all SelectBoost stages—normalisation, correlation
+#' analysis, grouping, correlated resampling, and stability tallying—while using
+#' the beta-regression selectors provided by this package. It can operate on
+#' point-valued or interval-valued responses and automatically squeezes the
+#' outcome into `(0, 1)` unless instructed otherwise.
 #'
 #' @inheritParams sb_resample_groups
 #' @param X Numeric design matrix. Coerced with [as.matrix()] and normalised via
 #'   [sb_normalize()].
 #' @param Y Numeric response vector. Values are squeezed to the open unit
-#'   interval unless `squeeze = FALSE`. Optional when interval bounds are
-#'   supplied.
+#'   interval with the standard SelectBoost transformation unless `squeeze =
+#'   FALSE`. Optional when interval bounds are supplied.
 #' @param selector Selection routine. Defaults to [betareg_step_aic()].
 #' @param corrfunc Correlation function passed to [sb_compute_corr()].
 #' @param step.num Step length for the automatically generated `c0` grid.
@@ -474,10 +476,24 @@ sb_selection_frequency <- function(coef_matrix, version = c("glmnet", "lars"), t
 #' @param Y_low,Y_high Interval bounds in `[0, 1]` paired with the rows of `X`
 #'   when `interval` is not `"none"`.
 #' @param ... Additional arguments forwarded to `selector`.
-#' @return Matrix of selection frequencies with one row per `c0` level. The
-#'   object carries the class `"sb_beta"` and records attributes comparable to the
-#'   historical SelectBoost implementation, with additional `"resample_diagnostics"`
-#'   (per-threshold summaries of the cached draws) and `"interval"` metadata.
+#' @details
+#' The returned object carries a rich set of attributes:
+#'
+#' * `"c0.seq"` – the grid of absolute-correlation thresholds explored during
+#'   resampling.
+#' * `"steps.seq"` – the raw sequence (if any) used to construct the grid.
+#' * `"selector"` – the selector identifier (function name or expression).
+#' * `"B"` – number of resampled designs passed to the selector.
+#' * `"interval"` – the interval sampling mode (`"none"`, `"uniform"`, or
+#'   `"midpoint"`).
+#' * `"resample_diagnostics"` – per-threshold data frames with summary
+#'   statistics on the cached correlated draws.
+#'
+#' These attributes mirror the historical SelectBoost beta implementation so the
+#' object can be consumed by existing plotting and reporting utilities.
+#'
+#' @return Matrix of selection frequencies with one row per `c0` level and class
+#'   `"sb_beta"`. See *Details* for the recorded attributes.
 #' @examples
 #' set.seed(42)
 #' sim <- simulation_DATA.beta(n = 80, p = 4, s = 2)

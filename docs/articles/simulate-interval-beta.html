@@ -44,6 +44,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/selectboost-algorithms.html">SelectBoost.beta algorithms</a></li>
     <li><a class="dropdown-item" href="../articles/selectboost-beta.html">SelectBoost for Beta regression</a></li>
+    <li><a class="dropdown-item" href="../articles/selectboost-cran.html">Getting started with SelectBoost.beta</a></li>
     <li><a class="dropdown-item" href="../articles/simulate-interval-beta.html">Simulating interval Beta data</a></li>
   </ul>
 </li>
@@ -74,7 +75,7 @@ Bertrand</h4>
 Paris<br><a class="author_email" href="mailto:#"></a><a href="mailto:frederic.bertrand@lecnam.net" class="email">frederic.bertrand@lecnam.net</a>
       </address>
                   
-            <h4 data-toc-skip class="date">2025-10-28</h4>
+            <h4 data-toc-skip class="date">2025-10-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/fbertran/SelectBoost.beta/blob/HEAD/vignettes/simulate-interval-beta.Rmd" class="external-link"><code>vignettes/simulate-interval-beta.Rmd</code></a></small>
       <div class="d-none name"><code>simulate-interval-beta.Rmd</code></div>
@@ -209,6 +210,14 @@ is not installed.</p>
 <span><span class="co">#&gt; x4      AIC       x4 -0.4996924     TRUE</span></span>
 <span><span class="co">#&gt; x5      AIC       x5  0.0000000    FALSE</span></span>
 <span><span class="co">#&gt; x6      AIC       x6  0.0000000    FALSE</span></span></code></pre></div>
+<p>The helper returns a list with two elements.
+<code>single$coefs</code> stores one coefficient vector per selector
+(intercept followed by the original column names), while
+<code>single$table</code> provides a tidy summary with the
+<code>selector</code>, <code>variable</code>, <code>coef</code>, and
+<code>selected</code> columns. Column names are briefly shortened
+internally to guarantee syntactic validity for all selectors, then
+mapped back to their original labels in the returned objects.</p>
 <p>The bootstrap helper <code><a href="../reference/compare_selectors_bootstrap.html">compare_selectors_bootstrap()</a></code>
 repeats this exercise over resampled datasets, providing empirical
 selection frequencies for each method.</p>
@@ -224,6 +233,10 @@ selection frequencies for each method.</p>
 <span><span class="co">#&gt; x4      AIC       x4 1.00000000</span></span>
 <span><span class="co">#&gt; x5      AIC       x5 0.26666667</span></span>
 <span><span class="co">#&gt; x6      AIC       x6 0.06666667</span></span></code></pre></div>
+<p>The <code>freq</code> column reports the share of bootstrap
+replicates in which the variable was selected. Higher values indicate
+stronger evidence across resamples and help prioritise predictors for
+follow-up modelling.</p>
 <p>Merging both outputs with <code><a href="../reference/compare_table.html">compare_table()</a></code> gives a
 compact summary containing the per-run coefficients and the associated
 bootstrap frequencies.</p>
@@ -254,6 +267,9 @@ coefficient map.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_compare_freq.html">plot_compare_freq</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span></code></pre></div>
 <p><img src="simulate-interval-beta_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<p>Combining both outputs with <code><a href="../reference/compare_table.html">compare_table()</a></code> retains the
+bootstrap frequencies next to the single-run coefficients for easy
+inspection.</p>
 </div>
 <div class="section level2">
 <h2 id="interval-stability-selection-with-fastboost_interval">Interval stability selection with
@@ -276,6 +292,64 @@ uncertainty carried by the censored observations.</p>
 <p>These additions demonstrate how the simulation engine, the collection
 of selectors, and the fast interval booster interact in a cohesive
 workflow for interval-valued beta regression problems.</p>
+</div>
+<div class="section level2">
+<h2 id="interval-selectboost-with-sb_beta_interval">Interval SelectBoost with <code>sb_beta_interval</code><a class="anchor" aria-label="anchor" href="#interval-selectboost-with-sb_beta_interval"></a>
+</h2>
+<p>When you want to run the full SelectBoost workflow on interval data,
+the <code><a href="../reference/sb_beta_interval.html">sb_beta_interval()</a></code> wrapper calls <code><a href="../reference/sb_beta.html">sb_beta()</a></code>
+with the appropriate interval sampling mode under the hood. It keeps the
+same output structure as other <code><a href="../reference/sb_beta.html">sb_beta()</a></code> runs, including
+the stability matrix and diagnostic attributes.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">comp_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">Y_low</span><span class="op">)</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">Y_high</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sb_interval</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sb_beta_interval.html">sb_beta_interval</a></span><span class="op">(</span></span>
+<span>  <span class="va">sim</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="va">comp_id</span>, <span class="op">]</span>,</span>
+<span>  Y_low <span class="op">=</span> <span class="va">sim</span><span class="op">$</span><span class="va">Y_low</span><span class="op">[</span><span class="va">comp_id</span><span class="op">]</span>,</span>
+<span>  Y_high <span class="op">=</span> <span class="va">sim</span><span class="op">$</span><span class="va">Y_high</span><span class="op">[</span><span class="va">comp_id</span><span class="op">]</span>,</span>
+<span>  B <span class="op">=</span> <span class="fl">30</span>,</span>
+<span>  step.num <span class="op">=</span> <span class="fl">0.4</span>,</span>
+<span>  sample <span class="op">=</span> <span class="st">"uniform"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb_interval</span>, <span class="st">"interval"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "uniform"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sb_interval</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                    x1        x2         x3         x4        x5        x6</span></span>
+<span><span class="co">#&gt; c0 = 1.000 1.00000000 1.0000000 1.00000000 1.00000000 0.1666667 0.1000000</span></span>
+<span><span class="co">#&gt; c0 = 0.138 0.23333333 0.1666667 0.20000000 0.06666667 0.2000000 0.2666667</span></span>
+<span><span class="co">#&gt; c0 = 0.055 0.06666667 0.1333333 0.06666667 0.20000000 0.1333333 0.2333333</span></span>
+<span><span class="co">#&gt; c0 = 0.000 0.06666667 0.2666667 0.13333333 0.13333333 0.1333333 0.2666667</span></span>
+<span><span class="co">#&gt;                    x7        x8         x9        x10 phi|(Intercept)</span></span>
+<span><span class="co">#&gt; c0 = 1.000 0.60000000 0.3666667 0.06666667 0.20000000               1</span></span>
+<span><span class="co">#&gt; c0 = 0.138 0.06666667 0.1000000 0.10000000 0.16666667               1</span></span>
+<span><span class="co">#&gt; c0 = 0.055 0.16666667 0.1000000 0.06666667 0.06666667               1</span></span>
+<span><span class="co">#&gt; c0 = 0.000 0.23333333 0.1666667 0.10000000 0.23333333               1</span></span></code></pre></div>
+<p>Pair this output with the plotting methods
+(<code><a href="../reference/sb_beta_methods.html">autoplot.sb_beta()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>) to inspect the
+stability matrix produced under interval resampling.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sb_interval</span><span class="op">)</span></span>
+<span><span class="co">#&gt; SelectBoost beta summary</span></span>
+<span><span class="co">#&gt; Selector: selector</span></span>
+<span><span class="co">#&gt; Resamples per threshold: 30</span></span>
+<span><span class="co">#&gt; Interval mode: uniform</span></span>
+<span><span class="co">#&gt; c0 grid: 1.000, 0.138, 0.055, 0.000</span></span>
+<span><span class="co">#&gt; Inner thresholds: 0.138, 0.055</span></span>
+<span><span class="co">#&gt; Top rows:</span></span>
+<span><span class="co">#&gt;    c0 variable frequency</span></span>
+<span><span class="co">#&gt; 1   1       x1    1.0000</span></span>
+<span><span class="co">#&gt; 2   1       x2    0.2333</span></span>
+<span><span class="co">#&gt; 3   1       x3    0.0667</span></span>
+<span><span class="co">#&gt; 4   1       x4    0.0667</span></span>
+<span><span class="co">#&gt; 5   1       x5    1.0000</span></span>
+<span><span class="co">#&gt; 6   1       x6    0.1667</span></span>
+<span><span class="co">#&gt; 7   1       x7    0.1333</span></span>
+<span><span class="co">#&gt; 8   1       x8    0.2667</span></span>
+<span><span class="co">#&gt; 9   1       x9    1.0000</span></span>
+<span><span class="co">#&gt; 10  1      x10    0.2000</span></span>
+<span><span class="fu"><a href="../reference/sb_beta_methods.html">autoplot.sb_beta</a></span><span class="op">(</span><span class="va">sb_interval</span><span class="op">)</span></span></code></pre></div>
+<p><img src="simulate-interval-beta_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

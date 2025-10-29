@@ -22,6 +22,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/selectboost-algorithms.html">SelectBoost.beta algorithms</a></li>
     <li><a class="dropdown-item" href="../articles/selectboost-beta.html">SelectBoost for Beta regression</a></li>
+    <li><a class="dropdown-item" href="../articles/selectboost-cran.html">Getting started with SelectBoost.beta</a></li>
     <li><a class="dropdown-item" href="../articles/simulate-interval-beta.html">Simulating interval Beta data</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -46,6 +47,7 @@
 <li><p>Enabled optional parallel resampling in <code><a href="../reference/sb_beta.html">sb_beta()</a></code>/<code><a href="../reference/sb_resample_groups.html">sb_resample_groups()</a></code> via <code>future.apply</code>, added S3 print/summary/autoplot helpers for <code>sb_beta</code> results, and documented the new behaviour in the README.</p></li>
 <li><p>Extended the stepwise beta selectors to handle observation weights and precision-submodel search, exposing precision coefficients in the returned paths.</p></li>
 <li><p>Added reproducible resampling caches and quality diagnostics to <code><a href="../reference/sb_resample_groups.html">sb_resample_groups()</a></code>/<code><a href="../reference/sb_beta.html">sb_beta()</a></code>, including interval-response support that reuses pseudo-responses across correlation thresholds.</p></li>
+<li><p>Documented interval workflows more prominently by adding <code><a href="../reference/sb_beta_interval.html">sb_beta_interval()</a></code>, expanding the README/CRAN vignette guidance for selector choice and interval stability, and clarifying comparison-helper outputs and response squeezing.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.4" id="selectboostbeta-044">SelectBoost.beta 0.4.4<a class="anchor" aria-label="anchor" href="#selectboostbeta-044"></a></h2>

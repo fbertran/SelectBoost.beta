@@ -31,7 +31,8 @@ Named numeric vector of coefficients as in \code{\link[=betareg_lasso_gamlss]{be
 }
 \description{
 Uses \code{gamlss.lasso::gnet()} to fit ENet on the mean submodel of
-\code{gamlss(dist = BE)}.
+\code{gamlss(dist = BE)}. The routine assumes complete cases and does not expose
+offsets or precision-model terms.
 }
 \seealso{
 \code{\link[gamlss.lasso:gnet]{gamlss.lasso::gnet()}}, \code{\link[gamlss:gamlss]{gamlss::gamlss()}}, \code{\link[gamlss.dist:BE]{gamlss.dist::BE()}}

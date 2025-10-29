@@ -3,8 +3,10 @@
 #' Fits a Beta regression with optional joint selection of the mean and
 #' precision (phi) submodels using `betareg::betareg()`. The routine performs
 #' greedy forward/backward search using the requested information criterion and
-#' returns coefficients aligned with the supplied design matrix. Observation
-#' weights are passed through to `betareg()` when provided.
+#' returns coefficients aligned with the supplied design matrix. The selectors
+#' currently target the mean submodel only, require complete cases, and do not
+#' expose offsets. Observation weights are passed through to `betareg()` when
+#' provided.
 #'
 #' @param X Numeric matrix (n × p) of mean-submodel predictors.
 #' @param Y Numeric response in (0,1). Values are squeezed to (0,1) internally.

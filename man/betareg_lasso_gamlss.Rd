@@ -35,7 +35,8 @@ with 0 for unselected variables.
 }
 \description{
 Uses \code{gamlss::ri()} (L1 penalty) in a \code{gamlss(dist = BE)} mean submodel to
-select variables.
+select variables. The helper works on complete cases of \code{X}/\code{Y}, targets the
+mean component, and does not yet expose offset handling.
 }
 \examples{
 set.seed(1); X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[,1]); Y <- rbeta(100, Y*30, (1-Y)*30)

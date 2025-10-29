@@ -47,6 +47,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/selectboost-algorithms.html">SelectBoost.beta algorithms</a></li>
     <li><a class="dropdown-item" href="articles/selectboost-beta.html">SelectBoost for Beta regression</a></li>
+    <li><a class="dropdown-item" href="articles/selectboost-cran.html">Getting started with SelectBoost.beta</a></li>
     <li><a class="dropdown-item" href="articles/simulate-interval-beta.html">Simulating interval Beta data</a></li>
   </ul>
 </li>
@@ -82,8 +83,60 @@
 <li>helper functions (<code><a href="reference/sb_normalize.html">sb_normalize()</a></code>, <code><a href="reference/sb_normalize.html">sb_group_variables()</a></code>, <code><a href="reference/sb_resample_groups.html">sb_resample_groups()</a></code>, …) mirroring the core stages of SelectBoost; and</li>
 <li>the high-level <code><a href="reference/sb_beta.html">sb_beta()</a></code> driver that orchestrates normalisation, correlation analysis, grouped resampling and stability tallying in a single call.</li>
 </ul>
+<div class="section level2">
+<h2 id="choosing-a-selector">Choosing a selector<a class="anchor" aria-label="anchor" href="#choosing-a-selector"></a>
+</h2>
+<p><code>SelectBoost.beta</code> ships with multiple selector families. Use the table below as a starting point when deciding which helper best matches your workflow:</p>
+<table class="table">
+<colgroup>
+<col width="25%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
+</colgroup>
+<thead><tr>
+<th>Selector</th>
+<th>What it does</th>
+<th>Good defaults for</th>
+<th>Extra packages</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+<code><a href="reference/betareg_step_aic.html">betareg_step_aic()</a></code> / <code><a href="reference/betareg_step_bic.html">betareg_step_bic()</a></code> / <code><a href="reference/betareg_step_aicc.html">betareg_step_aicc()</a></code>
+</td>
+<td>Greedy stepwise search on <code>betareg</code> fits (mean submodel, optional phi search) using the chosen information criterion.</td>
+<td>Small-to-moderate <code>p</code>, interpretable models, when you want to reuse <code>betareg</code> summaries.</td>
+<td>
+<code>betareg</code> (installed automatically).</td>
+</tr>
+<tr>
+<td><code><a href="reference/betareg_glmnet.html">betareg_glmnet()</a></code></td>
+<td>Iteratively reweighted least squares with <code>glmnet</code> on the working responses; supports AIC/BIC/CV selection.</td>
+<td>Higher-dimensional settings or when you need elastic-net regularisation with no extra dependencies.</td>
+<td>
+<code>glmnet</code>.</td>
+</tr>
+<tr>
+<td><code><a href="reference/betareg_lasso_gamlss.html">betareg_lasso_gamlss()</a></code></td>
+<td>LASSO penalty through <code><a href="https://rdrr.io/pkg/gamlss/man/ri.html" class="external-link">gamlss::ri()</a></code> on the beta mean submodel.</td>
+<td>Workflows already using <code>gamlss</code>, or when you need GAIC-tuned shrinkage.</td>
+<td>
+<code>gamlss</code>, <code>gamlss.dist</code>.</td>
+</tr>
+<tr>
+<td><code><a href="reference/betareg_enet_gamlss.html">betareg_enet_gamlss()</a></code></td>
+<td>Elastic-net variant via <code><a href="https://rdrr.io/pkg/gamlss.lasso/man/gnet.html" class="external-link">gamlss.lasso::gnet()</a></code>.</td>
+<td>When elastic-net is needed alongside GAMLSS diagnostics.</td>
+<td>
+<code>gamlss</code>, <code>gamlss.dist</code>, <code>gamlss.lasso</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>All selectors expect complete cases for the supplied design matrix and only act on the mean submodel. Offsets and observation-level weights beyond what is exposed in each helper are currently unsupported.</p>
 <p>Each resampling call returns per-group diagnostics (cached draws, observed correlation summaries) and <code><a href="reference/sb_beta.html">sb_beta()</a></code> threads the same correlated surrogates across all thresholds so cross-level comparisons remain aligned. Interval responses are supported through the <code>interval</code> argument, which reuses the <code><a href="reference/fastboost_interval.html">fastboost_interval()</a></code> logic directly inside <code><a href="reference/sb_beta.html">sb_beta()</a></code>.</p>
 <p>The package is designed so that each stage of the workflow remains reusable on its own. Users can plug in custom grouping strategies or selectors while still benefiting from correlated resampling.</p>
+</div>
 <div class="section level2">
 <h2 id="conference-presentations">Conference presentations<a class="anchor" aria-label="anchor" href="#conference-presentations"></a>
 </h2>
@@ -235,8 +288,8 @@
 <span>  <span class="fu"><a href="reference/sb_beta_methods.html">autoplot.sb_beta</a></span><span class="op">(</span><span class="va">sb</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <div class="figure">
-<img src="reference/figures/README-unnamed-chunk-28-1.png" alt="plot of chunk unnamed-chunk-28" width="100%"><p class="caption">
-plot of chunk unnamed-chunk-28
+<img src="reference/figures/README-unnamed-chunk-33-1.png" alt="plot of chunk unnamed-chunk-33" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-33
 </p>
 </div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -249,8 +302,28 @@ plot of chunk unnamed-chunk-28
 <span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
 <span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
 <span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="understanding-the-sb_beta-output">Understanding the <code>sb_beta()</code> output<a class="anchor" aria-label="anchor" href="#understanding-the-sb_beta-output"></a>
+</h3>
+<p>The matrix returned by <code><a href="reference/sb_beta.html">sb_beta()</a></code> carries a number of attributes so downstream code can recover how the stability frequencies were produced:</p>
+<ul>
+<li>
+<code>attr(sb, "c0.seq")</code> lists the absolute-correlation thresholds explored.</li>
+<li>
+<code>attr(sb, "steps.seq")</code> reports the raw sequence used to build that grid when <code>step.num</code> was provided.</li>
+<li>
+<code>attr(sb, "B")</code> records the number of correlated resamples per threshold.</li>
+<li>
+<code>attr(sb, "selector")</code> stores the selector name or expression.</li>
+<li>
+<code>attr(sb, "interval")</code> highlights whether interval resampling was used.</li>
+<li>
+<code>attr(sb, "resample_diagnostics")</code> holds per-threshold summaries of the cached surrogate draws.</li>
+</ul>
+<p>These attributes mirror the original SelectBoost design and are documented in <code><a href="reference/sb_beta.html">?sb_beta</a></code> to ease CRAN review.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/compare_selectors_single.html">compare_selectors_single</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, include_enet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="reference/compare_selectors_single.html">compare_selectors_single()</a></code> temporarily shortens column names so that the selectors receive syntactically valid identifiers; the returned list remaps the coefficients and long table back to the original labels.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="reference/compare_selectors_bootstrap.html">compare_selectors_bootstrap</a></span><span class="op">(</span></span>
 <span>  <span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">100</span>, include_enet <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">321</span></span>
@@ -263,19 +336,21 @@ plot of chunk unnamed-chunk-28
 <span><span class="co">#&gt; x4      AIC       x4 0.27</span></span>
 <span><span class="co">#&gt; x5      AIC       x5 0.14</span></span>
 <span><span class="co">#&gt; x6      AIC       x6 0.19</span></span></code></pre></div>
+<p>The <code>freq</code> column reports how often each variable was selected across the bootstrap replicates. Values close to 1 indicate highly stable discoveries, whereas small values suggest weak or noisy support. Increase <code>B</code> when you need finer resolution; a few dozen resamples suffice for quick checks, while several hundred deliver smoother estimates.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_coeff.html">plot_compare_coeff</a></span><span class="op">(</span><span class="va">single</span><span class="op">$</span><span class="va">table</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="reference/figures/README-unnamed-chunk-32-1.png" alt="plot of chunk unnamed-chunk-32" width="100%"><p class="caption">
-plot of chunk unnamed-chunk-32
+<img src="reference/figures/README-unnamed-chunk-37-1.png" alt="plot of chunk unnamed-chunk-37" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-37
 </p>
 </div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_freq.html">plot_compare_freq</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="reference/figures/README-unnamed-chunk-33-1.png" alt="plot of chunk unnamed-chunk-33" width="100%"><p class="caption">
-plot of chunk unnamed-chunk-33
+<img src="reference/figures/README-unnamed-chunk-38-1.png" alt="plot of chunk unnamed-chunk-38" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-38
 </p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="interval-outcomes">Interval outcomes<a class="anchor" aria-label="anchor" href="#interval-outcomes"></a>
@@ -320,6 +395,12 @@ plot of chunk unnamed-chunk-33
 <span><span class="co">#&gt; 1 x1,x2,x3,x4,x5,x6    6          30  FALSE         0.05666305              0.08808704</span></span>
 <span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
 <span><span class="co">#&gt; 1          0.05790142</span></span></code></pre></div>
+<p>For a shortcut that always uses interval resampling, call <code>sb_beta_interval(sim$X, Y_low, Y_high, sample = "uniform")</code>. The lower-level <code><a href="reference/fastboost_interval.html">fastboost_interval()</a></code> helper remains available when you want to pair the interval resampling logic with a custom selector outside <code><a href="reference/sb_beta.html">sb_beta()</a></code>.</p>
+</div>
+<div class="section level3">
+<h3 id="response-handling-and-squeezing">Response handling and squeezing<a class="anchor" aria-label="anchor" href="#response-handling-and-squeezing"></a>
+</h3>
+<p>All selectors operate on responses in <code>(0, 1)</code>. By default <code><a href="reference/sb_beta.html">sb_beta()</a></code> and the selector helpers squeeze the data away from the boundaries using the usual SelectBoost transformation. Set <code>squeeze = FALSE</code> only if you have already applied your own transformation; otherwise zero/one observations will trigger an error.</p>
 </div>
 <div class="section level3">
 <h3 id="parallel-resampling">Parallel resampling<a class="anchor" aria-label="anchor" href="#parallel-resampling"></a>
@@ -329,7 +410,7 @@ plot of chunk unnamed-chunk-33
 <code class="sourceCode R"><span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span><span class="op">)</span></span>
 <span><span class="va">sb_parallel</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_beta.html">sb_beta</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">50</span>, step.num <span class="op">=</span> <span class="fl">0.25</span>, use.parallel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">)</span></span></code></pre></div>
-<p>Refer to the vignettes for a more detailed walk-through of the workflow and the pseudo-code underpinning the algorithms.</p>
+<p>Refer to the vignettes for a more detailed walk-through of the workflow and the pseudo-code underpinning the algorithms. The new <code>Getting started with SelectBoost.beta</code> vignette mirrors the CRAN submission example set by showing a full run, interpreting the stability matrix, and comparing selectors side by side.</p>
 </div>
 </div>
 </div>

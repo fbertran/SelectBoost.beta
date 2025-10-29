@@ -15,9 +15,8 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-#file.edit(normalizePath("~/.Renviron"))
 LOCAL <- identical(Sys.getenv("LOCAL"), "TRUE")
-#LOCAL=TRUE
+
 knitr::opts_chunk$set(purl = LOCAL)
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -32,7 +31,8 @@ set.seed(321)
 The new `sb_beta()` helper glues the beta-regression selectors provided by this
 package to a SelectBoost-style correlated-resampling loop implemented directly
 in `SelectBoost.beta`. It takes care of squeezing the response inside the open
-unit interval and tagging the output with the selector that was used.
+unit interval (unless `squeeze = FALSE`) and tagging the output with the
+selector that was used.
 
 This vignette walks through two complementary perspectives:
 
@@ -127,6 +127,14 @@ rownames(sb)
 round(sb, 3)
 ```
 
+The resulting matrix comes with several attributes that document how the
+frequencies were generated. `attr(sb, "c0.seq")` returns the correlation
+threshold grid, `attr(sb, "B")` stores the number of correlated resamples per
+threshold, `attr(sb, "interval")` highlights whether interval sampling was
+activated, and `attr(sb, "resample_diagnostics")` keeps summary statistics on
+the cached surrogate draws. These metadata mirror the legacy SelectBoost beta
+implementation and are now documented in `?sb_beta()`.
+
 Changing the selector is simply a matter of passing a different routine. The
 call below uses the GAMLSS-based elastic-net variant and asks `sb_beta()` to pass
 `choose = "bic"` to the underlying `betareg_glmnet()` implementation.
@@ -149,8 +157,9 @@ colMeans(sb_enet)
 Because the wrapper always builds on the same correlated resamples, results are
 directly comparable across selectors as long as they adopt the `glmnet`-style
 coefficient convention. This makes it straightforward to run stability analyses
-for interval responses by pairing `sb_beta()` with `fastboost_interval()` or to
-compare several beta selectors under the exact same resampled design matrices.
+for interval responses by pairing `sb_beta()` with the convenience wrapper
+`sb_beta_interval()` (or the lower-level `fastboost_interval()`) or to compare
+several beta selectors under the exact same resampled design matrices.
 
 
 ## Conference communications

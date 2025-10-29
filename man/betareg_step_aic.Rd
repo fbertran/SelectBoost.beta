@@ -62,8 +62,10 @@ coefficient 0.
 Fits a Beta regression with optional joint selection of the mean and
 precision (phi) submodels using \code{betareg::betareg()}. The routine performs
 greedy forward/backward search using the requested information criterion and
-returns coefficients aligned with the supplied design matrix. Observation
-weights are passed through to \code{betareg()} when provided.
+returns coefficients aligned with the supplied design matrix. The selectors
+currently target the mean submodel only, require complete cases, and do not
+expose offsets. Observation weights are passed through to \code{betareg()} when
+provided.
 }
 \examples{
 set.seed(1)

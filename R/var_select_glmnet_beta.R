@@ -2,7 +2,8 @@
 #'
 #' Runs an IRLS loop with Beta working responses/weights and calls
 #' `glmnet` on the weighted least-squares surrogate. Supports BIC/AIC/CV
-#' model choice and an optional `prestandardize` speedup.
+#' model choice and an optional `prestandardize` speedup. The helper uses only
+#' the mean submodel, requires complete cases, and does not expose offset terms.
 #'
 #' @inheritParams betareg_step_aic
 #' @param alpha Elastic-net mixing parameter.

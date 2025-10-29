@@ -15,9 +15,8 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-#file.edit(normalizePath("~/.Renviron"))
 LOCAL <- identical(Sys.getenv("LOCAL"), "TRUE")
-#LOCAL=TRUE
+
 knitr::opts_chunk$set(purl = LOCAL)
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -128,6 +127,13 @@ single <- compare_selectors_single(sim$X, pseudo_y, include_enet = FALSE)
 head(single$table)
 ```
 
+The helper returns a list with two elements. `single$coefs` stores one
+coefficient vector per selector (intercept followed by the original column
+names), while `single$table` provides a tidy summary with the `selector`,
+`variable`, `coef`, and `selected` columns. Column names are briefly shortened
+internally to guarantee syntactic validity for all selectors, then mapped back to
+their original labels in the returned objects.
+
 The bootstrap helper `compare_selectors_bootstrap()` repeats this exercise over resampled datasets, providing empirical selection frequencies for each method.
 
 ```{r}
@@ -136,6 +142,10 @@ freq <- compare_selectors_bootstrap(
 )
 head(freq)
 ```
+
+The `freq` column reports the share of bootstrap replicates in which the
+variable was selected. Higher values indicate stronger evidence across resamples
+and help prioritise predictors for follow-up modelling.
 
 Merging both outputs with `compare_table()` gives a compact summary containing the per-run coefficients and the associated bootstrap frequencies.
 
@@ -161,6 +171,9 @@ manner, providing a stability-oriented counterpart to the coefficient map.
 plot_compare_freq(freq)
 ```
 
+Combining both outputs with `compare_table()` retains the bootstrap frequencies
+next to the single-run coefficients for easy inspection.
+
 ## Interval stability selection with `fastboost_interval`
 
 Instead of reducing intervals to single values, the `fastboost_interval()`
@@ -178,3 +191,34 @@ sort(fb$freq, decreasing = TRUE)[1:5]
 These additions demonstrate how the simulation engine, the collection of
 selectors, and the fast interval booster interact in a cohesive workflow for
 interval-valued beta regression problems.
+
+## Interval SelectBoost with `sb_beta_interval`
+
+When you want to run the full SelectBoost workflow on interval data, the
+`sb_beta_interval()` wrapper calls `sb_beta()` with the appropriate interval
+sampling mode under the hood. It keeps the same output structure as other
+`sb_beta()` runs, including the stability matrix and diagnostic attributes.
+
+```{r}
+comp_id <- complete.cases(sim$Y_low) & complete.cases(sim$Y_high)
+
+sb_interval <- sb_beta_interval(
+  sim$X[comp_id, ],
+  Y_low = sim$Y_low[comp_id],
+  Y_high = sim$Y_high[comp_id],
+  B = 30,
+  step.num = 0.4,
+  sample = "uniform"
+)
+attr(sb_interval, "interval")
+head(sb_interval)
+```
+
+Pair this output with the plotting methods (`autoplot.sb_beta()`, `summary()`) to inspect
+the stability matrix produced under interval resampling.
+
+```{r}
+summary(sb_interval)
+autoplot.sb_beta(sb_interval)
+```
+

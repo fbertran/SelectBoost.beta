@@ -44,6 +44,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/selectboost-algorithms.html">SelectBoost.beta algorithms</a></li>
     <li><a class="dropdown-item" href="../articles/selectboost-beta.html">SelectBoost for Beta regression</a></li>
+    <li><a class="dropdown-item" href="../articles/selectboost-cran.html">Getting started with SelectBoost.beta</a></li>
     <li><a class="dropdown-item" href="../articles/simulate-interval-beta.html">Simulating interval Beta data</a></li>
   </ul>
 </li>
@@ -74,7 +75,7 @@ Bertrand</h4>
 Paris<br><a class="author_email" href="mailto:#"></a><a href="mailto:frederic.bertrand@lecnam.net" class="email">frederic.bertrand@lecnam.net</a>
       </address>
                   
-            <h4 data-toc-skip class="date">2025-10-28</h4>
+            <h4 data-toc-skip class="date">2025-10-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/fbertran/SelectBoost.beta/blob/HEAD/vignettes/selectboost-algorithms.Rmd" class="external-link"><code>vignettes/selectboost-algorithms.Rmd</code></a></small>
       <div class="d-none name"><code>selectboost-algorithms.Rmd</code></div>
@@ -164,6 +165,10 @@ behaviour of the exported function.</p>
 of coefficients with optional names. When
 <code>version = "glmnet"</code>, the first entry is interpreted as the
 intercept and excluded from the selection frequencies.</p>
+<p>The squeezing step enforces the usual SelectBoost transformation that
+pushes all responses inside <code>(0, 1)</code>. Keep it enabled unless
+you already pre-processed the outcome; otherwise zero or one values will
+cause the selectors to abort.</p>
 </div>
 <div class="section level2">
 <h2 id="extending-the-algorithms">Extending the algorithms<a class="anchor" aria-label="anchor" href="#extending-the-algorithms"></a>

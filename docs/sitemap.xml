@@ -3,6 +3,7 @@
 <url><loc>https://fbertran.github.io/SelectBoost.beta/articles/index.html</loc></url>
 <url><loc>https://fbertran.github.io/SelectBoost.beta/articles/selectboost-algorithms.html</loc></url>
 <url><loc>https://fbertran.github.io/SelectBoost.beta/articles/selectboost-beta.html</loc></url>
+<url><loc>https://fbertran.github.io/SelectBoost.beta/articles/selectboost-cran.html</loc></url>
 <url><loc>https://fbertran.github.io/SelectBoost.beta/articles/simulate-interval-beta.html</loc></url>
 <url><loc>https://fbertran.github.io/SelectBoost.beta/authors.html</loc></url>
 <url><loc>https://fbertran.github.io/SelectBoost.beta/index.html</loc></url>
@@ -23,6 +24,7 @@
 <url><loc>https://fbertran.github.io/SelectBoost.beta/reference/plot_compare_freq.html</loc></url>
 <url><loc>https://fbertran.github.io/SelectBoost.beta/reference/sb_apply_selector_manual.html</loc></url>
 <url><loc>https://fbertran.github.io/SelectBoost.beta/reference/sb_beta.html</loc></url>
+<url><loc>https://fbertran.github.io/SelectBoost.beta/reference/sb_beta_interval.html</loc></url>
 <url><loc>https://fbertran.github.io/SelectBoost.beta/reference/sb_beta_methods.html</loc></url>
 <url><loc>https://fbertran.github.io/SelectBoost.beta/reference/sb_normalize.html</loc></url>
 <url><loc>https://fbertran.github.io/SelectBoost.beta/reference/sb_resample_groups.html</loc></url>

@@ -19,11 +19,16 @@ compare_selectors_bootstrap(X, Y, B = 50, include_enet = TRUE, seed = NULL)
 }
 \value{
 Long data frame with columns \code{selector}, \code{variable}, \code{freq} in \verb{[0,1]}.
+The \code{freq} column reports the share of bootstrap replicates where a variable
+was selected by the corresponding selector; values near 1 signal high
+stability whereas small values indicate weak evidence.
 }
 \description{
 Bootstraps the dataset \code{B} times and records how often each variable is
 selected by each selector. Observations containing \code{NA} in either \code{X} or \code{Y}
-are removed prior to resampling.
+are removed prior to resampling. Column names are abbreviated internally and
+mapped back to the originals in the output just like in
+\code{\link[=compare_selectors_single]{compare_selectors_single()}}.
 }
 \examples{
 set.seed(1)

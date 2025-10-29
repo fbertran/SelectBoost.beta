@@ -24,7 +24,9 @@ A list with:
 Convenience wrapper that runs AIC/BIC/AICc stepwise, GAMLSS LASSO (and ENet
 when available), and the pure glmnet IRLS selector, then collates coefficients
 into a long table for comparison. Observations containing \code{NA} in either \code{X}
-or \code{Y} are removed prior to fitting.
+or \code{Y} are removed prior to fitting. Column names are temporarily shortened
+to satisfy selector requirements and avoid clashes; the outputs remap them to
+the original labels before returning.
 }
 \examples{
 set.seed(1)

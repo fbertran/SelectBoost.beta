@@ -10,9 +10,8 @@ knitr::opts_chunk$set(
   fig.keep="all"
 )
 
-#file.edit(normalizePath("~/.Renviron"))
 LOCAL <- identical(Sys.getenv("LOCAL"), "TRUE")
-#LOCAL=TRUE
+
 knitr::opts_chunk$set(purl = LOCAL)
 ```
 
@@ -43,6 +42,22 @@ It ships with:
 - the high-level `sb_beta()` driver that orchestrates normalisation,
   correlation analysis, grouped resampling and stability tallying in a single
   call.
+
+## Choosing a selector
+
+`SelectBoost.beta` ships with multiple selector families. Use the table below as a
+starting point when deciding which helper best matches your workflow:
+
+| Selector | What it does | Good defaults for | Extra packages |
+| --- | --- | --- | --- |
+| `betareg_step_aic()` / `betareg_step_bic()` / `betareg_step_aicc()` | Greedy stepwise search on `betareg` fits (mean submodel, optional phi search) using the chosen information criterion. | Small-to-moderate `p`, interpretable models, when you want to reuse `betareg` summaries. | `betareg` (installed automatically).
+| `betareg_glmnet()` | Iteratively reweighted least squares with `glmnet` on the working responses; supports AIC/BIC/CV selection. | Higher-dimensional settings or when you need elastic-net regularisation with no extra dependencies. | `glmnet`.
+| `betareg_lasso_gamlss()` | LASSO penalty through `gamlss::ri()` on the beta mean submodel. | Workflows already using `gamlss`, or when you need GAIC-tuned shrinkage. | `gamlss`, `gamlss.dist`.
+| `betareg_enet_gamlss()` | Elastic-net variant via `gamlss.lasso::gnet()`. | When elastic-net is needed alongside GAMLSS diagnostics. | `gamlss`, `gamlss.dist`, `gamlss.lasso`.
+
+All selectors expect complete cases for the supplied design matrix and only act
+on the mean submodel. Offsets and observation-level weights beyond what is
+exposed in each helper are currently unsupported.
 
 Each resampling call returns per-group diagnostics (cached draws, observed
 correlation summaries) and `sb_beta()` threads the same correlated surrogates
@@ -127,9 +142,30 @@ attr(sb, "c0.seq")
 attr(sb, "resample_diagnostics")[[1]]
 ```
 
+### Understanding the `sb_beta()` output
+
+The matrix returned by `sb_beta()` carries a number of attributes so downstream
+code can recover how the stability frequencies were produced:
+
+- `attr(sb, "c0.seq")` lists the absolute-correlation thresholds explored.
+- `attr(sb, "steps.seq")` reports the raw sequence used to build that grid when
+  `step.num` was provided.
+- `attr(sb, "B")` records the number of correlated resamples per threshold.
+- `attr(sb, "selector")` stores the selector name or expression.
+- `attr(sb, "interval")` highlights whether interval resampling was used.
+- `attr(sb, "resample_diagnostics")` holds per-threshold summaries of the
+  cached surrogate draws.
+
+These attributes mirror the original SelectBoost design and are documented in
+`?sb_beta` to ease CRAN review.
+
 ```{r, cache=TRUE, eval=LOCAL}
 single <- compare_selectors_single(sim$X, sim$Y, include_enet = TRUE)
 ```
+
+`compare_selectors_single()` temporarily shortens column names so that the
+selectors receive syntactically valid identifiers; the returned list remaps the
+coefficients and long table back to the original labels.
 
 ```{r, cache=TRUE, eval=LOCAL}
 freq <- suppressWarnings(compare_selectors_bootstrap(
@@ -138,6 +174,11 @@ freq <- suppressWarnings(compare_selectors_bootstrap(
 head(freq)
 ```
 
+The `freq` column reports how often each variable was selected across the
+bootstrap replicates. Values close to 1 indicate highly stable discoveries,
+whereas small values suggest weak or noisy support. Increase `B` when you need
+finer resolution; a few dozen resamples suffice for quick checks, while several
+hundred deliver smoother estimates.
 
 ```{r, cache=TRUE, eval=LOCAL}
 plot_compare_coeff(single$table)
@@ -165,6 +206,18 @@ interval_fit <- sb_beta(
 attr(interval_fit, "interval")
 attr(interval_fit, "resample_diagnostics")
 ```
+For a shortcut that always uses interval resampling, call
+`sb_beta_interval(sim$X, Y_low, Y_high, sample = "uniform")`. The lower-level
+`fastboost_interval()` helper remains available when you want to pair the
+interval resampling logic with a custom selector outside `sb_beta()`.
+
+### Response handling and squeezing
+
+All selectors operate on responses in `(0, 1)`. By default `sb_beta()` and the
+selector helpers squeeze the data away from the boundaries using the usual
+SelectBoost transformation. Set `squeeze = FALSE` only if you have already
+applied your own transformation; otherwise zero/one observations will trigger an
+error.
 
 ### Parallel resampling
 
@@ -180,4 +233,7 @@ future::plan(future::sequential)
 ```
 
 Refer to the vignettes for a more detailed walk-through of the workflow and the
-pseudo-code underpinning the algorithms.
+pseudo-code underpinning the algorithms. The new `Getting started with
+SelectBoost.beta` vignette mirrors the CRAN submission example set by showing a
+full run, interpreting the stability matrix, and comparing selectors side by
+side.

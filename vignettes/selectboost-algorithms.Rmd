@@ -15,9 +15,8 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-#file.edit(normalizePath("~/.Renviron"))
 LOCAL <- identical(Sys.getenv("LOCAL"), "TRUE")
-#LOCAL=TRUE
+
 knitr::opts_chunk$set(purl = LOCAL)
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -98,6 +97,10 @@ Algorithm sb_beta(X, Y, selector, B, step.num, steps.seq, version, squeeze):
 The selector argument can be any function returning a numeric vector of
 coefficients with optional names. When `version = "glmnet"`, the first entry is
 interpreted as the intercept and excluded from the selection frequencies.
+
+The squeezing step enforces the usual SelectBoost transformation that pushes all
+responses inside `(0, 1)`. Keep it enabled unless you already pre-processed the
+outcome; otherwise zero or one values will cause the selectors to abort.
 
 ## Extending the algorithms
 

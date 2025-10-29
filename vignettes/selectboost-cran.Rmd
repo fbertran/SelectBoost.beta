@@ -1,0 +1,127 @@
+---
+title: "Getting started with SelectBoost.beta"
+shorttitle: "SelectBoost.beta quick tour"
+author:
+- name: "SelectBoost.beta authors"
+  affiliation:
+  - Cedric, Cnam, Paris
+  email: frederic.bertrand@lecnam.net
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with SelectBoost.beta}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+LOCAL <- identical(Sys.getenv("LOCAL"), "TRUE")
+knitr::opts_chunk$set(purl = LOCAL, collapse = TRUE, comment = "#>")
+suppressPackageStartupMessages(library(SelectBoost.beta))
+set.seed(2024)
+```
+
+## Introduction
+
+This vignette provides a CRAN-friendly tour of the SelectBoost.beta workflow. It
+simulates a reproducible beta-regression data set, runs the high-level
+`sb_beta()` driver, and shows how to interpret the stability matrix returned by
+the algorithm. All code is self-contained and executes quickly under the default
+knitr settings.
+
+## Simulated data
+
+We use the built-in `simulation_DATA.beta()` helper to generate a correlated
+design with three truly associated predictors. The response lives in `(0, 1)` and
+is already compatible with the beta-regression selectors.
+
+```{r}
+sim <- simulation_DATA.beta(n = 120, p = 6, s = 3, rho = 0.35,
+  beta_size = c(1.1, -0.9, 0.7))
+str(sim$X)
+summary(sim$Y)
+```
+
+## Running `sb_beta()`
+
+The `sb_beta()` wrapper orchestrates the full SelectBoost loop: it normalises the
+design matrix, groups correlated predictors, regenerates surrogate designs, and
+records selection frequencies for each threshold.
+
+```{r}
+sb <- sb_beta(sim$X, sim$Y, B = 40, step.num = 0.4, seed = 99)
+sb
+```
+
+The returned matrix has one row per correlation threshold. Attributes attached to
+the matrix document how the fit was produced:
+
+```{r}
+attr(sb, "c0.seq")
+attr(sb, "B")
+attr(sb, "interval")
+```
+
+Use `summary()` to obtain per-threshold summaries and `autoplot.sb_beta()` (when
+`ggplot2` is available) to visualise the stability matrix.
+
+```{r}
+summary(sb)
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  autoplot.sb_beta(sb)
+}
+```
+
+The frequency values range between 0 and 1 and report how often each predictor
+received a non-zero coefficient across the correlated replicates. High values
+signal stable selections. If your data contain zeros or ones, keep `squeeze =
+TRUE` (the default) so the algorithm applies the standard SelectBoost
+transformation before fitting the selectors.
+
+## Comparing selectors
+
+When you wish to benchmark multiple selector families, the
+`compare_selectors_single()` helper runs them once on the same data set and
+returns both raw coefficients and a tidy summary table. Column names are briefly
+shortened internally to satisfy each selector and then mapped back in the
+outputs.
+
+```{r}
+single <- compare_selectors_single(sim$X, sim$Y, include_enet = FALSE)
+head(single$table)
+```
+
+Bootstrap tallies add a stability perspective. The `freq` column in the table
+below measures the proportion of resamples where the variable was selected; values
+close to 1 indicate consistent discoveries.
+
+```{r}
+freq <- compare_selectors_bootstrap(sim$X, sim$Y, B = 20, include_enet = FALSE,
+  seed = 99)
+head(freq)
+```
+
+Merge both views with `compare_table()` and use `plot_compare_coeff()` or
+`plot_compare_freq()` for quick diagnostics.
+
+```{r}
+compare_table(single$table, freq)
+```
+
+## Interval responses
+
+If your outcome is interval-censored, run the `sb_beta_interval()` convenience
+wrapper. It enables the interval sampling logic inside `sb_beta()` while keeping
+the same output format and attributes.
+
+```{r}
+y_low <- pmax(sim$Y - 0.05, 0)
+y_high <- pmin(sim$Y + 0.05, 1)
+interval_fit <- sb_beta_interval(sim$X, y_low, y_high, B = 30,
+  sample = "uniform", seed = 321)
+attr(interval_fit, "interval")
+```
+
+The resulting stability matrix can be summarised and visualised exactly like the
+point-response output shown earlier.
+```

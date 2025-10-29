@@ -44,6 +44,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/selectboost-algorithms.html">SelectBoost.beta algorithms</a></li>
     <li><a class="dropdown-item" href="../articles/selectboost-beta.html">SelectBoost for Beta regression</a></li>
+    <li><a class="dropdown-item" href="../articles/selectboost-cran.html">Getting started with SelectBoost.beta</a></li>
     <li><a class="dropdown-item" href="../articles/simulate-interval-beta.html">Simulating interval Beta data</a></li>
   </ul>
 </li>
@@ -74,7 +75,7 @@ Bertrand</h4>
 Paris<br><a class="author_email" href="mailto:#"></a><a href="mailto:frederic.bertrand@lecnam.net" class="email">frederic.bertrand@lecnam.net</a>
       </address>
                   
-            <h4 data-toc-skip class="date">2025-10-28</h4>
+            <h4 data-toc-skip class="date">2025-10-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/fbertran/SelectBoost.beta/blob/HEAD/vignettes/selectboost-beta.Rmd" class="external-link"><code>vignettes/selectboost-beta.Rmd</code></a></small>
       <div class="d-none name"><code>selectboost-beta.Rmd</code></div>
@@ -89,8 +90,8 @@ Paris<br><a class="author_email" href="mailto:#"></a><a href="mailto:frederic.be
 selectors provided by this package to a SelectBoost-style
 correlated-resampling loop implemented directly in
 <code>SelectBoost.beta</code>. It takes care of squeezing the response
-inside the open unit interval and tagging the output with the selector
-that was used.</p>
+inside the open unit interval (unless <code>squeeze = FALSE</code>) and
+tagging the output with the selector that was used.</p>
 <p>This vignette walks through two complementary perspectives:</p>
 <ol style="list-style-type: decimal">
 <li>Reconstructing the SelectBoost workflow step by step with
@@ -150,16 +151,17 @@ selector yields coefficient estimates for every resampled data set.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">coef_path</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 7 8</span></span>
+<span><span class="co">#&gt; [1] 8 8</span></span>
 <span><span class="va">coef_path</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
-<span><span class="co">#&gt;                    sim1        sim2        sim3</span></span>
-<span><span class="co">#&gt; (Intercept) -0.03588528 -0.03588528 -0.03588528</span></span>
-<span><span class="co">#&gt; x1          11.34931343 11.34931343 11.34931343</span></span>
-<span><span class="co">#&gt; x2          -8.95724666 -8.95724666 -8.95724666</span></span>
-<span><span class="co">#&gt; x3           7.17554325  7.17554325  7.17554325</span></span>
-<span><span class="co">#&gt; x4           0.00000000  0.00000000  0.00000000</span></span>
-<span><span class="co">#&gt; x5           0.87055660  0.87055660  0.87055660</span></span>
-<span><span class="co">#&gt; x6           0.00000000  0.00000000  0.00000000</span></span></code></pre></div>
+<span><span class="co">#&gt;                        sim1        sim2        sim3</span></span>
+<span><span class="co">#&gt; (Intercept)     -0.03588528 -0.03588528 -0.03588528</span></span>
+<span><span class="co">#&gt; x1              11.34931343 11.34931343 11.34931343</span></span>
+<span><span class="co">#&gt; x2              -8.95724666 -8.95724666 -8.95724666</span></span>
+<span><span class="co">#&gt; x3               7.17554325  7.17554325  7.17554325</span></span>
+<span><span class="co">#&gt; x4               0.00000000  0.00000000  0.00000000</span></span>
+<span><span class="co">#&gt; x5               0.87055660  0.87055660  0.87055660</span></span>
+<span><span class="co">#&gt; x6               0.00000000  0.00000000  0.00000000</span></span>
+<span><span class="co">#&gt; phi|(Intercept)  2.95165950  2.95165950  2.95165950</span></span></code></pre></div>
 <p>Finally, the <code><a href="../reference/sb_selection_frequency.html">sb_selection_frequency()</a></code> helper counts how
 often each variable appears with a non-zero coefficient across the
 replicates. Because <code><a href="../reference/betareg_step_aic.html">betareg_step_aic()</a></code> returns a
@@ -169,8 +171,10 @@ selection frequencies.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sel_freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sb_selection_frequency.html">sb_selection_frequency</a></span><span class="op">(</span><span class="va">coef_path</span>, version <span class="op">=</span> <span class="st">"glmnet"</span><span class="op">)</span></span>
 <span><span class="va">sel_freq</span></span>
-<span><span class="co">#&gt; x1 x2 x3 x4 x5 x6 </span></span>
-<span><span class="co">#&gt;  1  1  1  0  1  0</span></span></code></pre></div>
+<span><span class="co">#&gt;              x1              x2              x3              x4              x5 </span></span>
+<span><span class="co">#&gt;               1               1               1               0               1 </span></span>
+<span><span class="co">#&gt;              x6 phi|(Intercept) </span></span>
+<span><span class="co">#&gt;               0               1</span></span></code></pre></div>
 <p>This manual exercise confirms that the correlated resampling loop
 from the original SelectBoost package plugs seamlessly into the beta
 selectors shipped in <code>SelectBoost.beta</code>.</p>
@@ -202,14 +206,15 @@ function.</p>
 <span><span class="co">#&gt; SelectBoost beta selection frequencies</span></span>
 <span><span class="co">#&gt; Selector: betareg_step_aic</span></span>
 <span><span class="co">#&gt; Resamples per threshold: 60</span></span>
+<span><span class="co">#&gt; Interval mode: none</span></span>
 <span><span class="co">#&gt; c0 grid: 1.0, 0.9, 0.7, 0.5, 0.0</span></span>
 <span><span class="co">#&gt; Inner thresholds: 0.9, 0.7, 0.5</span></span>
-<span><span class="co">#&gt;               x1    x2    x3    x4   x5    x6</span></span>
-<span><span class="co">#&gt; c0 = 1.000 1.000 1.000 1.000 0.000 1.00 0.000</span></span>
-<span><span class="co">#&gt; c0 = 0.900 1.000 1.000 1.000 0.000 1.00 0.000</span></span>
-<span><span class="co">#&gt; c0 = 0.700 1.000 1.000 1.000 0.000 1.00 0.000</span></span>
-<span><span class="co">#&gt; c0 = 0.500 1.000 1.000 1.000 0.000 1.00 0.000</span></span>
-<span><span class="co">#&gt; c0 = 0.000 0.117 0.133 0.117 0.167 0.15 0.167</span></span>
+<span><span class="co">#&gt;               x1    x2    x3    x4   x5    x6 phi|(Intercept)</span></span>
+<span><span class="co">#&gt; c0 = 1.000 1.000 1.000 1.000 0.000 1.00 0.000               1</span></span>
+<span><span class="co">#&gt; c0 = 0.900 1.000 1.000 1.000 0.000 1.00 0.000               1</span></span>
+<span><span class="co">#&gt; c0 = 0.700 1.000 1.000 1.000 0.000 1.00 0.000               1</span></span>
+<span><span class="co">#&gt; c0 = 0.500 1.000 1.000 1.000 0.000 1.00 0.000               1</span></span>
+<span><span class="co">#&gt; c0 = 0.000 0.117 0.133 0.117 0.167 0.15 0.167               1</span></span>
 <span><span class="co">#&gt; attr(,"c0.seq")</span></span>
 <span><span class="co">#&gt; [1] 1.0 0.9 0.7 0.5 0.0</span></span>
 <span><span class="co">#&gt; attr(,"steps.seq")</span></span>
@@ -217,7 +222,49 @@ function.</p>
 <span><span class="co">#&gt; attr(,"B")</span></span>
 <span><span class="co">#&gt; [1] 60</span></span>
 <span><span class="co">#&gt; attr(,"selector")</span></span>
-<span><span class="co">#&gt; [1] "betareg_step_aic"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "betareg_step_aic"</span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")</span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 1.000`</span></span>
+<span><span class="co">#&gt; [1] group                   size                    regenerated            </span></span>
+<span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
+<span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.900`</span></span>
+<span><span class="co">#&gt; [1] group                   size                    regenerated            </span></span>
+<span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
+<span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.700`</span></span>
+<span><span class="co">#&gt; [1] group                   size                    regenerated            </span></span>
+<span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
+<span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.500`</span></span>
+<span><span class="co">#&gt; [1] group                   size                    regenerated            </span></span>
+<span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
+<span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
+<span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.000`</span></span>
+<span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig</span></span>
+<span><span class="co">#&gt; 1 x1,x2,x3,x4,x5,x6    6          60  FALSE          0.1189262</span></span>
+<span><span class="co">#&gt;   mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1               0.1403387          0.05889867</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"interval")</span></span>
+<span><span class="co">#&gt; [1] "none"</span></span></code></pre></div>
+<p>The resulting matrix comes with several attributes that document how
+the frequencies were generated. <code>attr(sb, "c0.seq")</code> returns
+the correlation threshold grid, <code>attr(sb, "B")</code> stores the
+number of correlated resamples per threshold,
+<code>attr(sb, "interval")</code> highlights whether interval sampling
+was activated, and <code>attr(sb, "resample_diagnostics")</code> keeps
+summary statistics on the cached surrogate draws. These metadata mirror
+the legacy SelectBoost beta implementation and are now documented in
+<code>?sb_beta()</code>.</p>
 <p>Changing the selector is simply a matter of passing a different
 routine. The call below uses the GAMLSS-based elastic-net variant and
 asks <code><a href="../reference/sb_beta.html">sb_beta()</a></code> to pass <code>choose = "bic"</code> to the
@@ -237,14 +284,15 @@ underlying <code><a href="../reference/betareg_glmnet.html">betareg_glmnet()</a>
 <span><span class="co">#&gt; [1] "betareg_glmnet"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">sb_enet</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         x1         x2         x3         x4         x5         x6 </span></span>
-<span><span class="co">#&gt; 0.34444444 0.34444444 0.33888889 0.35000000 0.33888889 0.01111111</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.33888889 0.34444444 0.33888889 0.35555556 0.34444444 0.01111111</span></span></code></pre></div>
 <p>Because the wrapper always builds on the same correlated resamples,
 results are directly comparable across selectors as long as they adopt
 the <code>glmnet</code>-style coefficient convention. This makes it
 straightforward to run stability analyses for interval responses by
-pairing <code><a href="../reference/sb_beta.html">sb_beta()</a></code> with <code><a href="../reference/fastboost_interval.html">fastboost_interval()</a></code> or
-to compare several beta selectors under the exact same resampled design
-matrices.</p>
+pairing <code><a href="../reference/sb_beta.html">sb_beta()</a></code> with the convenience wrapper
+<code><a href="../reference/sb_beta_interval.html">sb_beta_interval()</a></code> (or the lower-level
+<code><a href="../reference/fastboost_interval.html">fastboost_interval()</a></code>) or to compare several beta selectors
+under the exact same resampled design matrices.</p>
 </div>
 <div class="section level2">
 <h2 id="conference-communications">Conference communications<a class="anchor" aria-label="anchor" href="#conference-communications"></a>

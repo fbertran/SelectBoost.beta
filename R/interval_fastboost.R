@@ -65,3 +65,62 @@ fastboost_interval <- function(
   freq <- colMeans(nz); names(freq) <- colnames(X)
   structure(list(betas = betas, freq = freq, call = match.call()), class = "fastboost_interval")
 }
+
+
+
+#' SelectBoost workflow for interval responses
+#'
+#' @description
+#' `sb_beta_interval()` forwards to [sb_beta()] while activating interval sampling
+#' so that beta-regression SelectBoost runs can ingest lower/upper response
+#' bounds directly. It mirrors [fastboost_interval()] but reuses the correlated
+#' resampling pipeline of `sb_beta()`.
+#'
+#' @inheritParams sb_beta
+#' @param sample Interval sampling scheme passed to the `interval` argument of
+#'   [sb_beta()]. `"uniform"` draws a pseudo-response uniformly within each
+#'   interval; `"midpoint"` always chooses the midpoint.
+#' @param Y Optional point-valued response. Supply it when you wish to keep the
+#'   observed mean response but still resample within `Y_low`/`Y_high` for the
+#'   stability steps.
+#'
+#' @return See [sb_beta()]. The returned object carries the same
+#'   `"sb_beta"`-class attributes describing the correlation thresholds,
+#'   resampling diagnostics, selector, and number of replicates.
+#'
+#' @examples
+#' 
+#' set.seed(1)
+#' sim <- simulation_DATA.beta(n = 120, p = 5, s = 2)
+#' y_low <- pmax(sim$Y - 0.05, 0)
+#' y_high <- pmin(sim$Y + 0.05, 1)
+#' interval_fit <- sb_beta_interval(
+#'   sim$X,
+#'   Y_low = y_low,
+#'   Y_high = y_high,
+#'   B = 5,
+#'   step.num = 0.4
+#' )
+#' attr(interval_fit, "interval")
+#'
+#' @export
+sb_beta_interval <- function(
+    X,
+    Y_low,
+    Y_high,
+    selector = betareg_step_aic,
+    sample = c("uniform", "midpoint"),
+    Y = NULL,
+    ...
+) {
+  sample <- match.arg(sample)
+  sb_beta(
+    X = X,
+    Y = Y,
+    selector = selector,
+    interval = sample,
+    Y_low = Y_low,
+    Y_high = Y_high,
+    ...
+  )
+}

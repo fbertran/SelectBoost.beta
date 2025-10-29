@@ -59,7 +59,8 @@ unselected variables.
 \description{
 Runs an IRLS loop with Beta working responses/weights and calls
 \code{glmnet} on the weighted least-squares surrogate. Supports BIC/AIC/CV
-model choice and an optional \code{prestandardize} speedup.
+model choice and an optional \code{prestandardize} speedup. The helper uses only
+the mean submodel, requires complete cases, and does not expose offset terms.
 }
 \examples{
 set.seed(1); X <- matrix(rnorm(500), 100, 5); Y <- plogis(X[,1]-0.5*X[,3])

@@ -3,7 +3,9 @@
 #' Convenience wrapper that runs AIC/BIC/AICc stepwise, GAMLSS LASSO (and ENet
 #' when available), and the pure glmnet IRLS selector, then collates coefficients
 #' into a long table for comparison. Observations containing `NA` in either `X`
-#' or `Y` are removed prior to fitting.
+#' or `Y` are removed prior to fitting. Column names are temporarily shortened
+#' to satisfy selector requirements and avoid clashes; the outputs remap them to
+#' the original labels before returning.
 #'
 #' @inheritParams betareg_step_aic
 #' @param include_enet Logical; include ENet if `gamlss.lasso` is installed.
@@ -86,13 +88,18 @@ compare_selectors_single <- function(X, Y, include_enet = TRUE) {
 #'
 #' Bootstraps the dataset `B` times and records how often each variable is
 #' selected by each selector. Observations containing `NA` in either `X` or `Y`
-#' are removed prior to resampling.
+#' are removed prior to resampling. Column names are abbreviated internally and
+#' mapped back to the originals in the output just like in
+#' [compare_selectors_single()].
 #'
 #' @inheritParams compare_selectors_single
 #' @param B Number of bootstrap replications.
 #' @param seed Optional RNG seed.
 #'
 #' @return Long data frame with columns `selector`, `variable`, `freq` in `[0,1]`.
+#'   The `freq` column reports the share of bootstrap replicates where a variable
+#'   was selected by the corresponding selector; values near 1 signal high
+#'   stability whereas small values indicate weak evidence.
 #' @examples
 #' set.seed(1)
 #' X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[, 1])

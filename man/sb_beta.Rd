@@ -29,8 +29,7 @@ sb_beta(
 \code{\link[=sb_normalize]{sb_normalize()}}.}
 
 \item{Y}{Numeric response vector. Values are squeezed to the open unit
-interval unless \code{squeeze = FALSE}. Optional when interval bounds are
-supplied.}
+interval with the standard SelectBoost transformation unless \code{squeeze = FALSE}. Optional when interval bounds are supplied.}
 
 \item{selector}{Selection routine. Defaults to \code{\link[=betareg_step_aic]{betareg_step_aic()}}.}
 
@@ -66,15 +65,32 @@ when \code{interval} is not \code{"none"}.}
 \item{...}{Additional arguments forwarded to \code{selector}.}
 }
 \value{
-Matrix of selection frequencies with one row per \code{c0} level. The
-object carries the class \code{"sb_beta"} and records attributes comparable to the
-historical SelectBoost implementation, with additional \code{"resample_diagnostics"}
-(per-threshold summaries of the cached draws) and \code{"interval"} metadata.
+Matrix of selection frequencies with one row per \code{c0} level and class
+\code{"sb_beta"}. See \emph{Details} for the recorded attributes.
 }
 \description{
-\code{sb_beta()} orchestrates all SelectBoost stages-normalisation, correlation
-analysis, grouping, correlated resampling, and stability tallying-while using
-the beta-regression selectors provided by this package.
+\code{sb_beta()} orchestrates all SelectBoost stages—normalisation, correlation
+analysis, grouping, correlated resampling, and stability tallying—while using
+the beta-regression selectors provided by this package. It can operate on
+point-valued or interval-valued responses and automatically squeezes the
+outcome into \verb{(0, 1)} unless instructed otherwise.
+}
+\details{
+The returned object carries a rich set of attributes:
+\itemize{
+\item \code{"c0.seq"} – the grid of absolute-correlation thresholds explored during
+resampling.
+\item \code{"steps.seq"} – the raw sequence (if any) used to construct the grid.
+\item \code{"selector"} – the selector identifier (function name or expression).
+\item \code{"B"} – number of resampled designs passed to the selector.
+\item \code{"interval"} – the interval sampling mode (\code{"none"}, \code{"uniform"}, or
+\code{"midpoint"}).
+\item \code{"resample_diagnostics"} – per-threshold data frames with summary
+statistics on the cached correlated draws.
+}
+
+These attributes mirror the historical SelectBoost beta implementation so the
+object can be consumed by existing plotting and reporting utilities.
 }
 \examples{
 set.seed(42)

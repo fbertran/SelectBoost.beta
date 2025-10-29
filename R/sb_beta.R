@@ -136,6 +136,61 @@ sb_group_variables <- function(corr_mat, c0) {
   sweep(draws, 2L, norms, "/", check.margin = FALSE)
 }
 
+.sb_cache_env <- function(cache) {
+  if (is.null(cache)) {
+    return(new.env(parent = emptyenv()))
+  }
+  if (is.environment(cache)) {
+    return(cache)
+  }
+  env <- new.env(parent = emptyenv())
+  cache_list <- as.list(cache)
+  for (nm in names(cache_list)) {
+    assign(nm, cache_list[[nm]], envir = env)
+  }
+  env
+}
+
+.sb_group_diagnostics <- function(original, draws) {
+  if (!is.matrix(original)) original <- as.matrix(original)
+  size <- ncol(original)
+  if (size < 2) {
+    return(data.frame(
+      mean_abs_corr_orig = NA_real_,
+      mean_abs_corr_surrogate = NA_real_,
+      mean_abs_corr_cross = NA_real_,
+      stringsAsFactors = FALSE
+    ))
+  }
+  orig_corr <- stats::cor(original)
+  orig_mean <- mean(abs(orig_corr[upper.tri(orig_corr)]))
+  if (!is.finite(orig_mean)) orig_mean <- NA_real_
+  
+  surrogate_means <- vapply(draws, function(mat) {
+    cmat <- try(stats::cor(mat), silent = TRUE)
+    if (inherits(cmat, "try-error")) return(NA_real_)
+    mean(abs(cmat[upper.tri(cmat)]))
+  }, numeric(1))
+  surrogate_mean <- mean(surrogate_means, na.rm = TRUE)
+  if (!is.finite(surrogate_mean)) surrogate_mean <- NA_real_
+  
+  cross_means <- vapply(draws, function(mat) {
+    cmat <- try(stats::cor(original, mat), silent = TRUE)
+    if (inherits(cmat, "try-error")) return(NA_real_)
+    diag_vals <- diag(cmat)
+    mean(abs(diag_vals))
+  }, numeric(1))
+  cross_mean <- mean(cross_means, na.rm = TRUE)
+  if (!is.finite(cross_mean)) cross_mean <- NA_real_
+  
+  data.frame(
+    mean_abs_corr_orig = orig_mean,
+    mean_abs_corr_surrogate = surrogate_mean,
+    mean_abs_corr_cross = cross_mean,
+    stringsAsFactors = FALSE
+  )
+}
+
 #' Generate correlated design replicates for a set of groups
 #'
 #' @param X_norm Normalised design matrix.
@@ -147,7 +202,13 @@ sb_group_variables <- function(corr_mat, c0) {
 #' @param seed Optional integer seed for reproducibility.
 #' @param use.parallel Logical; when `TRUE`, compute the resampled designs using
 #'   a parallel backend when available.
-#' @return A list of length `B`, each element being a resampled design matrix.
+#' @param cache Optional environment or named list used to cache previously
+#'   generated surrogates. Passing the same cache across calls reuses draws for
+#'   identical groups.
+#' @return An object of class `sb_resamples`, i.e. a list of length `B` whose
+#'   elements are resampled design matrices. The object exposes per-group
+#'   diagnostics in its `"diagnostics"` attribute and returns the cache via the
+#'   `"cache"` attribute for reuse.
 #' @export
 sb_resample_groups <- function(
     X_norm,
@@ -155,7 +216,8 @@ sb_resample_groups <- function(
     B = 100,
     jitter = 1e-6,
     seed = NULL,
-    use.parallel = FALSE
+    use.parallel = FALSE,
+    cache = NULL
 ) {
   if (!is.null(seed)) set.seed(seed)
   if (!is.numeric(B) || length(B) != 1L || B < 1) {
@@ -190,42 +252,124 @@ sb_resample_groups <- function(
   }
   group_list <- as_group_list(groups)
   if (!length(group_list)) {
-    return(replicate(B, {
+    resamples <- replicate(B, {
       Xb <- X_norm
       attr(Xb, "groups") <- original_groups
       Xb
-    }, simplify = FALSE))
+    }, simplify = FALSE)
+    class(resamples) <- c("sb_resamples", "list")
+    attr(resamples, "diagnostics") <- data.frame(
+      group = character(0),
+      size = integer(0),
+      regenerated = integer(0),
+      cached = logical(0),
+      mean_abs_corr_orig = numeric(0),
+      mean_abs_corr_surrogate = numeric(0),
+      mean_abs_corr_cross = numeric(0)
+    )
+    attr(resamples, "cache") <- .sb_cache_env(cache)
+    return(resamples)
   }
   normalised_list <- lapply(group_list, function(idx) sort(unique(idx)))
   keys <- vapply(normalised_list, function(idx) paste(idx, collapse = ","), character(1))
   unique_pos <- which(keys != "" & !duplicated(keys))
   unique_groups <- normalised_list[unique_pos]
-  cov_cache <- vector("list", length(unique_groups))
+  
+  cache_env <- .sb_cache_env(cache)
+  group_draws <- vector("list", length(unique_groups))
+  diag_entries <- vector("list", length(unique_groups))
+  col_labels <- colnames(X_norm)
+  if (is.null(col_labels)) {
+    col_labels <- paste0("V", seq_len(ncol(X_norm)))
+  }
+  
   for (i in seq_along(unique_groups)) {
     idx <- unique_groups[[i]]
-    if (length(idx) < 2) {
-      cov_cache[[i]] <- NULL
-    } else {
-      cov_cache[[i]] <- stats::cov(X_norm[, idx, drop = FALSE])
+    key <- keys[unique_pos[i]]
+    label <- paste(col_labels[idx], collapse = ",")
+    if (!nzchar(label)) {
+      label <- paste(idx, collapse = ",")
     }
+    
+    if (length(idx) < 2) {
+      diag_entries[[i]] <- data.frame(
+        group = label,
+        size = length(idx),
+        regenerated = 0L,
+        cached = FALSE,
+        mean_abs_corr_orig = NA_real_,
+        mean_abs_corr_surrogate = NA_real_,
+        mean_abs_corr_cross = NA_real_,
+        stringsAsFactors = FALSE
+      )
+      group_draws[[i]] <- NULL
+      next
+    }
+    
+    stored <- if (exists(key, envir = cache_env, inherits = FALSE)) get(key, envir = cache_env) else NULL
+    valid <- !is.null(stored) && is.list(stored$draws) && length(stored$draws) == B
+    if (isTRUE(valid)) {
+      mat0 <- stored$draws[[1]]
+      valid <- is.matrix(mat0) && nrow(mat0) == nrow(X_norm) && ncol(mat0) == length(idx)
+    }
+    
+    if (!valid) {
+      Sigma <- stats::cov(X_norm[, idx, drop = FALSE])
+      draws <- .sb_parallel_map(
+        seq_len(B),
+        function(b) .sb_sample_group(X_norm[, idx, drop = FALSE], Sigma = Sigma, jitter = jitter),
+        use.parallel = use.parallel,
+        seed = if (!is.null(seed)) seed + i else NULL
+      )
+      base_diag <- .sb_group_diagnostics(X_norm[, idx, drop = FALSE], draws)
+      stored <- list(draws = draws, diag = base_diag)
+      assign(key, stored, envir = cache_env)
+      diag_call <- transform(base_diag,
+                             group = label,
+                             size = length(idx),
+                             regenerated = B,
+                             cached = FALSE)
+    } else {
+      draws <- stored$draws
+      base_diag <- stored$diag
+      diag_call <- transform(base_diag,
+                             group = label,
+                             size = length(idx),
+                             regenerated = 0L,
+                             cached = TRUE)
+    }
+    group_draws[[i]] <- draws
+    diag_entries[[i]] <- diag_call[, c("group", "size", "regenerated", "cached",
+                                       "mean_abs_corr_orig", "mean_abs_corr_surrogate",
+                                       "mean_abs_corr_cross")]
+    }
+  
+  resamples <- vector("list", B)
+  for (b in seq_len(B)) {
+    Xb <- X_norm
+    for (i in seq_along(unique_groups)) {
+      idx <- unique_groups[[i]]
+      draws <- group_draws[[i]]
+      if (is.null(draws)) next
+      Xb[, idx] <- draws[[b]]
+    }
+    attr(Xb, "groups") <- original_groups
+    resamples[[b]] <- Xb
   }
-  .sb_parallel_map(
-    seq_len(B),
-    function(b) {
-      Xb <- X_norm
-      for (i in seq_along(unique_groups)) {
-        idx <- unique_groups[[i]]
-        if (length(idx) < 2) next
-        Sigma <- cov_cache[[i]]
-        draws <- .sb_sample_group(X_norm[, idx, drop = FALSE], Sigma = Sigma, jitter = jitter)
-        Xb[, idx] <- draws
-      }
-      attr(Xb, "groups") <- original_groups
-      Xb
-    },
-    use.parallel = use.parallel,
-    seed = seed
+  
+  class(resamples) <- c("sb_resamples", "list")
+  diag_df <- if (length(diag_entries)) do.call(rbind, diag_entries) else data.frame(
+    group = character(0),
+    size = integer(0),
+    regenerated = integer(0),
+    cached = logical(0),
+    mean_abs_corr_orig = numeric(0),
+    mean_abs_corr_surrogate = numeric(0),
+    mean_abs_corr_cross = numeric(0)
   )
+  attr(resamples, "diagnostics") <- diag_df
+  attr(resamples, "cache") <- cache_env
+  resamples
 }
 
 #' Apply a selector to a collection of resampled designs
@@ -303,7 +447,8 @@ sb_selection_frequency <- function(coef_matrix, version = c("glmnet", "lars"), t
 #' @param X Numeric design matrix. Coerced with [as.matrix()] and normalised via
 #'   [sb_normalize()].
 #' @param Y Numeric response vector. Values are squeezed to the open unit
-#'   interval unless `squeeze = FALSE`.
+#'   interval unless `squeeze = FALSE`. Optional when interval bounds are
+#'   supplied.
 #' @param selector Selection routine. Defaults to [betareg_step_aic()].
 #' @param corrfunc Correlation function passed to [sb_compute_corr()].
 #' @param step.num Step length for the automatically generated `c0` grid.
@@ -315,10 +460,16 @@ sb_selection_frequency <- function(coef_matrix, version = c("glmnet", "lars"), t
 #'   when supported by the current R session.
 #' @param verbose Logical; emit progress messages.
 #' @param threshold Numeric tolerance for considering a coefficient selected.
+#' @param interval Interval-resampling mode: `"none"` reuses `Y`, whereas
+#'   `"uniform"` and `"midpoint"` draw pseudo-responses between `Y_low` and
+#'   `Y_high` for each replicate.
+#' @param Y_low,Y_high Interval bounds in `[0, 1]` paired with the rows of `X`
+#'   when `interval` is not `"none"`.
 #' @param ... Additional arguments forwarded to `selector`.
 #' @return Matrix of selection frequencies with one row per `c0` level. The
 #'   object carries the class `"sb_beta"` and records attributes comparable to the
-#'   historical SelectBoost implementation.
+#'   historical SelectBoost implementation, with additional `"resample_diagnostics"`
+#'   (per-threshold summaries of the cached draws) and `"interval"` metadata.
 #' @examples
 #' set.seed(42)
 #' sim <- simulation_DATA.beta(n = 80, p = 4, s = 2)
@@ -327,7 +478,7 @@ sb_selection_frequency <- function(coef_matrix, version = c("glmnet", "lars"), t
 #' @export
 sb_beta <- function(
     X,
-    Y,
+    Y = NULL,
     selector = betareg_step_aic,
     corrfunc = "cor",
     B = 100,
@@ -339,50 +490,139 @@ sb_beta <- function(
     seed = NULL,
     verbose = FALSE,
     threshold = 1e-4,
+    interval = c("none", "uniform", "midpoint"),
+    Y_low = NULL,
+    Y_high = NULL,
     ...
 ) {
   if (!is.null(seed)) set.seed(seed)
   version <- match.arg(version)
+  interval <- match.arg(interval)
   X <- sb_normalize(X)
-  y <- as.numeric(Y)
-  if (any(!is.finite(y))) stop("`Y` must contain only finite values.")
+  n <- nrow(X)
+  if (!is.null(Y) && length(Y) != n) {
+    stop("`Y` must have length equal to nrow(X).")
+  }
+  if (interval == "none" && is.null(Y)) {
+    stop("`Y` must be supplied when `interval = \"none\"`.")
+  }
+  y_input <- if (!is.null(Y)) as.numeric(Y) else rep(NA_real_, n)
+  if (!all(is.na(y_input))) {
+    if (any(!is.finite(y_input[!is.na(y_input)]))) {
+      stop("`Y` must contain only finite values.")
+    }
+  }
+  
+  clamp01 <- function(v) {
+    pmin(pmax(v, 0), 1)
+  }
+  
+  if (interval != "none") {
+    if (is.null(Y_low) || is.null(Y_high)) {
+      stop("`Y_low` and `Y_high` must be supplied when `interval` is not `\"none\"`.")
+    }
+    if (length(Y_low) != n || length(Y_high) != n) {
+      stop("`Y_low` and `Y_high` must have length equal to nrow(X).")
+    }
+    y_low <- clamp01(as.numeric(Y_low))
+    y_high <- clamp01(as.numeric(Y_high))
+    if (any(!is.finite(y_low) | !is.finite(y_high))) {
+      stop("`Y_low` and `Y_high` must contain finite values.")
+    }
+    if (any(y_low > y_high)) {
+      stop("Each element of `Y_low` must be <= the corresponding element of `Y_high`.")
+    }
+    y_base <- if (!is.null(Y)) y_input else 0.5 * (y_low + y_high)
+    y_base <- clamp01(y_base)
+  } else {
+    y_base <- y_input
+  }
+  
+  if (any(is.na(y_base))) {
+    stop("`Y` contains missing values.")
+  }
+  
   if (squeeze) {
-    y <- .sqz01(y)
-  } else if (any(y <= 0 | y >= 1)) {
+    y_base <- .sqz01(y_base)
+  } else if (any(y_base <= 0 | y_base >= 1)) {
     stop("`Y` must lie in (0, 1) when `squeeze = FALSE`.")
   }
+  
+  sample_interval <- function() {
+    if (interval == "midpoint") {
+      vals <- 0.5 * (y_low + y_high)
+    } else {
+      u <- stats::runif(n)
+      vals <- y_low + u * (y_high - y_low)
+    }
+    vals <- clamp01(vals)
+    if (squeeze) {
+      .sqz01(vals)
+    } else {
+      pmin(pmax(vals, .Machine$double.eps), 1 - .Machine$double.eps)
+    }
+  }
+  
+  y_draws <- if (interval == "none") {
+    rep(list(y_base), max(1L, B))
+  } else {
+    replicate(max(1L, B), sample_interval(), simplify = FALSE)
+  }
+  y_template <- y_base
   corr_mat <- sb_compute_corr(X, corrfunc = corrfunc)
   c0_inner <- .sb_c0_sequence(corr_mat, step.num = step.num, steps.seq = steps.seq)
   c0_levels <- unique(c(1, c0_inner, 0))
   res_list <- vector("list", length(c0_levels))
   names(res_list) <- sprintf("c0 = %.3f", c0_levels)
+  diag_list <- vector("list", length(c0_levels))
   if (verbose) {
     message("Running sb_beta over ", length(c0_levels), " correlation thresholds")
   }
   fun <- if (is.character(selector)) get(selector, mode = "function", envir = parent.frame()) else selector
   template <- fun(X, y, ...)
+  template <- fun(X, y_template, ...)
   coef_len <- length(template)
   coef_names <- names(template)
+  empty_diag <- data.frame(
+    group = character(0),
+    size = integer(0),
+    regenerated = integer(0),
+    cached = logical(0),
+    mean_abs_corr_orig = numeric(0),
+    mean_abs_corr_surrogate = numeric(0),
+    mean_abs_corr_cross = numeric(0)
+  )
+  resample_cache <- new.env(parent = emptyenv())
   for (i in seq_along(c0_levels)) {
     c0 <- c0_levels[i]
     groups <- sb_group_variables(corr_mat, c0)
     if (verbose) message(sprintf("c0 = %.3f", c0))
     big_groups <- Filter(function(idx) length(idx) >= 2, groups)
-    if (!length(big_groups)) {
+    if (!length(big_groups) && interval == "none") {
+      diag_list[[i]] <- empty_diag
       coef_mat <- matrix(template, ncol = 1L)
       rownames(coef_mat) <- coef_names
       colnames(coef_mat) <- "sim1"
     } else {
+      resample_input <- if (length(big_groups)) big_groups else list()
       resamples <- sb_resample_groups(
         X,
-        big_groups,
+        resample_input,
         B = B,
         jitter = 1e-6,
-        use.parallel = use.parallel
+        use.parallel = use.parallel,
+        cache = resample_cache
       )
+      resample_cache <- attr(resamples, "cache")
+      diag_list[[i]] <- attr(resamples, "diagnostics")
+      y_vals <- if (interval == "none") {
+        rep(list(y_template), length(resamples))
+      } else {
+        y_draws
+      }
       coef_vals <- .sb_parallel_map(
         seq_along(resamples),
-        function(b) fun(resamples[[b]], y, ...),
+        function(b) fun(resamples[[b]], y_vals[[b]], ...),
         use.parallel = use.parallel
       )
       coef_mat <- do.call(cbind, coef_vals)
@@ -391,7 +631,11 @@ sb_beta <- function(
     }
     freq <- sb_selection_frequency(coef_mat, version = version, threshold = threshold)
     res_list[[i]] <- freq
+    if (is.null(diag_list[[i]])) {
+      diag_list[[i]] <- empty_diag
+    }
   }
+  names(diag_list) <- names(res_list)
   freq_mat <- do.call(rbind, res_list)
   attr(freq_mat, "c0.seq") <- c0_levels
   attr(freq_mat, "steps.seq") <- c0_inner
@@ -400,6 +644,8 @@ sb_beta <- function(
     sel_expr <- substitute(selector)
     if (is.symbol(sel_expr)) as.character(sel_expr) else paste(deparse(sel_expr), collapse = "")
   }
+  attr(freq_mat, "resample_diagnostics") <- diag_list
+  attr(freq_mat, "interval") <- interval
   class(freq_mat) <- c("sb_beta", class(freq_mat))
   freq_mat
 }

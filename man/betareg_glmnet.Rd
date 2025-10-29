@@ -22,7 +22,7 @@ betareg_glmnet(
 )
 }
 \arguments{
-\item{X}{Numeric matrix (n × p) of predictors.}
+\item{X}{Numeric matrix (n × p) of mean-submodel predictors.}
 
 \item{Y}{Numeric response in (0,1). Values are squeezed to (0,1) internally.}
 

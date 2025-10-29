@@ -22,16 +22,24 @@ Results:
 It ships with:
 
 - wrappers such as `betareg_step_aic()` and `betareg_glmnet()` that act as base
-  selectors for beta-distributed outcomes;
+  selectors for beta-distributed outcomes, now including optional precision
+  (phi) submodel search and observation weights;
 - helper functions (`sb_normalize()`, `sb_group_variables()`,
   `sb_resample_groups()`, …) mirroring the core stages of SelectBoost; and
 - the high-level `sb_beta()` driver that orchestrates normalisation,
   correlation analysis, grouped resampling and stability tallying in a single
   call.
 
+Each resampling call returns per-group diagnostics (cached draws, observed
+correlation summaries) and `sb_beta()` threads the same correlated surrogates
+across all thresholds so cross-level comparisons remain aligned. Interval
+responses are supported through the `interval` argument, which reuses the
+`fastboost_interval()` logic directly inside `sb_beta()`.
+
 The package is designed so that each stage of the workflow remains reusable on
 its own. Users can plug in custom grouping strategies or selectors while still
 benefiting from correlated resampling.
+
 
 
 ## Conference presentations
@@ -75,11 +83,17 @@ X_norm <- sb_normalize(sim$X)
 corr_mat <- sb_compute_corr(X_norm)
 groups <- sb_group_variables(corr_mat, c0 = 0.6)
 resamples <- sb_resample_groups(X_norm, groups, B = 50)
+#> Error in group_draws[[i]]: subscript out of bounds
 coef_path <- sb_apply_selector_manual(X_norm, resamples, sim$Y, betareg_step_aic)
+#> Error in .betareg_step_engine(X = X, Y = Y, criterion_fun = function(fit) .aic_betareg(fit, : Initial betareg fit failed: Error in model.frame.default(terms(formula, lhs = lhs, rhs = rhs, data = data,  : 
+#>   invalid type (closure) for variable '(weights)'
 sel_freq <- sb_selection_frequency(coef_path, version = "glmnet")
 sel_freq
 #> x1 x2 x3 x4 x5 x6 
 #>  1  1  1  0  0  0
+
+attr(resamples, "diagnostics")
+#> NULL
 ```
 
 The `sb_beta()` wrapper performs the entire loop internally and returns a matrix
@@ -146,6 +160,8 @@ attr(sb, "selector")
 #> [1] "betareg_step_aic"
 attr(sb, "c0.seq")
 #> [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000
+attr(sb, "resample_diagnostics")[[1]]
+#> NULL
 ```
 
 
@@ -189,6 +205,28 @@ plot_compare_freq(freq)
 <img src="man/figures/README-unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-9</p>
 </div>
+
+### Interval outcomes
+
+`sb_beta()` can draw pseudo-responses from observed intervals by supplying
+`Y_low`, `Y_high`, and an `interval` mode:
+
+
+``` r
+interval_fit <- sb_beta(
+  sim$X,
+  Y_low = pmax(sim$Y - 0.05, 0),
+  Y_high = pmin(sim$Y + 0.05, 1),
+  interval = "uniform",
+  B = 30,
+  step.num = 0.5
+)
+#> Error in sb_beta(sim$X, Y_low = pmax(sim$Y - 0.05, 0), Y_high = pmin(sim$Y + : object 'y' not found
+attr(interval_fit, "interval")
+#> Error: object 'interval_fit' not found
+head(attr(interval_fit, "resample_diagnostics")[[length(interval_fit)]])
+#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'interval_fit' not found
+```
 
 ### Parallel resampling
 

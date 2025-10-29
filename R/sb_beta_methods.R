@@ -41,12 +41,16 @@ print.sb_beta <- function(x, digits = 3, ...) {
   B <- attr(x, "B", exact = TRUE)
   c0_levels <- attr(x, "c0.seq", exact = TRUE)
   steps_seq <- attr(x, "steps.seq", exact = TRUE)
+  interval <- attr(x, "interval", exact = TRUE)
   cat("SelectBoost beta selection frequencies\n")
   if (!is.null(selector)) {
     cat("Selector: ", selector, "\n", sep = "")
   }
   if (!is.null(B)) {
     cat("Resamples per threshold: ", B, "\n", sep = "")
+  }
+  if (!is.null(interval)) {
+    cat("Interval mode: ", interval, "\n", sep = "")
   }
   if (!is.null(c0_levels)) {
     cat("c0 grid: ", paste(format(round(c0_levels, digits), trim = TRUE), collapse = ", "), "\n", sep = "")
@@ -71,6 +75,7 @@ summary.sb_beta <- function(object, ...) {
   selector <- attr(object, "selector", exact = TRUE)
   B <- attr(object, "B", exact = TRUE)
   c0_levels <- attr(object, "c0.seq", exact = TRUE)
+  interval <- attr(object, "interval", exact = TRUE)
   steps_seq <- attr(object, "steps.seq", exact = TRUE)
   if (is.null(c0_levels)) {
     c0_levels <- seq_len(nrow(freq_mat))
@@ -90,6 +95,7 @@ summary.sb_beta <- function(object, ...) {
     B = B,
     c0 = c0_levels,
     steps.seq = steps_seq,
+    interval = interval,
     data = summary_df
   )
   class(res) <- "summary.sb_beta"
@@ -106,6 +112,9 @@ print.summary.sb_beta <- function(x, digits = 3, n = 10, ...) {
   }
   if (!is.null(x$B)) {
     cat("Resamples per threshold: ", x$B, "\n", sep = "")
+  }
+  if (!is.null(x$interval)) {
+    cat("Interval mode: ", x$interval, "\n", sep = "")
   }
   if (!is.null(x$c0)) {
     cat("c0 grid: ", paste(format(round(x$c0, digits), trim = TRUE), collapse = ", "), "\n", sep = "")

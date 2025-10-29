@@ -7,7 +7,7 @@
 compare_selectors_bootstrap(X, Y, B = 50, include_enet = TRUE, seed = NULL)
 }
 \arguments{
-\item{X}{Numeric matrix (n × p) of predictors.}
+\item{X}{Numeric matrix (n × p) of mean-submodel predictors.}
 
 \item{Y}{Numeric response in (0,1). Values are squeezed to (0,1) internally.}
 

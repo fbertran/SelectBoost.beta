@@ -6,7 +6,7 @@
 \usage{
 sb_beta(
   X,
-  Y,
+  Y = NULL,
   selector = betareg_step_aic,
   corrfunc = "cor",
   B = 100,
@@ -18,6 +18,9 @@ sb_beta(
   seed = NULL,
   verbose = FALSE,
   threshold = 1e-04,
+  interval = c("none", "uniform", "midpoint"),
+  Y_low = NULL,
+  Y_high = NULL,
   ...
 )
 }
@@ -26,7 +29,8 @@ sb_beta(
 \code{\link[=sb_normalize]{sb_normalize()}}.}
 
 \item{Y}{Numeric response vector. Values are squeezed to the open unit
-interval unless \code{squeeze = FALSE}.}
+interval unless \code{squeeze = FALSE}. Optional when interval bounds are
+supplied.}
 
 \item{selector}{Selection routine. Defaults to \code{\link[=betareg_step_aic]{betareg_step_aic()}}.}
 
@@ -52,12 +56,20 @@ when supported by the current R session.}
 
 \item{threshold}{Numeric tolerance for considering a coefficient selected.}
 
+\item{interval}{Interval-resampling mode: \code{"none"} reuses \code{Y}, whereas
+\code{"uniform"} and \code{"midpoint"} draw pseudo-responses between \code{Y_low} and
+\code{Y_high} for each replicate.}
+
+\item{Y_low, Y_high}{Interval bounds in \verb{[0, 1]} paired with the rows of \code{X}
+when \code{interval} is not \code{"none"}.}
+
 \item{...}{Additional arguments forwarded to \code{selector}.}
 }
 \value{
 Matrix of selection frequencies with one row per \code{c0} level. The
 object carries the class \code{"sb_beta"} and records attributes comparable to the
-historical SelectBoost implementation.
+historical SelectBoost implementation, with additional \code{"resample_diagnostics"}
+(per-threshold summaries of the cached draws) and \code{"interval"} metadata.
 }
 \description{
 \code{sb_beta()} orchestrates all SelectBoost stages-normalisation, correlation

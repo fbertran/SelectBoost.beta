@@ -4,7 +4,14 @@
 \alias{sb_resample_groups}
 \title{Generate correlated design replicates for a set of groups}
 \usage{
-sb_resample_groups(X_norm, groups, B = 100, jitter = 1e-06, seed = NULL)
+sb_resample_groups(
+  X_norm,
+  groups,
+  B = 100,
+  jitter = 1e-06,
+  seed = NULL,
+  use.parallel = FALSE
+)
 }
 \arguments{
 \item{X_norm}{Normalised design matrix.}
@@ -18,6 +25,9 @@ sb_resample_groups(X_norm, groups, B = 100, jitter = 1e-06, seed = NULL)
 \item{jitter}{Numeric value added to covariance diagonals for stability.}
 
 \item{seed}{Optional integer seed for reproducibility.}
+
+\item{use.parallel}{Logical; when \code{TRUE}, compute the resampled designs using
+a parallel backend when available.}
 }
 \value{
 A list of length \code{B}, each element being a resampled design matrix.

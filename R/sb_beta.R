@@ -145,10 +145,23 @@ sb_group_variables <- function(corr_mat, c0) {
 #' @param B Number of replicates to generate.
 #' @param jitter Numeric value added to covariance diagonals for stability.
 #' @param seed Optional integer seed for reproducibility.
+#' @param use.parallel Logical; when `TRUE`, compute the resampled designs using
+#'   a parallel backend when available.
 #' @return A list of length `B`, each element being a resampled design matrix.
 #' @export
-sb_resample_groups <- function(X_norm, groups, B = 100, jitter = 1e-6, seed = NULL) {
+sb_resample_groups <- function(
+    X_norm,
+    groups,
+    B = 100,
+    jitter = 1e-6,
+    seed = NULL,
+    use.parallel = FALSE
+) {
   if (!is.null(seed)) set.seed(seed)
+  if (!is.numeric(B) || length(B) != 1L || B < 1) {
+    stop("`B` must be a positive integer.")
+  }
+  B <- as.integer(B)
   if (!is.matrix(X_norm)) {
     X_norm <- as.matrix(X_norm)
   }
@@ -196,20 +209,23 @@ sb_resample_groups <- function(X_norm, groups, B = 100, jitter = 1e-6, seed = NU
       cov_cache[[i]] <- stats::cov(X_norm[, idx, drop = FALSE])
     }
   }
-  res <- vector("list", B)
-  for (b in seq_len(B)) {
-    Xb <- X_norm
-    for (i in seq_along(unique_groups)) {
-      idx <- unique_groups[[i]]
-      if (length(idx) < 2) next
-      Sigma <- cov_cache[[i]]
-      draws <- .sb_sample_group(X_norm[, idx, drop = FALSE], Sigma = Sigma, jitter = jitter)
-      Xb[, idx] <- draws
-    }
-    attr(Xb, "groups") <- original_groups
-    res[[b]] <- Xb
-  }
-  res
+  .sb_parallel_map(
+    seq_len(B),
+    function(b) {
+      Xb <- X_norm
+      for (i in seq_along(unique_groups)) {
+        idx <- unique_groups[[i]]
+        if (length(idx) < 2) next
+        Sigma <- cov_cache[[i]]
+        draws <- .sb_sample_group(X_norm[, idx, drop = FALSE], Sigma = Sigma, jitter = jitter)
+        Xb[, idx] <- draws
+      }
+      attr(Xb, "groups") <- original_groups
+      Xb
+    },
+    use.parallel = use.parallel,
+    seed = seed
+  )
 }
 
 #' Apply a selector to a collection of resampled designs
@@ -295,8 +311,8 @@ sb_selection_frequency <- function(coef_matrix, version = c("glmnet", "lars"), t
 #'   thresholds.
 #' @param version Either `"glmnet"` (intercept in first row) or `"lars"`.
 #' @param squeeze Logical; ensure the response lies in `(0, 1)`.
-#' @param use.parallel Logical; reserved for future implementations of parallel
-#'   resampling. Currently ignored.
+#' @param use.parallel Logical; enable parallel resampling and selector fits
+#'   when supported by the current R session.
 #' @param verbose Logical; emit progress messages.
 #' @param threshold Numeric tolerance for considering a coefficient selected.
 #' @param ... Additional arguments forwarded to `selector`.
@@ -354,14 +370,24 @@ sb_beta <- function(
     big_groups <- Filter(function(idx) length(idx) >= 2, groups)
     if (!length(big_groups)) {
       coef_mat <- matrix(template, ncol = 1L)
+      rownames(coef_mat) <- coef_names
       colnames(coef_mat) <- "sim1"
     } else {
-      resamples <- sb_resample_groups(X, big_groups, B = B, jitter = 1e-6)
-      coef_mat <- matrix(NA_real_, coef_len, length(resamples))
+      resamples <- sb_resample_groups(
+        X,
+        big_groups,
+        B = B,
+        jitter = 1e-6,
+        use.parallel = use.parallel
+      )
+      coef_vals <- .sb_parallel_map(
+        seq_along(resamples),
+        function(b) fun(resamples[[b]], y, ...),
+        use.parallel = use.parallel
+      )
+      coef_mat <- do.call(cbind, coef_vals)
       rownames(coef_mat) <- coef_names
-      for (b in seq_along(resamples)) {
-        coef_mat[, b] <- fun(resamples[[b]], y, ...)
-      }
+      colnames(coef_mat) <- paste0("sim", seq_along(resamples))
     }
     freq <- sb_selection_frequency(coef_mat, version = version, threshold = threshold)
     res_list[[i]] <- freq

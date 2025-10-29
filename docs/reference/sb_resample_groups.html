@@ -46,7 +46,14 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sb_resample_groups</span><span class="op">(</span><span class="va">X_norm</span>, <span class="va">groups</span>, B <span class="op">=</span> <span class="fl">100</span>, jitter <span class="op">=</span> <span class="fl">1e-06</span>, seed <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sb_resample_groups</span><span class="op">(</span></span>
+<span>  <span class="va">X_norm</span>,</span>
+<span>  <span class="va">groups</span>,</span>
+<span>  B <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  jitter <span class="op">=</span> <span class="fl">1e-06</span>,</span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  use.parallel <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -73,6 +80,11 @@
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>Optional integer seed for reproducibility.</p></dd>
+
+
+<dt id="arg-use-parallel">use.parallel<a class="anchor" aria-label="anchor" href="#arg-use-parallel"></a></dt>
+<dd><p>Logical; when <code>TRUE</code>, compute the resampled designs using
+a parallel backend when available.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -71,3 +71,27 @@
   colnames(X) <- xn_short
   list(X = X, map = map)
 }
+
+
+.sb_future_warning_emitted <- FALSE
+
+.sb_parallel_map <- function(indices, FUN, use.parallel = FALSE, seed = NULL) {
+  if (!length(indices)) {
+    return(list())
+  }
+  if (!isTRUE(use.parallel) || length(indices) < 2L) {
+    return(lapply(indices, FUN))
+  }
+  if (!requireNamespace("future.apply", quietly = TRUE)) {
+    if (!.sb_future_warning_emitted) {
+      warning(
+        "`use.parallel = TRUE` requires the `future.apply` package; falling back to sequential computation.",
+        call. = FALSE
+      )
+      .sb_future_warning_emitted <<- TRUE
+    }
+    return(lapply(indices, FUN))
+  }
+  seed_spec <- if (is.null(seed)) TRUE else seed
+  future.apply::future_lapply(indices, FUN, future.seed = seed_spec)
+}

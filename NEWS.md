@@ -2,7 +2,10 @@
 - Added a pseudo-code vignette, refreshed the README with workflow details, and
   expanded the unit test suite for the new helpers.
 - Fixed code and descriptions to get rid of notes during CRAN checks.
-
+- Enabled optional parallel resampling in `sb_beta()`/`sb_resample_groups()` via
+  `future.apply`, added S3 print/summary/autoplot helpers for `sb_beta`
+  results, and documented the new behaviour in the README.
+  
 # SelectBoost.beta 0.4.4
 - Add **NEWS.md** documenting development history.
 

@@ -5,7 +5,7 @@ articles:
   selectboost-algorithms: selectboost-algorithms.html
   selectboost-beta: selectboost-beta.html
   simulate-interval-beta: simulate-interval-beta.html
-last_built: 2025-10-28T02:17Z
+last_built: 2025-10-28T13:12Z
 urls:
   reference: https://fbertran.github.io/SelectBoost.beta/reference
   article: https://fbertran.github.io/SelectBoost.beta/articles

@@ -1,3 +1,4 @@
+knitr
 gamlss.data
 gamlss.dist
 nlme
@@ -9,5 +10,5 @@ glmnet
 lars
 gamlss.lasso
 testthat
-knitr
 pkgdown
+rhub

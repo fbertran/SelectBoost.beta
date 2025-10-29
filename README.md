@@ -46,19 +46,16 @@ settings.
 
 ## Installation
 
-You can install the released version of SelectBoost.beta from [CRAN](https://CRAN.R-project.org) with:
-
-
-``` r
-install.packages("SelectBoost.beta")
-```
-
-You can install the development version of SelectBoost.beta from [github](https://github.com) with:
+SelectBoost.beta is preparing for its first CRAN submission. Until it becomes
+available there, install the development version from GitHub:
 
 
 ``` r
 devtools::install_github("fbertran/SelectBoost.beta")
 ```
+
+Once the package lands on CRAN, the usual `install.packages("SelectBoost.beta")`
+command will work as expected.
 
 The selectors rely on the `betareg`, `glmnet`, and `gamlss` ecosystems. These
 packages will be pulled in automatically when installing from source.
@@ -90,8 +87,13 @@ indexed by the correlation thresholds used during resampling:
 
 
 ``` r
-sb <- sb_beta(sim$X, sim$Y, B = 50, step.num = 0.25)
+sb <- sb_beta(sim$X, sim$Y, B = 50, step.num = 0.25,use.parallel = FALSE)
 print(sb)
+#> SelectBoost beta selection frequencies
+#> Selector: betareg_step_aic
+#> Resamples per threshold: 50
+#> c0 grid: 1.000, 0.089, 0.059, 0.030, 0.000
+#> Inner thresholds: 0.089, 0.059, 0.030
 #>              x1   x2   x3   x4   x5   x6
 #> c0 = 1.000 1.00 1.00 1.00 0.00 0.00 0.00
 #> c0 = 0.089 0.22 0.18 0.10 0.18 0.18 0.16
@@ -106,8 +108,36 @@ print(sb)
 #> [1] 50
 #> attr(,"selector")
 #> [1] "betareg_step_aic"
-#> attr(,"class")
-#> [1] "sb_beta" "matrix"  "array"
+```
+
+The result stores the selector used, the number of resamples, and the
+correlation thresholds in its attributes. Dedicated methods make these easier to
+inspect programmatically:
+
+
+``` r
+summary(sb)
+#> SelectBoost beta summary
+#> Selector: betareg_step_aic
+#> Resamples per threshold: 50
+#> c0 grid: 1.000, 0.089, 0.059, 0.030, 0.000
+#> Inner thresholds: 0.089, 0.059, 0.030
+#> Top rows:
+#>        c0 variable frequency
+#> 1  1.0000       x1      1.00
+#> 2  1.0000       x2      0.22
+#> 3  1.0000       x3      0.10
+#> 4  1.0000       x4      0.16
+#> 5  1.0000       x5      0.28
+#> 6  1.0000       x6      1.00
+#> 7  0.0889       x1      0.18
+#> 8  0.0889       x2      0.12
+#> 9  0.0889       x3      0.20
+#> 10 0.0889       x4      0.22
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  autoplot(sb)
+}
+#> Error in autoplot(sb): could not find function "autoplot"
 ```
 
 
@@ -118,6 +148,10 @@ attr(sb, "c0.seq")
 #> [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000
 ```
 
+
+``` r
+single <- compare_selectors_single(sim$X, sim$Y, include_enet = TRUE)
+```
 
 
 ``` r
@@ -141,8 +175,8 @@ plot_compare_coeff(single$table)
 ```
 
 <div class="figure">
-<img src="man/figures/README-unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7" width="100%" />
-<p class="caption">plot of chunk unnamed-chunk-7</p>
+<img src="man/figures/README-unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-8</p>
 </div>
 
 
@@ -152,9 +186,23 @@ plot_compare_freq(freq)
 ```
 
 <div class="figure">
-<img src="man/figures/README-unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8" width="100%" />
-<p class="caption">plot of chunk unnamed-chunk-8</p>
+<img src="man/figures/README-unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-9</p>
 </div>
+
+### Parallel resampling
+
+Setting `use.parallel = TRUE` instructs `sb_beta()` and `sb_resample_groups()` to
+dispatch resamples and selector fits through
+[`future.apply`](https://future.apply.futureverse.org/). Bring your own
+`future::plan()` to select the desired backend (e.g. `multisession` on desktops):
+
+
+``` r
+future::plan(future::multisession)
+sb_parallel <- sb_beta(sim$X, sim$Y, B = 50, step.num = 0.25, use.parallel = TRUE)
+future::plan(future::sequential)
+```
 
 Refer to the vignettes for a more detailed walk-through of the workflow and the
 pseudo-code underpinning the algorithms.

@@ -43,8 +43,8 @@ thresholds.}
 
 \item{squeeze}{Logical; ensure the response lies in \verb{(0, 1)}.}
 
-\item{use.parallel}{Logical; reserved for future implementations of parallel
-resampling. Currently ignored.}
+\item{use.parallel}{Logical; enable parallel resampling and selector fits
+when supported by the current R session.}
 
 \item{seed}{Optional integer seed for reproducibility.}
 

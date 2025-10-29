@@ -91,19 +91,17 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the released version of SelectBoost.beta from <a href="https://CRAN.R-project.org" class="external-link">CRAN</a> with:</p>
+<p>SelectBoost.beta is preparing for its first CRAN submission. Until it becomes available there, install the development version from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"SelectBoost.beta"</span><span class="op">)</span></span></code></pre></div>
-<p>You can install the development version of SelectBoost.beta from <a href="https://github.com" class="external-link">github</a> with:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"fbertran/SelectBoost.beta"</span><span class="op">)</span></span></code></pre></div>
+<p>Once the package lands on CRAN, the usual <code>install.packages("SelectBoost.beta")</code> command will work as expected.</p>
 <p>The selectors rely on the <code>betareg</code>, <code>glmnet</code>, and <code>gamlss</code> ecosystems. These packages will be pulled in automatically when installing from source.</p>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <p>Simulate a correlated design, run the manual SelectBoost steps with <code><a href="reference/betareg_step_aic.html">betareg_step_aic()</a></code>, and compute selection frequencies:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://fbertran.github.io/SelectBoost.beta/">SelectBoost.beta</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span></span>
@@ -118,9 +116,14 @@
 <span><span class="co">#&gt; x1 x2 x3 x4 x5 x6 </span></span>
 <span><span class="co">#&gt;  1  1  1  0  0  0</span></span></code></pre></div>
 <p>The <code><a href="reference/sb_beta.html">sb_beta()</a></code> wrapper performs the entire loop internally and returns a matrix indexed by the correlation thresholds used during resampling:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_beta.html">sb_beta</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">50</span>, step.num <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_beta.html">sb_beta</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">50</span>, step.num <span class="op">=</span> <span class="fl">0.25</span>,use.parallel <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sb</span><span class="op">)</span></span>
+<span><span class="co">#&gt; SelectBoost beta selection frequencies</span></span>
+<span><span class="co">#&gt; Selector: betareg_step_aic</span></span>
+<span><span class="co">#&gt; Resamples per threshold: 50</span></span>
+<span><span class="co">#&gt; c0 grid: 1.000, 0.089, 0.059, 0.030, 0.000</span></span>
+<span><span class="co">#&gt; Inner thresholds: 0.089, 0.059, 0.030</span></span>
 <span><span class="co">#&gt;              x1   x2   x3   x4   x5   x6</span></span>
 <span><span class="co">#&gt; c0 = 1.000 1.00 1.00 1.00 0.00 0.00 0.00</span></span>
 <span><span class="co">#&gt; c0 = 0.089 0.22 0.18 0.10 0.18 0.18 0.16</span></span>
@@ -134,15 +137,39 @@
 <span><span class="co">#&gt; attr(,"B")</span></span>
 <span><span class="co">#&gt; [1] 50</span></span>
 <span><span class="co">#&gt; attr(,"selector")</span></span>
-<span><span class="co">#&gt; [1] "betareg_step_aic"</span></span>
-<span><span class="co">#&gt; attr(,"class")</span></span>
-<span><span class="co">#&gt; [1] "sb_beta" "matrix"  "array"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "betareg_step_aic"</span></span></code></pre></div>
+<p>The result stores the selector used, the number of resamples, and the correlation thresholds in its attributes. Dedicated methods make these easier to inspect programmatically:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sb</span><span class="op">)</span></span>
+<span><span class="co">#&gt; SelectBoost beta summary</span></span>
+<span><span class="co">#&gt; Selector: betareg_step_aic</span></span>
+<span><span class="co">#&gt; Resamples per threshold: 50</span></span>
+<span><span class="co">#&gt; c0 grid: 1.000, 0.089, 0.059, 0.030, 0.000</span></span>
+<span><span class="co">#&gt; Inner thresholds: 0.089, 0.059, 0.030</span></span>
+<span><span class="co">#&gt; Top rows:</span></span>
+<span><span class="co">#&gt;        c0 variable frequency</span></span>
+<span><span class="co">#&gt; 1  1.0000       x1      1.00</span></span>
+<span><span class="co">#&gt; 2  1.0000       x2      0.22</span></span>
+<span><span class="co">#&gt; 3  1.0000       x3      0.10</span></span>
+<span><span class="co">#&gt; 4  1.0000       x4      0.16</span></span>
+<span><span class="co">#&gt; 5  1.0000       x5      0.28</span></span>
+<span><span class="co">#&gt; 6  1.0000       x6      1.00</span></span>
+<span><span class="co">#&gt; 7  0.0889       x1      0.18</span></span>
+<span><span class="co">#&gt; 8  0.0889       x2      0.12</span></span>
+<span><span class="co">#&gt; 9  0.0889       x3      0.20</span></span>
+<span><span class="co">#&gt; 10 0.0889       x4      0.22</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">autoplot</span><span class="op">(</span><span class="va">sb</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; Error in autoplot(sb): could not find function "autoplot"</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"selector"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "betareg_step_aic"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"c0.seq"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">single</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/compare_selectors_single.html">compare_selectors_single</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, include_enet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="reference/compare_selectors_bootstrap.html">compare_selectors_bootstrap</a></span><span class="op">(</span></span>
 <span>  <span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">100</span>, include_enet <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">321</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
@@ -154,21 +181,30 @@
 <span><span class="co">#&gt; x4      AIC       x4 0.27</span></span>
 <span><span class="co">#&gt; x5      AIC       x5 0.14</span></span>
 <span><span class="co">#&gt; x6      AIC       x6 0.19</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_coeff.html">plot_compare_coeff</a></span><span class="op">(</span><span class="va">single</span><span class="op">$</span><span class="va">table</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="reference/figures/README-unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7" width="100%"><p class="caption">
-plot of chunk unnamed-chunk-7
-</p>
-</div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_freq.html">plot_compare_freq</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_coeff.html">plot_compare_coeff</a></span><span class="op">(</span><span class="va">single</span><span class="op">$</span><span class="va">table</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="reference/figures/README-unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8" width="100%"><p class="caption">
 plot of chunk unnamed-chunk-8
 </p>
 </div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_freq.html">plot_compare_freq</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="reference/figures/README-unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-9
+</p>
+</div>
+<div class="section level3">
+<h3 id="parallel-resampling">Parallel resampling<a class="anchor" aria-label="anchor" href="#parallel-resampling"></a>
+</h3>
+<p>Setting <code>use.parallel = TRUE</code> instructs <code><a href="reference/sb_beta.html">sb_beta()</a></code> and <code><a href="reference/sb_resample_groups.html">sb_resample_groups()</a></code> to dispatch resamples and selector fits through <a href="https://future.apply.futureverse.org/" class="external-link"><code>future.apply</code></a>. Bring your own <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code> to select the desired backend (e.g. <code>multisession</code> on desktops):</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span><span class="op">)</span></span>
+<span><span class="va">sb_parallel</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_beta.html">sb_beta</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">50</span>, step.num <span class="op">=</span> <span class="fl">0.25</span>, use.parallel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">)</span></span></code></pre></div>
 <p>Refer to the vignettes for a more detailed walk-through of the workflow and the pseudo-code underpinning the algorithms.</p>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

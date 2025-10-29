@@ -60,17 +60,15 @@ settings.
 
 ## Installation
 
-You can install the released version of SelectBoost.beta from [CRAN](https://CRAN.R-project.org) with:
-
-```{r, eval = FALSE}
-install.packages("SelectBoost.beta")
-```
-
-You can install the development version of SelectBoost.beta from [github](https://github.com) with:
+SelectBoost.beta is preparing for its first CRAN submission. Until it becomes
+available there, install the development version from GitHub:
 
 ```{r, eval = FALSE}
 devtools::install_github("fbertran/SelectBoost.beta")
 ```
+
+Once the package lands on CRAN, the usual `install.packages("SelectBoost.beta")`
+command will work as expected.
 
 The selectors rely on the `betareg`, `glmnet`, and `gamlss` ecosystems. These
 packages will be pulled in automatically when installing from source.
@@ -98,8 +96,19 @@ The `sb_beta()` wrapper performs the entire loop internally and returns a matrix
 indexed by the correlation thresholds used during resampling:
 
 ```{r, cache=TRUE, eval=LOCAL}
-sb <- sb_beta(sim$X, sim$Y, B = 50, step.num = 0.25)
+sb <- sb_beta(sim$X, sim$Y, B = 50, step.num = 0.25,use.parallel = FALSE)
 print(sb)
+```
+
+The result stores the selector used, the number of resamples, and the
+correlation thresholds in its attributes. Dedicated methods make these easier to
+inspect programmatically:
+
+```{r, cache=TRUE, eval=LOCAL}
+summary(sb)
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  autoplot(sb)
+}
 ```
 
 ```{r, cache=TRUE, eval=LOCAL}
@@ -107,6 +116,9 @@ attr(sb, "selector")
 attr(sb, "c0.seq")
 ```
 
+```{r, cache=TRUE, eval=LOCAL}
+single <- compare_selectors_single(sim$X, sim$Y, include_enet = TRUE)
+```
 
 ```{r, cache=TRUE, eval=LOCAL}
 freq <- suppressWarnings(compare_selectors_bootstrap(
@@ -123,6 +135,19 @@ plot_compare_coeff(single$table)
 
 ```{r, cache=TRUE, eval=LOCAL}
 plot_compare_freq(freq)
+```
+
+### Parallel resampling
+
+Setting `use.parallel = TRUE` instructs `sb_beta()` and `sb_resample_groups()` to
+dispatch resamples and selector fits through
+[`future.apply`](https://future.apply.futureverse.org/). Bring your own
+`future::plan()` to select the desired backend (e.g. `multisession` on desktops):
+
+```{r, eval = FALSE}
+future::plan(future::multisession)
+sb_parallel <- sb_beta(sim$X, sim$Y, B = 50, step.num = 0.25, use.parallel = TRUE)
+future::plan(future::sequential)
 ```
 
 Refer to the vignettes for a more detailed walk-through of the workflow and the

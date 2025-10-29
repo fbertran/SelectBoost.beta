@@ -199,6 +199,11 @@ function.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">sb</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "c0 = 1.000" "c0 = 0.900" "c0 = 0.700" "c0 = 0.500" "c0 = 0.000"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">sb</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; SelectBoost beta selection frequencies</span></span>
+<span><span class="co">#&gt; Selector: betareg_step_aic</span></span>
+<span><span class="co">#&gt; Resamples per threshold: 60</span></span>
+<span><span class="co">#&gt; c0 grid: 1.0, 0.9, 0.7, 0.5, 0.0</span></span>
+<span><span class="co">#&gt; Inner thresholds: 0.9, 0.7, 0.5</span></span>
 <span><span class="co">#&gt;               x1    x2    x3    x4   x5    x6</span></span>
 <span><span class="co">#&gt; c0 = 1.000 1.000 1.000 1.000 0.000 1.00 0.000</span></span>
 <span><span class="co">#&gt; c0 = 0.900 1.000 1.000 1.000 0.000 1.00 0.000</span></span>
@@ -212,9 +217,7 @@ function.</p>
 <span><span class="co">#&gt; attr(,"B")</span></span>
 <span><span class="co">#&gt; [1] 60</span></span>
 <span><span class="co">#&gt; attr(,"selector")</span></span>
-<span><span class="co">#&gt; [1] "betareg_step_aic"</span></span>
-<span><span class="co">#&gt; attr(,"class")</span></span>
-<span><span class="co">#&gt; [1] "sb_beta" "matrix"  "array"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "betareg_step_aic"</span></span></code></pre></div>
 <p>Changing the selector is simply a matter of passing a different
 routine. The call below uses the GAMLSS-based elastic-net variant and
 asks <code><a href="../reference/sb_beta.html">sb_beta()</a></code> to pass <code>choose = "bic"</code> to the

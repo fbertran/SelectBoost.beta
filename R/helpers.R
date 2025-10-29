@@ -19,14 +19,58 @@
        1 - .Machine$double.eps)
 }
 
-.coef_glmnet_style <- function(fit, xnames) {
-  cf <- stats::coef(fit)
-  mean_cf <- if (is.list(cf)) cf$mean else cf
-  beta <- setNames(numeric(length(xnames)), xnames)
-  common <- intersect(names(mean_cf), xnames)
-  if (length(common)) beta[common] <- mean_cf[common]
-  intercept <- if ("(Intercept)" %in% names(mean_cf)) unname(mean_cf["(Intercept)"]) else 0
-  c("(Intercept)" = intercept, beta)
+.coef_betareg_full <- function(
+    fit,
+    mean_names,
+    phi_names = NULL,
+    phi_prefix = "phi|",
+    phi_name_map = NULL
+) {
+  
+  if (is.list(fit$coefficients)) {
+    mean_cf <- fit$coefficients[["mean"]]
+    phi_cf <- fit$coefficients[["precision"]]
+  } else {
+    mean_cf <- cf <- stats::coef(fit)
+    phi_cf <- NULL
+  }
+  
+  mean_beta <- setNames(numeric(length(mean_names)), mean_names)
+  if (length(mean_cf)) {
+    common_mean <- intersect(names(mean_cf), mean_names)
+    if (length(common_mean)) {
+      mean_beta[common_mean] <- mean_cf[common_mean]
+    }
+  }
+  mean_intercept <- if ("(Intercept)" %in% names(mean_cf)) unname(mean_cf["(Intercept)"]) else 0
+  
+  phi_beta <- NULL
+  phi_labels <- NULL
+  if (!is.null(phi_names) && length(phi_names)) {
+    phi_labels <- paste0(phi_prefix, phi_names)
+    if (!is.null(phi_name_map)) {
+      phi_labels <- paste0(phi_prefix, unname(phi_name_map[phi_names]))
+    }
+    phi_beta <- setNames(numeric(length(phi_names)), phi_labels)
+    if (length(phi_cf)) {
+      # betareg names the precision component either "precision" or "phi"
+      phi_coef_vals <- phi_cf
+      common_phi <- intersect(names(phi_coef_vals), phi_names)
+      if (length(common_phi)) {
+        idx <- match(common_phi, phi_names)
+        phi_beta[idx] <- phi_coef_vals[common_phi]
+      }
+    }
+  }
+  
+  phi_intercept <- NULL
+  if (!is.null(phi_cf) && length(phi_cf)) {
+    name <- paste0(phi_prefix, "(Intercept)")
+    val <- if ("(Intercept)" %in% names(phi_cf)) unname(phi_cf["(Intercept)"]) else 0
+    phi_intercept <- setNames(val, name)
+  }
+  
+  c(`(Intercept)` = mean_intercept, mean_beta, phi_intercept, phi_beta)
 }
 
 .scope_beta <- function(xnames) {
@@ -54,9 +98,14 @@
   aic + (2 * k * (k + 1)) / denom
 }
 
-.beta_formula_from_vars <- function(vars) {
-  if (length(vars) == 0) as.formula("y ~ 1")
-  else as.formula(paste0("y ~ ", paste(vars, collapse = " + ")))
+.beta_formula_from_vars <- function(mean_vars, phi_vars = NULL) {
+  mean_part <- if (length(mean_vars) == 0) "1" else paste(mean_vars, collapse = " + ")
+  if (is.null(phi_vars)) {
+    as.formula(paste0("y ~ ", mean_part))
+  } else {
+    phi_part <- if (length(phi_vars) == 0) "1" else paste(phi_vars, collapse = " + ")
+    as.formula(paste0("y ~ ", mean_part, " | ", phi_part))
+  }
 }
 
 .shorten_colnames <- function(X, maxlen = 30) {

@@ -5,6 +5,14 @@
 - Enabled optional parallel resampling in `sb_beta()`/`sb_resample_groups()` via
   `future.apply`, added S3 print/summary/autoplot helpers for `sb_beta`
   results, and documented the new behaviour in the README.
+
+- Extended the stepwise beta selectors to handle observation weights and
+  precision-submodel search, exposing precision coefficients in the returned
+  paths.
+- Added reproducible resampling caches and quality diagnostics to
+  `sb_resample_groups()`/`sb_beta()`, including interval-response support that
+  reuses pseudo-responses across correlation thresholds.
+
   
 # SelectBoost.beta 0.4.4
 - Add **NEWS.md** documenting development history.

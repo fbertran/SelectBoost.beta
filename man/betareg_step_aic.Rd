@@ -13,19 +13,24 @@ betareg_step_aic(
   type = "ML",
   trace = FALSE,
   max_steps = NULL,
-  epsilon = 1e-08
+  epsilon = 1e-08,
+  X_phi = NULL,
+  direction_phi = c("none", "both", "forward", "backward"),
+  weights = NULL
 )
 }
 \arguments{
-\item{X}{Numeric matrix (n × p) of predictors.}
+\item{X}{Numeric matrix (n × p) of mean-submodel predictors.}
 
 \item{Y}{Numeric response in (0,1). Values are squeezed to (0,1) internally.}
 
-\item{direction}{Stepwise direction: \code{"both"}, \code{"forward"}, or \code{"backward"}.}
+\item{direction}{Stepwise direction for the mean submodel: \code{"both"},
+\code{"forward"}, or \code{"backward"}.}
 
-\item{link}{Link for the mean submodel (passed to \code{betareg}), default \code{"logit"}.}
+\item{link}{Link for the mean submodel (passed to \code{betareg}). Default
+\code{"logit"}.}
 
-\item{link.phi}{Link for precision parameter, default \code{"log"}.}
+\item{link.phi}{Link for precision parameter. Default \code{"log"}.}
 
 \item{type}{Likelihood type for \code{betareg}, e.g. \code{"ML"}.}
 
@@ -33,19 +38,39 @@ betareg_step_aic(
 
 \item{max_steps}{Integer; maximum number of greedy steps (default \code{p}).}
 
-\item{epsilon}{Numeric; minimum AIC improvement required to accept a move (default \code{1e-8}).}
+\item{epsilon}{Numeric; minimum improvement required to accept a move
+(default \code{1e-8}).}
+
+\item{X_phi}{Optional matrix of candidate predictors for the precision (phi)
+submodel. When \code{direction_phi} enables precision updates and \code{X_phi} is
+\code{NULL}, the function reuses \code{X}.}
+
+\item{direction_phi}{Stepwise direction for the precision submodel.
+Defaults to \code{"none"} (no phi selection). Supported values mirror
+\code{direction}.}
+
+\item{weights}{Optional non-negative observation weights passed to
+\code{betareg()}.}
 }
 \value{
-Named numeric vector of length \code{p+1} with \code{(Intercept)} and one
-coefficient per column of \code{X}. Nonselected variables have 0.
+Named numeric vector of length \code{p_mean + p_phi + 1} containing the
+intercept, mean coefficients, phi-intercept (prefixed by \code{"phi|"}), and
+phi coefficients (also prefixed by \code{"phi|"}). Non-selected variables have
+coefficient 0.
 }
 \description{
-Fits a mean-submodel Beta regression with \code{betareg} and performs
-stepwise subset selection using AIC.
+Fits a Beta regression with optional joint selection of the mean and
+precision (phi) submodels using \code{betareg::betareg()}. The routine performs
+greedy forward/backward search using the requested information criterion and
+returns coefficients aligned with the supplied design matrix. Observation
+weights are passed through to \code{betareg()} when provided.
 }
 \examples{
 set.seed(1)
-X <- matrix(rnorm(200), 100, 2); Y <- plogis(0.5 + X[,1]-X[,2]); Y <- rbeta(100, Y*20, (1-Y)*20)
+X <- matrix(rnorm(200), 100, 2);
+Y <- plogis(0.5 + X[,1]-X[,2]);
+betareg_step_aic(X, Y)
+Y <- rbeta(100, Y*20, (1-Y)*20)
 betareg_step_aic(X, Y)
 }
 \seealso{

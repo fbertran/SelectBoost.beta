@@ -10,7 +10,8 @@ sb_resample_groups(
   B = 100,
   jitter = 1e-06,
   seed = NULL,
-  use.parallel = FALSE
+  use.parallel = FALSE,
+  cache = NULL
 )
 }
 \arguments{
@@ -28,9 +29,16 @@ sb_resample_groups(
 
 \item{use.parallel}{Logical; when \code{TRUE}, compute the resampled designs using
 a parallel backend when available.}
+
+\item{cache}{Optional environment or named list used to cache previously
+generated surrogates. Passing the same cache across calls reuses draws for
+identical groups.}
 }
 \value{
-A list of length \code{B}, each element being a resampled design matrix.
+An object of class \code{sb_resamples}, i.e. a list of length \code{B} whose
+elements are resampled design matrices. The object exposes per-group
+diagnostics in its \code{"diagnostics"} attribute and returns the cache via the
+\code{"cache"} attribute for reuse.
 }
 \description{
 Generate correlated design replicates for a set of groups

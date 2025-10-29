@@ -36,16 +36,24 @@ Results:
 It ships with:
 
 - wrappers such as `betareg_step_aic()` and `betareg_glmnet()` that act as base
-  selectors for beta-distributed outcomes;
+  selectors for beta-distributed outcomes, now including optional precision
+  (phi) submodel search and observation weights;
 - helper functions (`sb_normalize()`, `sb_group_variables()`,
   `sb_resample_groups()`, …) mirroring the core stages of SelectBoost; and
 - the high-level `sb_beta()` driver that orchestrates normalisation,
   correlation analysis, grouped resampling and stability tallying in a single
   call.
 
+Each resampling call returns per-group diagnostics (cached draws, observed
+correlation summaries) and `sb_beta()` threads the same correlated surrogates
+across all thresholds so cross-level comparisons remain aligned. Interval
+responses are supported through the `interval` argument, which reuses the
+`fastboost_interval()` logic directly inside `sb_beta()`.
+
 The package is designed so that each stage of the workflow remains reusable on
 its own. Users can plug in custom grouping strategies or selectors while still
 benefiting from correlated resampling.
+
 
 
 ## Conference presentations
@@ -90,6 +98,8 @@ resamples <- sb_resample_groups(X_norm, groups, B = 50)
 coef_path <- sb_apply_selector_manual(X_norm, resamples, sim$Y, betareg_step_aic)
 sel_freq <- sb_selection_frequency(coef_path, version = "glmnet")
 sel_freq
+
+attr(resamples, "diagnostics")
 ```
 
 The `sb_beta()` wrapper performs the entire loop internally and returns a matrix
@@ -107,13 +117,14 @@ inspect programmatically:
 ```{r, cache=TRUE, eval=LOCAL}
 summary(sb)
 if (requireNamespace("ggplot2", quietly = TRUE)) {
-  autoplot(sb)
+  autoplot.sb_beta(sb)
 }
 ```
 
 ```{r, cache=TRUE, eval=LOCAL}
 attr(sb, "selector")
 attr(sb, "c0.seq")
+attr(sb, "resample_diagnostics")[[1]]
 ```
 
 ```{r, cache=TRUE, eval=LOCAL}
@@ -135,6 +146,24 @@ plot_compare_coeff(single$table)
 
 ```{r, cache=TRUE, eval=LOCAL}
 plot_compare_freq(freq)
+```
+
+### Interval outcomes
+
+`sb_beta()` can draw pseudo-responses from observed intervals by supplying
+`Y_low`, `Y_high`, and an `interval` mode:
+
+```{r, cache=TRUE, eval=LOCAL}
+interval_fit <- sb_beta(
+  sim$X,
+  Y_low = pmax(sim$Y - 0.05, 0),
+  Y_high = pmin(sim$Y + 0.05, 1),
+  interval = "uniform",
+  B = 30,
+  step.num = 0.5
+)
+attr(interval_fit, "interval")
+attr(interval_fit, "resample_diagnostics")
 ```
 
 ### Parallel resampling

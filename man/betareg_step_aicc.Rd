@@ -13,19 +13,24 @@ betareg_step_aicc(
   type = "ML",
   trace = FALSE,
   max_steps = NULL,
-  epsilon = 1e-08
+  epsilon = 1e-08,
+  X_phi = NULL,
+  direction_phi = c("none", "both", "forward", "backward"),
+  weights = NULL
 )
 }
 \arguments{
-\item{X}{Numeric matrix (n × p) of predictors.}
+\item{X}{Numeric matrix (n × p) of mean-submodel predictors.}
 
 \item{Y}{Numeric response in (0,1). Values are squeezed to (0,1) internally.}
 
-\item{direction}{Stepwise direction: \code{"both"}, \code{"forward"}, or \code{"backward"}.}
+\item{direction}{Stepwise direction for the mean submodel: \code{"both"},
+\code{"forward"}, or \code{"backward"}.}
 
-\item{link}{Link for the mean submodel (passed to \code{betareg}), default \code{"logit"}.}
+\item{link}{Link for the mean submodel (passed to \code{betareg}). Default
+\code{"logit"}.}
 
-\item{link.phi}{Link for precision parameter, default \code{"log"}.}
+\item{link.phi}{Link for precision parameter. Default \code{"log"}.}
 
 \item{type}{Likelihood type for \code{betareg}, e.g. \code{"ML"}.}
 
@@ -34,14 +39,30 @@ betareg_step_aicc(
 \item{max_steps}{Maximum number of greedy steps (default \code{p}).}
 
 \item{epsilon}{Minimal AICc improvement to accept a move.}
+
+\item{X_phi}{Optional matrix of candidate predictors for the precision (phi)
+submodel. When \code{direction_phi} enables precision updates and \code{X_phi} is
+\code{NULL}, the function reuses \code{X}.}
+
+\item{direction_phi}{Stepwise direction for the precision submodel.
+Defaults to \code{"none"} (no phi selection). Supported values mirror
+\code{direction}.}
+
+\item{weights}{Optional non-negative observation weights passed to
+\code{betareg()}.}
 }
 \value{
 See \code{\link[=betareg_step_aic]{betareg_step_aic()}}.
 }
 \description{
-Greedy forward/backward search minimizing AICc computed on \code{betareg} fits.
+Greedy forward/backward search minimizing AICc computed on \code{betareg} fits with
+optional precision-submodel selection and observation weights.
 }
 \examples{
-set.seed(1); X <- matrix(rnorm(400), 100, 4); Y <- plogis(X[,1]+0.5*X[,2])
-Y <- rbeta(100, Y*25, (1-Y)*25); betareg_step_aicc(X, Y)
+set.seed(1);
+X <- matrix(rnorm(400), 100, 4);
+Y <- plogis(X[,1]+0.5*X[,2])
+betareg_step_aicc(X, Y)
+Y <- rbeta(100, Y*25, (1-Y)*25);
+betareg_step_aicc(X, Y)
 }

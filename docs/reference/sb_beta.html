@@ -182,26 +182,27 @@ object can be consumed by existing plotting and reporting utilities.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulation_DATA.beta.html">simulation_DATA.beta</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">80</span>, p <span class="op">=</span> <span class="fl">4</span>, s <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">sb_beta</span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># increase B for real applications</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">sb_beta</span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">res</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> SelectBoost beta selection frequencies</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Selector: betareg_step_aic</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Resamples per threshold: 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Resamples per threshold: 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Interval mode: none</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> c0 grid: 1.000, 0.126, 0.113, 0.025, 0.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Inner thresholds: 0.126, 0.113, 0.025</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             x1  x2  x3  x4 phi|(Intercept)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 1.000 1.0 1.0 0.0 0.0               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.126 0.1 1.0 0.3 0.2               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.113 0.3 0.0 0.4 0.2               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.025 0.3 0.0 0.4 0.2               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.000 0.2 0.1 0.2 0.4               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.126 0.4 1.0 0.0 0.0               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.113 0.2 0.0 0.0 0.2               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.025 0.2 0.2 0.0 0.2               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c0 = 0.000 0.2 0.2 0.4 0.4               1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"c0.seq")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.00000000 0.12616304 0.11291203 0.02454839 0.00000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"steps.seq")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.12616304 0.11291203 0.02454839</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"B")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"selector")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "betareg_step_aic"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")</span>
@@ -213,39 +214,39 @@ object can be consumed by existing plotting and reporting utilities.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")$`c0 = 0.126`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    x1,x4    2          10  FALSE          0.1275181               0.1195504</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    x3,x4    2          10  FALSE          0.1261630               0.1249398</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 x1,x3,x4    3          10  FALSE          0.1225041               0.1323147</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    x1,x4    2           5  FALSE          0.1275181               0.1112407</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    x3,x4    2           5  FALSE          0.1261630               0.1264908</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 x1,x3,x4    3           5  FALSE          0.1225041               0.1517253</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   mean_abs_corr_cross</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1          0.09746687</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2          0.07453088</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3          0.06767065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          0.08777970</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          0.11906132</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          0.07866331</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")$`c0 = 0.113`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         group size regenerated cached mean_abs_corr_orig</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 x1,x2,x3,x4    4          10  FALSE         0.08541194</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       x1,x2    2          10  FALSE         0.11291203</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 x1,x2,x3,x4    4           5  FALSE         0.08541194</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       x1,x2    2           5  FALSE         0.11291203</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3    x1,x3,x4    3           0   TRUE         0.12250411</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   mean_abs_corr_surrogate mean_abs_corr_cross</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1               0.1262968          0.08154752</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2               0.1424752          0.08312880</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3               0.1323147          0.06767065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1              0.13775478          0.11347522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2              0.08833692          0.05156172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3              0.15172531          0.07866331</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")$`c0 = 0.025`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         group size regenerated cached mean_abs_corr_orig</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 x1,x2,x3,x4    4           0   TRUE         0.08541194</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    x1,x2,x4    3          10  FALSE         0.08832617</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    x1,x2,x4    3           5  FALSE         0.08832617</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3    x1,x3,x4    3           0   TRUE         0.12250411</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   mean_abs_corr_surrogate mean_abs_corr_cross</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1               0.1262968          0.08154752</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2               0.1083570          0.10442578</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3               0.1323147          0.06767065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               0.1377548          0.11347522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               0.1198411          0.10854057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3               0.1517253          0.07866331</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"resample_diagnostics")$`c0 = 0.000`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         group size regenerated cached mean_abs_corr_orig</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 x1,x2,x3,x4    4           0   TRUE         0.08541194</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   mean_abs_corr_surrogate mean_abs_corr_cross</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1               0.1262968          0.08154752</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               0.1377548           0.1134752</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"interval")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "none"</span>

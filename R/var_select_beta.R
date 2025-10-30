@@ -311,7 +311,7 @@ attr(betareg_step_aicc, "fun.name") <- "betareg_step_aicc"
       for (v in to_add_phi) {
         p_vars <- sort(c(phi_vars, v))
         fit <- try(
-          fit_betareg(m_vars, p_vars),
+          fit_betareg(mean_vars, p_vars),
           silent = TRUE
         )
         if (!inherits(fit, "try-error")) {

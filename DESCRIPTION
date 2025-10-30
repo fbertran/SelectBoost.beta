@@ -13,7 +13,8 @@ Imports:
     MASS,
     Rcpp,
     rlang,
-    stats
+    stats,
+    withr
 Suggests:
     future,
     future.apply,

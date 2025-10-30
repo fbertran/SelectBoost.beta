@@ -25,7 +25,8 @@ sb_resample_groups(
 
 \item{jitter}{Numeric value added to covariance diagonals for stability.}
 
-\item{seed}{Optional integer seed for reproducibility.}
+\item{seed}{Optional integer seed for reproducibility. The seed is scoped via
+\code{\link[withr:with_seed]{withr::with_seed()}} so the caller's RNG state is restored on exit.}
 
 \item{use.parallel}{Logical; when \code{TRUE}, compute the resampled designs using
 a parallel backend when available.}
@@ -42,4 +43,13 @@ diagnostics in its \code{"diagnostics"} attribute and returns the cache via the
 }
 \description{
 Generate correlated design replicates for a set of groups
+}
+\details{
+When every group has size one (no correlated variables) the function
+simply returns \code{B} copies of \code{X_norm}. A warning is issued in that situation
+so downstream code can avoid mistaking the replicated designs for genuinely
+resampled surrogates. The covariance matrices underpinning each correlated
+draw are cached in the supplied \code{cache} environment; reusing the environment
+across calls lets \code{sb_resample_groups()} skip redundant covariance
+decompositions for identical groups and speeds up iterative workflows.
 }

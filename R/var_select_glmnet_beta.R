@@ -89,3 +89,4 @@ betareg_glmnet <- function(
   beta_out <- setNames(numeric(p), xnames); nz <- which(beta != 0); if (length(nz)) beta_out[nz] <- beta[nz]
   c("(Intercept)" = a0, beta_out)
 }
+attr(betareg_glmnet, "fun.name") <- "betareg_glmnet"

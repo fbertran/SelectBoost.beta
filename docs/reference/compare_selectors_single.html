@@ -4,12 +4,14 @@ when available), and the pure glmnet IRLS selector, then collates coefficients
 into a long table for comparison. Observations containing NA in either X
 or Y are removed prior to fitting. Column names are temporarily shortened
 to satisfy selector requirements and avoid clashes; the outputs remap them to
-the original labels before returning."><meta property="og:description" content="Convenience wrapper that runs AIC/BIC/AICc stepwise, GAMLSS LASSO (and ENet
+the original labels before returning so the reported variables always match
+the input design."><meta property="og:description" content="Convenience wrapper that runs AIC/BIC/AICc stepwise, GAMLSS LASSO (and ENet
 when available), and the pure glmnet IRLS selector, then collates coefficients
 into a long table for comparison. Observations containing NA in either X
 or Y are removed prior to fitting. Column names are temporarily shortened
 to satisfy selector requirements and avoid clashes; the outputs remap them to
-the original labels before returning."><meta property="og:image" content="https://fbertran.github.io/SelectBoost.beta/logo.svg"><style>
+the original labels before returning so the reported variables always match
+the input design."><meta property="og:image" content="https://fbertran.github.io/SelectBoost.beta/logo.svg"><style>
   .navbar-brand img { height: 28px; }
 </style></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -57,7 +59,8 @@ when available), and the pure glmnet IRLS selector, then collates coefficients
 into a long table for comparison. Observations containing <code>NA</code> in either <code>X</code>
 or <code>Y</code> are removed prior to fitting. Column names are temporarily shortened
 to satisfy selector requirements and avoid clashes; the outputs remap them to
-the original labels before returning.</p>
+the original labels before returning so the reported variables always match
+the input design.</p>
     </div>
 
     <div class="section level2">

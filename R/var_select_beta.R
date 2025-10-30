@@ -66,6 +66,7 @@ betareg_step_aic <- function(
     weights = weights
   )
 }
+attr(betareg_step_aic, "fun.name") <- "betareg_step_aic"
 
 #' Stepwise Beta regression by BIC
 #' @inheritParams betareg_step_aic
@@ -101,6 +102,7 @@ betareg_step_bic <- function(
     weights = weights
   )
 }
+attr(betareg_step_bic, "fun.name") <- "betareg_step_bic"
 
 
 #' Stepwise Beta regression by AICc (finite-sample corrected AIC)
@@ -144,6 +146,8 @@ betareg_step_aicc <- function(
       weights = weights
     )
   }
+attr(betareg_step_aicc, "fun.name") <- "betareg_step_aicc"
+
 
 # Internal shared engine -------------------------------------------------------
 

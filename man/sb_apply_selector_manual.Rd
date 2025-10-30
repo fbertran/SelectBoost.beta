@@ -4,7 +4,14 @@
 \alias{sb_apply_selector_manual}
 \title{Apply a selector to a collection of resampled designs}
 \usage{
-sb_apply_selector_manual(X_norm, resamples, Y, selector, ...)
+sb_apply_selector_manual(
+  X_norm,
+  resamples,
+  Y,
+  selector,
+  ...,
+  keep_template = TRUE
+)
 }
 \arguments{
 \item{X_norm}{Normalised design matrix.}
@@ -13,9 +20,15 @@ sb_apply_selector_manual(X_norm, resamples, Y, selector, ...)
 
 \item{Y}{Numeric response.}
 
-\item{selector}{Variable-selection routine; function or character string.}
+\item{selector}{Variable-selection routine; function or character string. If
+it is a function, the selector name should be added as the fun.name attribute.}
 
 \item{...}{Extra arguments passed to the selector.}
+
+\item{keep_template}{Logical; when \code{TRUE} (default) the first column stores the
+coefficients fitted on \code{X_norm} before any resampling. This avoids
+recomputing the selector on the original data and keeps the baseline fit
+available for diagnostics.}
 }
 \value{
 A numeric matrix of coefficients with one column per resample.

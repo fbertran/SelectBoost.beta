@@ -96,8 +96,8 @@ below measures the proportion of resamples where the variable was selected; valu
 close to 1 indicate consistent discoveries.
 
 ```{r}
-freq <- compare_selectors_bootstrap(sim$X, sim$Y, B = 20, include_enet = FALSE,
-  seed = 99)
+freq <- suppressWarnings(compare_selectors_bootstrap(sim$X, sim$Y, B = 100, 
+                                                     include_enet = FALSE, seed = 99))
 head(freq)
 ```
 

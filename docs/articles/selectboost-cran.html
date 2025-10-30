@@ -75,7 +75,7 @@ authors</h4>
 Paris<br><a class="author_email" href="mailto:#"></a><a href="mailto:frederic.bertrand@lecnam.net" class="email">frederic.bertrand@lecnam.net</a>
       </address>
                   
-            <h4 data-toc-skip class="date">2025-10-29</h4>
+            <h4 data-toc-skip class="date">2025-10-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/fbertran/SelectBoost.beta/blob/HEAD/vignettes/selectboost-cran.Rmd" class="external-link"><code>vignettes/selectboost-cran.Rmd</code></a></small>
       <div class="d-none name"><code>selectboost-cran.Rmd</code></div>
@@ -127,11 +127,11 @@ each threshold.</p>
 <span><span class="co">#&gt; Interval mode: none</span></span>
 <span><span class="co">#&gt; c0 grid: 1.000, 0.124, 0.078, 0.000</span></span>
 <span><span class="co">#&gt; Inner thresholds: 0.124, 0.078</span></span>
-<span><span class="co">#&gt;               x1    x2    x3    x4   x5    x6 phi|(Intercept)</span></span>
-<span><span class="co">#&gt; c0 = 1.000 1.000 1.000 1.000 0.000 0.00 0.000               1</span></span>
-<span><span class="co">#&gt; c0 = 0.124 0.125 0.125 1.000 0.050 0.15 0.125               1</span></span>
-<span><span class="co">#&gt; c0 = 0.078 0.100 0.075 0.200 0.050 0.10 0.050               1</span></span>
-<span><span class="co">#&gt; c0 = 0.000 0.150 0.200 0.175 0.225 0.10 0.175               1</span></span>
+<span><span class="co">#&gt;               x1    x2    x3    x4    x5    x6 phi|(Intercept)</span></span>
+<span><span class="co">#&gt; c0 = 1.000 1.000 1.000 1.000 0.000 0.000 0.000               1</span></span>
+<span><span class="co">#&gt; c0 = 0.124 0.175 0.250 1.000 0.150 0.125 0.225               1</span></span>
+<span><span class="co">#&gt; c0 = 0.078 0.225 0.150 0.225 0.125 0.125 0.300               1</span></span>
+<span><span class="co">#&gt; c0 = 0.000 0.175 0.225 0.125 0.050 0.125 0.175               1</span></span>
 <span><span class="co">#&gt; attr(,"c0.seq")</span></span>
 <span><span class="co">#&gt; [1] 1.0000000 0.1244760 0.0780104 0.0000000</span></span>
 <span><span class="co">#&gt; attr(,"steps.seq")</span></span>
@@ -149,17 +149,17 @@ each threshold.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.124`</span></span>
 <span><span class="co">#&gt;      group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
-<span><span class="co">#&gt; 1 x1,x4,x5    3          40  FALSE          0.1127816              0.12452284</span></span>
-<span><span class="co">#&gt; 2    x2,x6    2          40  FALSE          0.1244760              0.09934462</span></span>
-<span><span class="co">#&gt; 3 x1,x4,x6    3          40  FALSE          0.1396964              0.14968931</span></span>
-<span><span class="co">#&gt; 4    x1,x5    2          40  FALSE          0.1401757              0.15635997</span></span>
-<span><span class="co">#&gt; 5 x2,x4,x6    3          40  FALSE          0.1374098              0.15700612</span></span>
+<span><span class="co">#&gt; 1 x1,x4,x5    3          40  FALSE          0.1127816               0.1356965</span></span>
+<span><span class="co">#&gt; 2    x2,x6    2          40  FALSE          0.1244760               0.1294831</span></span>
+<span><span class="co">#&gt; 3 x1,x4,x6    3          40  FALSE          0.1396964               0.1407319</span></span>
+<span><span class="co">#&gt; 4    x1,x5    2          40  FALSE          0.1401757               0.1481810</span></span>
+<span><span class="co">#&gt; 5 x2,x4,x6    3          40  FALSE          0.1374098               0.1355264</span></span>
 <span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
-<span><span class="co">#&gt; 1          0.08495110</span></span>
-<span><span class="co">#&gt; 2          0.06325177</span></span>
-<span><span class="co">#&gt; 3          0.06968686</span></span>
-<span><span class="co">#&gt; 4          0.06534756</span></span>
-<span><span class="co">#&gt; 5          0.06941150</span></span>
+<span><span class="co">#&gt; 1          0.06758135</span></span>
+<span><span class="co">#&gt; 2          0.07596385</span></span>
+<span><span class="co">#&gt; 3          0.07866263</span></span>
+<span><span class="co">#&gt; 4          0.06583547</span></span>
+<span><span class="co">#&gt; 5          0.08691954</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.078`</span></span>
 <span><span class="co">#&gt;            group size regenerated cached mean_abs_corr_orig</span></span>
@@ -170,18 +170,18 @@ each threshold.</p>
 <span><span class="co">#&gt; 5       x1,x3,x5    3          40  FALSE         0.10711418</span></span>
 <span><span class="co">#&gt; 6 x1,x2,x3,x4,x6    5          40  FALSE         0.10113912</span></span>
 <span><span class="co">#&gt;   mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
-<span><span class="co">#&gt; 1               0.1112624          0.07500762</span></span>
-<span><span class="co">#&gt; 2               0.1142810          0.06898823</span></span>
-<span><span class="co">#&gt; 3               0.1085051          0.07026698</span></span>
-<span><span class="co">#&gt; 4               0.1219593          0.07188999</span></span>
-<span><span class="co">#&gt; 5               0.1167484          0.07259936</span></span>
-<span><span class="co">#&gt; 6               0.1154673          0.07398801</span></span>
+<span><span class="co">#&gt; 1               0.1123564          0.07043535</span></span>
+<span><span class="co">#&gt; 2               0.1156346          0.07450001</span></span>
+<span><span class="co">#&gt; 3               0.1108955          0.07185240</span></span>
+<span><span class="co">#&gt; 4               0.1303823          0.07356340</span></span>
+<span><span class="co">#&gt; 5               0.1054951          0.06943202</span></span>
+<span><span class="co">#&gt; 6               0.1183650          0.07719288</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.000`</span></span>
 <span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig</span></span>
 <span><span class="co">#&gt; 1 x1,x2,x3,x4,x5,x6    6          40  FALSE         0.09172931</span></span>
 <span><span class="co">#&gt;   mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
-<span><span class="co">#&gt; 1               0.1087976          0.07717904</span></span>
+<span><span class="co">#&gt; 1               0.1091279           0.0750416</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"interval")</span></span>
 <span><span class="co">#&gt; [1] "none"</span></span></code></pre></div>
@@ -208,13 +208,13 @@ to visualise the stability matrix.</p>
 <span><span class="co">#&gt; Top rows:</span></span>
 <span><span class="co">#&gt;       c0        variable frequency</span></span>
 <span><span class="co">#&gt; 1  1.000              x1     1.000</span></span>
-<span><span class="co">#&gt; 2  1.000              x2     0.125</span></span>
-<span><span class="co">#&gt; 3  1.000              x3     0.100</span></span>
-<span><span class="co">#&gt; 4  1.000              x4     0.150</span></span>
+<span><span class="co">#&gt; 2  1.000              x2     0.175</span></span>
+<span><span class="co">#&gt; 3  1.000              x3     0.225</span></span>
+<span><span class="co">#&gt; 4  1.000              x4     0.175</span></span>
 <span><span class="co">#&gt; 5  1.000              x5     1.000</span></span>
-<span><span class="co">#&gt; 6  1.000              x6     0.125</span></span>
-<span><span class="co">#&gt; 7  1.000 phi|(Intercept)     0.075</span></span>
-<span><span class="co">#&gt; 8  0.124              x1     0.200</span></span>
+<span><span class="co">#&gt; 6  1.000              x6     0.250</span></span>
+<span><span class="co">#&gt; 7  1.000 phi|(Intercept)     0.150</span></span>
+<span><span class="co">#&gt; 8  0.124              x1     0.225</span></span>
 <span><span class="co">#&gt; 9  0.124              x2     1.000</span></span>
 <span><span class="co">#&gt; 10 0.124              x3     1.000</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -251,144 +251,52 @@ column in the table below measures the proportion of resamples where the
 variable was selected; values close to 1 indicate consistent
 discoveries.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compare_selectors_bootstrap.html">compare_selectors_bootstrap</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">20</span>, include_enet <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">99</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
-<span><span class="co">#&gt; Warning in betareg.fit(X, Y, Z, weights, offset, link, link.phi, type, control,</span></span>
-<span><span class="co">#&gt; : no valid starting value for precision parameter found, using 1 instead</span></span>
+<code class="sourceCode R"><span><span class="va">freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/compare_selectors_bootstrap.html">compare_selectors_bootstrap</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">100</span>, </span>
+<span>                                                     include_enet <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">99</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    selector variable freq</span></span>
-<span><span class="co">#&gt; x1      AIC       x1 1.00</span></span>
-<span><span class="co">#&gt; x2      AIC       x2 1.00</span></span>
-<span><span class="co">#&gt; x3      AIC       x3 1.00</span></span>
-<span><span class="co">#&gt; x4      AIC       x4 0.20</span></span>
-<span><span class="co">#&gt; x5      AIC       x5 0.20</span></span>
-<span><span class="co">#&gt; x6      AIC       x6 0.35</span></span></code></pre></div>
+<span><span class="co">#&gt;    selector variable freq n_success n_fail</span></span>
+<span><span class="co">#&gt; x1      AIC       x1 1.00       100      0</span></span>
+<span><span class="co">#&gt; x2      AIC       x2 1.00       100      0</span></span>
+<span><span class="co">#&gt; x3      AIC       x3 1.00       100      0</span></span>
+<span><span class="co">#&gt; x4      AIC       x4 0.22       100      0</span></span>
+<span><span class="co">#&gt; x5      AIC       x5 0.17       100      0</span></span>
+<span><span class="co">#&gt; x6      AIC       x6 0.32       100      0</span></span></code></pre></div>
 <p>Merge both views with <code><a href="../reference/compare_table.html">compare_table()</a></code> and use
 <code><a href="../reference/plot_compare_coeff.html">plot_compare_coeff()</a></code> or <code><a href="../reference/plot_compare_freq.html">plot_compare_freq()</a></code>
 for quick diagnostics.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/compare_table.html">compare_table</a></span><span class="op">(</span><span class="va">single</span><span class="op">$</span><span class="va">table</span>, <span class="va">freq</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    selector variable          coef selected freq</span></span>
-<span><span class="co">#&gt; 1       AIC       x1  1.059016e+00     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 2       AIC       x2 -8.855152e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 3       AIC       x3  7.277844e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 4       AIC       x4  0.000000e+00    FALSE 0.20</span></span>
-<span><span class="co">#&gt; 5       AIC       x5  0.000000e+00    FALSE 0.20</span></span>
-<span><span class="co">#&gt; 6       AIC       x6  0.000000e+00    FALSE 0.35</span></span>
-<span><span class="co">#&gt; 7      AICc       x1  1.059016e+00     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 8      AICc       x2 -8.855152e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 9      AICc       x3  7.277844e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 10     AICc       x4  0.000000e+00    FALSE 0.40</span></span>
-<span><span class="co">#&gt; 11     AICc       x5  0.000000e+00    FALSE 0.10</span></span>
-<span><span class="co">#&gt; 12     AICc       x6  0.000000e+00    FALSE 0.25</span></span>
-<span><span class="co">#&gt; 13      BIC       x1  1.059016e+00     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 14      BIC       x2 -8.855152e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 15      BIC       x3  7.277844e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 16      BIC       x4  0.000000e+00    FALSE 0.05</span></span>
-<span><span class="co">#&gt; 17      BIC       x5  0.000000e+00    FALSE 0.05</span></span>
-<span><span class="co">#&gt; 18      BIC       x6  0.000000e+00    FALSE 0.10</span></span>
-<span><span class="co">#&gt; 19   GLMNET       x1  9.901824e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 20   GLMNET       x2 -8.043564e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 21   GLMNET       x3  6.703246e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 22   GLMNET       x4  0.000000e+00    FALSE 0.30</span></span>
-<span><span class="co">#&gt; 23   GLMNET       x5  0.000000e+00    FALSE 0.30</span></span>
-<span><span class="co">#&gt; 24   GLMNET       x6  0.000000e+00    FALSE 0.55</span></span>
-<span><span class="co">#&gt; 25    LASSO       x1  1.088734e+00     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 26    LASSO       x2 -8.211508e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 27    LASSO       x3  7.489369e-01     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 28    LASSO       x4  5.275007e-11     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 29    LASSO       x5 -1.981396e-05     TRUE 1.00</span></span>
-<span><span class="co">#&gt; 30    LASSO       x6  4.151315e-02     TRUE 1.00</span></span></code></pre></div>
+<span><span class="co">#&gt;    selector variable          coef selected freq n_success n_fail</span></span>
+<span><span class="co">#&gt; 1       AIC       x1  1.059016e+00     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 2       AIC       x2 -8.855152e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 3       AIC       x3  7.277844e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 4       AIC       x4  0.000000e+00    FALSE 0.22       100      0</span></span>
+<span><span class="co">#&gt; 5       AIC       x5  0.000000e+00    FALSE 0.17       100      0</span></span>
+<span><span class="co">#&gt; 6       AIC       x6  0.000000e+00    FALSE 0.32       100      0</span></span>
+<span><span class="co">#&gt; 7      AICc       x1  1.059016e+00     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 8      AICc       x2 -8.855152e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 9      AICc       x3  7.277844e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 10     AICc       x4  0.000000e+00    FALSE 0.16       100      0</span></span>
+<span><span class="co">#&gt; 11     AICc       x5  0.000000e+00    FALSE 0.13       100      0</span></span>
+<span><span class="co">#&gt; 12     AICc       x6  0.000000e+00    FALSE 0.37       100      0</span></span>
+<span><span class="co">#&gt; 13      BIC       x1  1.059016e+00     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 14      BIC       x2 -8.855152e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 15      BIC       x3  7.277844e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 16      BIC       x4  0.000000e+00    FALSE 0.02       100      0</span></span>
+<span><span class="co">#&gt; 17      BIC       x5  0.000000e+00    FALSE 0.03       100      0</span></span>
+<span><span class="co">#&gt; 18      BIC       x6  0.000000e+00    FALSE 0.13       100      0</span></span>
+<span><span class="co">#&gt; 19   GLMNET       x1  9.901824e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 20   GLMNET       x2 -8.043564e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 21   GLMNET       x3  6.703246e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 22   GLMNET       x4  0.000000e+00    FALSE 0.30       100      0</span></span>
+<span><span class="co">#&gt; 23   GLMNET       x5  0.000000e+00    FALSE 0.41       100      0</span></span>
+<span><span class="co">#&gt; 24   GLMNET       x6  0.000000e+00    FALSE 0.49       100      0</span></span>
+<span><span class="co">#&gt; 25    LASSO       x1  1.088734e+00     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 26    LASSO       x2 -8.211508e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 27    LASSO       x3  7.489369e-01     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 28    LASSO       x4  5.275007e-11     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 29    LASSO       x5 -1.981396e-05     TRUE 1.00       100      0</span></span>
+<span><span class="co">#&gt; 30    LASSO       x6  4.151315e-02     TRUE 1.00       100      0</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="interval-responses">Interval responses<a class="anchor" aria-label="anchor" href="#interval-responses"></a>

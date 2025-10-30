@@ -31,7 +31,9 @@ sb_beta(
 \item{Y}{Numeric response vector. Values are squeezed to the open unit
 interval with the standard SelectBoost transformation unless \code{squeeze = FALSE}. Optional when interval bounds are supplied.}
 
-\item{selector}{Selection routine. Defaults to \code{\link[=betareg_step_aic]{betareg_step_aic()}}.}
+\item{selector}{Selection routine. Defaults to \code{\link[=betareg_step_aic]{betareg_step_aic()}}.
+Function or character string. If it is a function, the selector name
+should be added as the fun.name attribute.}
 
 \item{corrfunc}{Correlation function passed to \code{\link[=sb_compute_corr]{sb_compute_corr()}}.}
 
@@ -49,7 +51,8 @@ thresholds.}
 \item{use.parallel}{Logical; enable parallel resampling and selector fits
 when supported by the current R session.}
 
-\item{seed}{Optional integer seed for reproducibility.}
+\item{seed}{Optional integer seed for reproducibility. The seed is scoped via
+\code{\link[withr:with_seed]{withr::with_seed()}} so the caller's RNG state is restored on exit.}
 
 \item{verbose}{Logical; emit progress messages.}
 
@@ -95,6 +98,7 @@ object can be consumed by existing plotting and reporting utilities.
 \examples{
 set.seed(42)
 sim <- simulation_DATA.beta(n = 80, p = 4, s = 2)
-res <- sb_beta(sim$X, sim$Y, B = 10)
+# increase B for real applications
+res <- sb_beta(sim$X, sim$Y, B = 5)
 res
 }

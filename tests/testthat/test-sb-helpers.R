@@ -127,8 +127,28 @@ test_that("sb_beta accepts custom selectors", {
   expect_s3_class(res, "sb_beta")
   expect_equal(attr(res, "B"), 4)
   expect_equal(attr(res, "steps.seq"), c(0.75, 0.5))
+  expect_equal(attr(res, "selector"), "selector")
+  expect_equal(rownames(res), sprintf("c0 = %.3f", c(1, 0.75, 0.5, 0)))
+  expect_true(all(res[, "x1"] == 1))
+  expect_true(all(res[, colnames(X)[-1]] == 0))
+  
+  attr(toy_selector,"fun.name") <- "toy_selector"
+  res <- sb_beta(
+    X, Y,
+    selector = toy_selector,
+    B = 4,
+    step.num = 0.5,
+    steps.seq = c(0.75, 0.5),
+    version = "glmnet",
+    threshold = 0.5
+  )
+  
+  expect_s3_class(res, "sb_beta")
+  expect_equal(attr(res, "B"), 4)
+  expect_equal(attr(res, "steps.seq"), c(0.75, 0.5))
   expect_equal(attr(res, "selector"), "toy_selector")
   expect_equal(rownames(res), sprintf("c0 = %.3f", c(1, 0.75, 0.5, 0)))
   expect_true(all(res[, "x1"] == 1))
   expect_true(all(res[, colnames(X)[-1]] == 0))
 })
+

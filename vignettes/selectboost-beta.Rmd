@@ -90,6 +90,10 @@ dim(coef_path)
 coef_path[, 1:3]
 ```
 
+The leading column `sim0` records the coefficients fitted on the original
+normalised design, providing a convenient baseline against which the resampled
+paths can be compared.
+
 Finally, the `sb_selection_frequency()` helper counts how often each variable
 appears with a non-zero coefficient across the replicates. Because
 `betareg_step_aic()` returns a `glmnet`-style coefficient vector (intercept plus

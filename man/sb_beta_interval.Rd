@@ -21,7 +21,9 @@ sb_beta_interval(
 \item{Y_low, Y_high}{Interval bounds in \verb{[0, 1]} paired with the rows of \code{X}
 when \code{interval} is not \code{"none"}.}
 
-\item{selector}{Selection routine. Defaults to \code{\link[=betareg_step_aic]{betareg_step_aic()}}.}
+\item{selector}{Selection routine. Defaults to \code{\link[=betareg_step_aic]{betareg_step_aic()}}.
+Function or character string. If it is a function, the selector name
+should be added as the fun.name attribute.}
 
 \item{sample}{Interval sampling scheme passed to the \code{interval} argument of
 \code{\link[=sb_beta]{sb_beta()}}. \code{"uniform"} draws a pseudo-response uniformly within each

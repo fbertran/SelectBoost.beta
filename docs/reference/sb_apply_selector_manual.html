@@ -22,6 +22,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/selectboost-algorithms.html">SelectBoost.beta algorithms</a></li>
     <li><a class="dropdown-item" href="../articles/selectboost-beta.html">SelectBoost for Beta regression</a></li>
+    <li><a class="dropdown-item" href="../articles/selectboost-cran.html">Getting started with SelectBoost.beta</a></li>
     <li><a class="dropdown-item" href="../articles/simulate-interval-beta.html">Simulating interval Beta data</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -46,7 +47,14 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sb_apply_selector_manual</span><span class="op">(</span><span class="va">X_norm</span>, <span class="va">resamples</span>, <span class="va">Y</span>, <span class="va">selector</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sb_apply_selector_manual</span><span class="op">(</span></span>
+<span>  <span class="va">X_norm</span>,</span>
+<span>  <span class="va">resamples</span>,</span>
+<span>  <span class="va">Y</span>,</span>
+<span>  <span class="va">selector</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  keep_template <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -66,11 +74,19 @@
 
 
 <dt id="arg-selector">selector<a class="anchor" aria-label="anchor" href="#arg-selector"></a></dt>
-<dd><p>Variable-selection routine; function or character string.</p></dd>
+<dd><p>Variable-selection routine; function or character string. If
+it is a function, the selector name should be added as the fun.name attribute.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Extra arguments passed to the selector.</p></dd>
+
+
+<dt id="arg-keep-template">keep_template<a class="anchor" aria-label="anchor" href="#arg-keep-template"></a></dt>
+<dd><p>Logical; when <code>TRUE</code> (default) the first column stores the
+coefficients fitted on <code>X_norm</code> before any resampling. This avoids
+recomputing the selector on the original data and keeps the baseline fit
+available for diagnostics.</p></dd>
 
 </dl></div>
     <div class="section level2">

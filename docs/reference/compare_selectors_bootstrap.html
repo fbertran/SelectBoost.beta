@@ -88,10 +88,15 @@ mapped back to the originals in the output just like in
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Long data frame with columns <code>selector</code>, <code>variable</code>, <code>freq</code> in <code>[0,1]</code>.
-The <code>freq</code> column reports the share of bootstrap replicates where a variable
-was selected by the corresponding selector; values near 1 signal high
-stability whereas small values indicate weak evidence.</p>
+    <p>Long data frame with columns <code>selector</code>, <code>variable</code>, <code>freq</code> in <code>[0,1]</code>,
+<code>n_success</code>, and <code>n_fail</code>. The <code>freq</code> column reports the share of bootstrap
+replicates where a variable was selected by the corresponding selector.
+Values near 1 signal high stability whereas small values indicate weak
+evidence. <code>n_success</code> counts the successful fits contributing to the
+frequency estimate (excluding failed replicates), while <code>n_fail</code> records the
+number of unsuccessful fits. A <code>"failures"</code> attribute attached to the
+returned data frame lists the replicate indices and messages for any
+encountered errors.</p>
     </div>
 
     <div class="section level2">
@@ -101,13 +106,33 @@ stability whereas small values indicate weak evidence.</p>
 <span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="fl">100</span>, <span class="va">Y</span> <span class="op">*</span> <span class="fl">30</span>, <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">Y</span><span class="op">)</span> <span class="op">*</span> <span class="fl">30</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">freq</span> <span class="op">&lt;-</span> <span class="fu">compare_selectors_bootstrap</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, B <span class="op">=</span> <span class="fl">10</span>, include_enet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     selector variable freq</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1       AIC       X1  1.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X2       AIC       X2  0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X3       AIC       X3  0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X11      BIC       X1  1.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X21      BIC       X2  0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X31      BIC       X3  0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     selector variable freq n_success n_fail</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X1       AIC       X1  1.0        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X2       AIC       X2  0.0        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X3       AIC       X3  0.5        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X11      BIC       X1  1.0        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X21      BIC       X2  0.0        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X31      BIC       X3  0.0        10      0</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">freq</span>, <span class="va">freq</span> <span class="op">&gt;</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     selector variable freq n_success n_fail</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X1       AIC       X1    1        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X11      BIC       X1    1        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X12     AICc       X1    1        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X13    LASSO       X1    1        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X23    LASSO       X2    1        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X33    LASSO       X3    1        10      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X14   GLMNET       X1    1        10      0</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Increase `B` until the reported frequencies stabilise. For example,</span></span></span>
+<span class="r-in"><span><span class="va">freq_big</span> <span class="op">&lt;-</span> <span class="fu">compare_selectors_bootstrap</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, B <span class="op">=</span> <span class="fl">200</span>, include_enet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span><span class="va">freq</span> <span class="op">~</span> <span class="va">selector</span>, <span class="va">freq_big</span>, <span class="va">summary</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   selector freq.Min. freq.1st Qu. freq.Median freq.Mean freq.3rd Qu. freq.Max.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      AIC 0.1700000    0.1750000   0.1800000 0.4500000    0.5900000 1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     AICc 0.1150000    0.1750000   0.2350000 0.4500000    0.6175000 1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      BIC 0.0150000    0.0350000   0.0550000 0.3566667    0.5275000 1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   GLMNET 0.1100000    0.1575000   0.2050000 0.4383333    0.6025000 1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    LASSO 1.0000000    1.0000000   1.0000000 1.0000000    1.0000000 1.0000000</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

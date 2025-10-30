@@ -12,7 +12,8 @@
 #' @param sample `"uniform"` (default) or `"midpoint"` for drawing pseudo-responses.
 #' @param version Ignored (reserved for future).
 #' @param use.parallel Use `parallel::mclapply` if available.
-#' @param seed Optional RNG seed.
+#' @param seed Optional RNG seed. Scoped via [withr::with_seed()] so the caller's
+#'   RNG state is restored afterwards.
 #' @param ... Extra args forwarded to `func`.
 #'
 #' @return A list with:
@@ -37,33 +38,65 @@ fastboost_interval <- function(
   func, B = 100, sample = c("uniform","midpoint"),
   version = "glmnet", use.parallel = FALSE, seed = NULL, ...
 ) {
-  stopifnot(is.matrix(X))
-  n <- nrow(X); p <- ncol(X)
-  sample <- match.arg(sample)
+  sample <- match.arg(sample, choices = c("uniform","midpoint"))
+  
+  call <- match.call()
+  runner <- function() {
+    if (!is.matrix(X)) {
+      X_mat <- as.matrix(X)
+    } else {
+      X_mat <- X
+    }
+    if (!is.numeric(X_mat)) {
+      storage.mode(X_mat) <- "double"
+    }
+    n <- nrow(X_mat); p <- ncol(X_mat)
+    if (is.null(colnames(X_mat))) colnames(X_mat) <- paste0("X", seq_len(p))
   if (length(Y_low) != n || length(Y_high) != n)
     stop("Y_low and Y_high must have length nrow(X)")
   ok <- is.finite(Y_low) & is.finite(Y_high)
-  X <- X[ok,,drop=FALSE]; Y_low <- Y_low[ok]; Y_high <- Y_high[ok]
-  n <- nrow(X)
+    X_mat <- X_mat[ok,,drop=FALSE]; Y_low <- Y_low[ok]; Y_high <- Y_high[ok]
+    n <- nrow(X_mat)
 
-  if (!is.null(seed)) set.seed(seed)
-  run_one <- function(b) {
-    if (sample == "uniform") {
-      u <- stats::runif(n); yb <- Y_low + u * (Y_high - Y_low)
-    } else yb <- 0.5 * (Y_low + Y_high)
-    yb <- pmin(pmax(yb, 0), 1)
-    as.numeric(func(X, yb, ...))
+    target_names <- c("(Intercept)", colnames(X_mat))
+    run_one <- function(b) {
+      if (sample == "uniform") {
+        u <- stats::runif(n); yb <- Y_low + u * (Y_high - Y_low)
+      } else yb <- 0.5 * (Y_low + Y_high)
+      yb <- pmin(pmax(yb, 0), 1)
+      out <- func(X_mat, yb, ...)
+      if (!is.numeric(out)) {
+        stop("`func` must return a numeric coefficient vector.")
+      }
+      if (is.null(names(out))) {
+        stop("`func` must return named coefficients.")
+      }
+      idx <- match(target_names, names(out))
+      if (anyNA(idx)) {
+        missing <- target_names[is.na(idx)]
+        stop(sprintf(
+          "`func` output is missing coefficients for: %s.",
+          paste(missing, collapse = ", ")
+        ))
+      }
+      as.numeric(out[idx])
+    }
+    if (use.parallel && requireNamespace("parallel", quietly = TRUE)) {
+      idx <- seq_len(B)
+      res <- parallel::mclapply(idx, run_one, mc.cores = max(1, parallel::detectCores() - 1L))
+    } else res <- lapply(seq_len(B), run_one)
+    betas <- do.call(rbind, res)
+    cn <- c("(Intercept)", colnames(X_mat)); colnames(betas) <- cn
+    nz <- betas[, -1, drop = FALSE] != 0
+    freq <- colMeans(nz); names(freq) <- colnames(X_mat)
+    structure(list(betas = betas, freq = freq, call = call), class = "fastboost_interval")
   }
-  if (use.parallel && requireNamespace("parallel", quietly = TRUE)) {
-    idx <- seq_len(B)
-    res <- parallel::mclapply(idx, run_one, mc.cores = max(1, parallel::detectCores() - 1L))
-  } else res <- lapply(seq_len(B), run_one)
-  betas <- do.call(rbind, res)
-  if (is.null(colnames(X))) colnames(X) <- paste0("X", seq_len(p))
-  cn <- c("(Intercept)", colnames(X)); colnames(betas) <- cn
-  nz <- betas[, -1, drop = FALSE] != 0
-  freq <- colMeans(nz); names(freq) <- colnames(X)
-  structure(list(betas = betas, freq = freq, call = match.call()), class = "fastboost_interval")
+
+  if (is.null(seed)) {
+    runner()
+  } else {
+    withr::with_seed(seed, runner())
+  }
 }
 
 

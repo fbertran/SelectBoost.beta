@@ -33,7 +33,8 @@ vector as in the other selectors (nonselected = 0).}
 
 \item{use.parallel}{Use \code{parallel::mclapply} if available.}
 
-\item{seed}{Optional RNG seed.}
+\item{seed}{Optional RNG seed. Scoped via \code{\link[withr:with_seed]{withr::with_seed()}} so the caller's
+RNG state is restored afterwards.}
 
 \item{...}{Extra args forwarded to \code{func}.}
 }

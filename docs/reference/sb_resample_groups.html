@@ -81,7 +81,8 @@
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional integer seed for reproducibility.</p></dd>
+<dd><p>Optional integer seed for reproducibility. The seed is scoped via
+<code><a href="https://withr.r-lib.org/reference/with_seed.html" class="external-link">withr::with_seed()</a></code> so the caller's RNG state is restored on exit.</p></dd>
 
 
 <dt id="arg-use-parallel">use.parallel<a class="anchor" aria-label="anchor" href="#arg-use-parallel"></a></dt>
@@ -101,6 +102,16 @@ identical groups.</p></dd>
 elements are resampled design matrices. The object exposes per-group
 diagnostics in its <code>"diagnostics"</code> attribute and returns the cache via the
 <code>"cache"</code> attribute for reuse.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>When every group has size one (no correlated variables) the function
+simply returns <code>B</code> copies of <code>X_norm</code>. A warning is issued in that situation
+so downstream code can avoid mistaking the replicated designs for genuinely
+resampled surrogates. The covariance matrices underpinning each correlated
+draw are cached in the supplied <code>cache</code> environment; reusing the environment
+across calls lets <code>sb_resample_groups()</code> skip redundant covariance
+decompositions for identical groups and speeds up iterative workflows.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

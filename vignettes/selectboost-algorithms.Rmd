@@ -44,9 +44,13 @@ The following helpers expose the canonical SelectBoost stages.
 - `sb_group_variables()` converts the correlation matrix into groups of highly
   associated predictors for a given threshold \(c_0\).
 - `sb_resample_groups()` regenerates correlated predictors for each group by
-  drawing from a multivariate normal approximation and re-normalising.
+  drawing from a multivariate normal approximation and re-normalising. When all
+  groups are singletons it now warns and simply returns repeated copies of the
+  normalised design.
 - `sb_apply_selector_manual()` applies a selector to each resampled design and
-  collects the resulting coefficient vectors.
+  collects the resulting coefficient vectors. Set `keep_template = TRUE` (the
+  default) to retain the base fit as column `sim0` without recomputing it on the
+  first resample.
 - `sb_selection_frequency()` converts the matrix of coefficients into selection
   frequencies while respecting the selector's coefficient convention.
 

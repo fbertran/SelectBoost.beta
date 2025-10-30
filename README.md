@@ -14,7 +14,6 @@
 
 With the growth of big data, variable selection has become one of the major challenges in statistics. Although many methods have been proposed in the literature their performance in terms of recall and precision are limited in a context where the number of variables by far exceeds the number of observations or in a high correlated setting. 
 
-Results: 
 
 `SelectBoost.beta` brings the correlation-aware resampling strategy of the original SelectBoost package to **beta** regression by implementing an extension of the **SelectBoost** algorithm, F. Bertrand, I. Aouadi, N. Jung, R. Carapito, L. Vallat, S. Bahram, M. Maumy-Bertrand (2015) <https://doi.org/10.1093/bioinformatics/btaa855> and <https://doi.org/10.32614/CRAN.package.SelectBoost>.
 
@@ -99,6 +98,7 @@ X_norm <- sb_normalize(sim$X)
 corr_mat <- sb_compute_corr(X_norm)
 groups <- sb_group_variables(corr_mat, c0 = 0.6)
 resamples <- sb_resample_groups(X_norm, groups, B = 50)
+#> Warning: All groups are singletons; correlated resampling degenerates to repeated `X_norm`.
 coef_path <- sb_apply_selector_manual(X_norm, resamples, sim$Y, betareg_step_aic)
 sel_freq <- sb_selection_frequency(coef_path, version = "glmnet")
 sel_freq
@@ -146,60 +146,38 @@ print(sb)
 #> [1] "betareg_step_aic"
 #> attr(,"resample_diagnostics")
 #> attr(,"resample_diagnostics")$`c0 = 1.000`
-#> [1] group                   size                    regenerated            
-#> [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate
-#> [7] mean_abs_corr_cross    
+#> [1] group                   size                    regenerated             cached                 
+#> [5] mean_abs_corr_orig      mean_abs_corr_surrogate mean_abs_corr_cross    
 #> <0 rows> (or 0-length row.names)
 #> 
 #> attr(,"resample_diagnostics")$`c0 = 0.089`
-#>      group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
-#> 1    x1,x4    2          50  FALSE         0.08894615              0.10146558
-#> 2 x2,x3,x6    3          50  FALSE         0.07694401              0.09829963
-#> 3 x2,x3,x5    3          50  FALSE         0.08217406              0.09634851
-#> 4    x3,x5    2          50  FALSE         0.09286939              0.09536360
-#> 5    x2,x6    2          50  FALSE         0.10556609              0.11060608
-#>   mean_abs_corr_cross
-#> 1          0.07089570
-#> 2          0.06673431
-#> 3          0.06390166
-#> 4          0.05329723
-#> 5          0.07179976
+#>      group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross
+#> 1    x1,x4    2          50  FALSE         0.08894615              0.10146558          0.07089570
+#> 2 x2,x3,x6    3          50  FALSE         0.07694401              0.09829963          0.06673431
+#> 3 x2,x3,x5    3          50  FALSE         0.08217406              0.09634851          0.06390166
+#> 4    x3,x5    2          50  FALSE         0.09286939              0.09536360          0.05329723
+#> 5    x2,x6    2          50  FALSE         0.10556609              0.11060608          0.07179976
 #> 
 #> attr(,"resample_diagnostics")$`c0 = 0.059`
-#>            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
-#> 1    x1,x2,x3,x4    4          50  FALSE         0.06136428              0.08621443
-#> 2 x1,x2,x3,x5,x6    5          50  FALSE         0.06152013              0.08582089
-#> 3    x1,x2,x3,x5    4          50  FALSE         0.07198271              0.08974742
-#> 4       x1,x4,x5    3          50  FALSE         0.06290784              0.07535777
-#> 5    x2,x3,x4,x5    4          50  FALSE         0.05766823              0.08028623
-#> 6          x2,x6    2           0   TRUE         0.10556609              0.11060608
-#>   mean_abs_corr_cross
-#> 1          0.06598362
-#> 2          0.06337853
-#> 3          0.06489135
-#> 4          0.06047434
-#> 5          0.06062214
-#> 6          0.07179976
+#>            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross
+#> 1    x1,x2,x3,x4    4          50  FALSE         0.06136428              0.08621443          0.06598362
+#> 2 x1,x2,x3,x5,x6    5          50  FALSE         0.06152013              0.08582089          0.06337853
+#> 3    x1,x2,x3,x5    4          50  FALSE         0.07198271              0.08974742          0.06489135
+#> 4       x1,x4,x5    3          50  FALSE         0.06290784              0.07535777          0.06047434
+#> 5    x2,x3,x4,x5    4          50  FALSE         0.05766823              0.08028623          0.06062214
+#> 6          x2,x6    2           0   TRUE         0.10556609              0.11060608          0.07179976
 #> 
 #> attr(,"resample_diagnostics")$`c0 = 0.030`
-#>               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
-#> 1    x1,x2,x3,x4,x5    5          50  FALSE         0.06203296              0.08360476
-#> 2    x1,x2,x3,x5,x6    5           0   TRUE         0.06152013              0.08582089
-#> 3       x1,x4,x5,x6    4          50  FALSE         0.04694388              0.07252823
-#> 4 x1,x2,x3,x4,x5,x6    6          50  FALSE         0.05666305              0.08518211
-#> 5    x2,x3,x4,x5,x6    5          50  FALSE         0.05591031              0.08187888
-#>   mean_abs_corr_cross
-#> 1          0.06487303
-#> 2          0.06337853
-#> 3          0.06954473
-#> 4          0.06383341
-#> 5          0.06182501
+#>               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross
+#> 1    x1,x2,x3,x4,x5    5          50  FALSE         0.06203296              0.08360476          0.06487303
+#> 2    x1,x2,x3,x5,x6    5           0   TRUE         0.06152013              0.08582089          0.06337853
+#> 3       x1,x4,x5,x6    4          50  FALSE         0.04694388              0.07252823          0.06954473
+#> 4 x1,x2,x3,x4,x5,x6    6          50  FALSE         0.05666305              0.08518211          0.06383341
+#> 5    x2,x3,x4,x5,x6    5          50  FALSE         0.05591031              0.08187888          0.06182501
 #> 
 #> attr(,"resample_diagnostics")$`c0 = 0.000`
-#>               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
-#> 1 x1,x2,x3,x4,x5,x6    6           0   TRUE         0.05666305              0.08518211
-#>   mean_abs_corr_cross
-#> 1          0.06383341
+#>               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross
+#> 1 x1,x2,x3,x4,x5,x6    6           0   TRUE         0.05666305              0.08518211          0.06383341
 #> 
 #> attr(,"interval")
 #> [1] "none"
@@ -236,8 +214,8 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 ```
 
 <div class="figure">
-<img src="man/figures/README-unnamed-chunk-33-1.png" alt="plot of chunk unnamed-chunk-33" width="100%" />
-<p class="caption">plot of chunk unnamed-chunk-33</p>
+<img src="man/figures/README-unnamed-chunk-4-1.png" alt="plot of chunk unnamed-chunk-4" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-4</p>
 </div>
 
 
@@ -247,9 +225,8 @@ attr(sb, "selector")
 attr(sb, "c0.seq")
 #> [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000
 attr(sb, "resample_diagnostics")[[1]]
-#> [1] group                   size                    regenerated            
-#> [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate
-#> [7] mean_abs_corr_cross    
+#> [1] group                   size                    regenerated             cached                 
+#> [5] mean_abs_corr_orig      mean_abs_corr_surrogate mean_abs_corr_cross    
 #> <0 rows> (or 0-length row.names)
 ```
 
@@ -285,20 +262,22 @@ freq <- suppressWarnings(compare_selectors_bootstrap(
   sim$X, sim$Y, B = 100, include_enet = TRUE, seed = 321
 ))
 head(freq)
-#>    selector variable freq
-#> x1      AIC       x1 1.00
-#> x2      AIC       x2 1.00
-#> x3      AIC       x3 1.00
-#> x4      AIC       x4 0.27
-#> x5      AIC       x5 0.14
-#> x6      AIC       x6 0.19
+#>    selector variable freq n_success n_fail
+#> x1      AIC       x1 1.00       100      0
+#> x2      AIC       x2 1.00       100      0
+#> x3      AIC       x3 1.00       100      0
+#> x4      AIC       x4 0.27       100      0
+#> x5      AIC       x5 0.14       100      0
+#> x6      AIC       x6 0.19       100      0
 ```
 
 The `freq` column reports how often each variable was selected across the
-bootstrap replicates. Values close to 1 indicate highly stable discoveries,
-whereas small values suggest weak or noisy support. Increase `B` when you need
-finer resolution; a few dozen resamples suffice for quick checks, while several
-hundred deliver smoother estimates.
+bootstrap replicates, and the accompanying `n_success`/`n_fail` counts indicate
+how many resamples contributed to each estimate. Values close to 1 indicate
+highly stable discoveries, whereas small values suggest weak or noisy support.
+Inspect `attr(freq, "failures")` to review any selector errors. Increase `B`
+when you need finer resolution; a few dozen resamples suffice for quick checks,
+while several hundred deliver smoother estimates.
 
 
 ``` r
@@ -306,8 +285,8 @@ plot_compare_coeff(single$table)
 ```
 
 <div class="figure">
-<img src="man/figures/README-unnamed-chunk-37-1.png" alt="plot of chunk unnamed-chunk-37" width="100%" />
-<p class="caption">plot of chunk unnamed-chunk-37</p>
+<img src="man/figures/README-unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-8</p>
 </div>
 
 
@@ -317,8 +296,8 @@ plot_compare_freq(freq)
 ```
 
 <div class="figure">
-<img src="man/figures/README-unnamed-chunk-38-1.png" alt="plot of chunk unnamed-chunk-38" width="100%" />
-<p class="caption">plot of chunk unnamed-chunk-38</p>
+<img src="man/figures/README-unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-9</p>
 </div>
 
 ### Interval outcomes
@@ -340,32 +319,22 @@ attr(interval_fit, "interval")
 #> [1] "uniform"
 attr(interval_fit, "resample_diagnostics")
 #> $`c0 = 1.000`
-#> [1] group                   size                    regenerated            
-#> [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate
-#> [7] mean_abs_corr_cross    
+#> [1] group                   size                    regenerated             cached                 
+#> [5] mean_abs_corr_orig      mean_abs_corr_surrogate mean_abs_corr_cross    
 #> <0 rows> (or 0-length row.names)
 #> 
 #> $`c0 = 0.059`
-#>            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
-#> 1    x1,x2,x3,x4    4          30  FALSE         0.06136428              0.08625551
-#> 2 x1,x2,x3,x5,x6    5          30  FALSE         0.06152013              0.08351693
-#> 3    x1,x2,x3,x5    4          30  FALSE         0.07198271              0.09395737
-#> 4       x1,x4,x5    3          30  FALSE         0.06290784              0.08889440
-#> 5    x2,x3,x4,x5    4          30  FALSE         0.05766823              0.08401650
-#> 6          x2,x6    2          30  FALSE         0.10556609              0.08760037
-#>   mean_abs_corr_cross
-#> 1          0.06004899
-#> 2          0.07278975
-#> 3          0.06294279
-#> 4          0.07196982
-#> 5          0.06221965
-#> 6          0.06647446
+#>            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross
+#> 1    x1,x2,x3,x4    4          30  FALSE         0.06136428              0.08465482          0.06242124
+#> 2 x1,x2,x3,x5,x6    5          30  FALSE         0.06152013              0.08852213          0.07072896
+#> 3    x1,x2,x3,x5    4          30  FALSE         0.07198271              0.09486290          0.06465764
+#> 4       x1,x4,x5    3          30  FALSE         0.06290784              0.08437581          0.07146798
+#> 5    x2,x3,x4,x5    4          30  FALSE         0.05766823              0.07919466          0.07095218
+#> 6          x2,x6    2          30  FALSE         0.10556609              0.11117186          0.06506660
 #> 
 #> $`c0 = 0.000`
-#>               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate
-#> 1 x1,x2,x3,x4,x5,x6    6          30  FALSE         0.05666305              0.08808704
-#>   mean_abs_corr_cross
-#> 1          0.05790142
+#>               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross
+#> 1 x1,x2,x3,x4,x5,x6    6          30  FALSE         0.05666305              0.08767186           0.0650419
 ```
 For a shortcut that always uses interval resampling, call
 `sb_beta_interval(sim$X, Y_low, Y_high, sample = "uniform")`. The lower-level

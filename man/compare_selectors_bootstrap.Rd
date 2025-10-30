@@ -18,10 +18,15 @@ compare_selectors_bootstrap(X, Y, B = 50, include_enet = TRUE, seed = NULL)
 \item{seed}{Optional RNG seed.}
 }
 \value{
-Long data frame with columns \code{selector}, \code{variable}, \code{freq} in \verb{[0,1]}.
-The \code{freq} column reports the share of bootstrap replicates where a variable
-was selected by the corresponding selector; values near 1 signal high
-stability whereas small values indicate weak evidence.
+Long data frame with columns \code{selector}, \code{variable}, \code{freq} in \verb{[0,1]},
+\code{n_success}, and \code{n_fail}. The \code{freq} column reports the share of bootstrap
+replicates where a variable was selected by the corresponding selector.
+Values near 1 signal high stability whereas small values indicate weak
+evidence. \code{n_success} counts the successful fits contributing to the
+frequency estimate (excluding failed replicates), while \code{n_fail} records the
+number of unsuccessful fits. A \code{"failures"} attribute attached to the
+returned data frame lists the replicate indices and messages for any
+encountered errors.
 }
 \description{
 Bootstraps the dataset \code{B} times and records how often each variable is
@@ -36,4 +41,10 @@ X <- matrix(rnorm(300), 100, 3); Y <- plogis(X[, 1])
 Y <- rbeta(100, Y * 30, (1 - Y) * 30)
 freq <- compare_selectors_bootstrap(X, Y, B = 10, include_enet = FALSE)
 head(freq)
+subset(freq, freq > 0.8)
+
+# Increase `B` until the reported frequencies stabilise. For example,
+# freq_big <- compare_selectors_bootstrap(X, Y, B = 200, include_enet = FALSE)
+# stats::aggregate(freq ~ selector, freq_big, summary)
+
 }

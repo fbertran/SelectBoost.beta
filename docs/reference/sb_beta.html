@@ -95,7 +95,9 @@ interval with the standard SelectBoost transformation unless <code>squeeze = FAL
 
 
 <dt id="arg-selector">selector<a class="anchor" aria-label="anchor" href="#arg-selector"></a></dt>
-<dd><p>Selection routine. Defaults to <code><a href="betareg_step_aic.html">betareg_step_aic()</a></code>.</p></dd>
+<dd><p>Selection routine. Defaults to <code><a href="betareg_step_aic.html">betareg_step_aic()</a></code>.
+Function or character string. If it is a function, the selector name
+should be added as the fun.name attribute.</p></dd>
 
 
 <dt id="arg-corrfunc">corrfunc<a class="anchor" aria-label="anchor" href="#arg-corrfunc"></a></dt>
@@ -129,7 +131,8 @@ when supported by the current R session.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional integer seed for reproducibility.</p></dd>
+<dd><p>Optional integer seed for reproducibility. The seed is scoped via
+<code><a href="https://withr.r-lib.org/reference/with_seed.html" class="external-link">withr::with_seed()</a></code> so the caller's RNG state is restored on exit.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

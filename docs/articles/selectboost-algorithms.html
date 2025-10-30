@@ -75,7 +75,7 @@ Bertrand</h4>
 Paris<br><a class="author_email" href="mailto:#"></a><a href="mailto:frederic.bertrand@lecnam.net" class="email">frederic.bertrand@lecnam.net</a>
       </address>
                   
-            <h4 data-toc-skip class="date">2025-10-29</h4>
+            <h4 data-toc-skip class="date">2025-10-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/fbertran/SelectBoost.beta/blob/HEAD/vignettes/selectboost-algorithms.Rmd" class="external-link"><code>vignettes/selectboost-algorithms.Rmd</code></a></small>
       <div class="d-none name"><code>selectboost-algorithms.Rmd</code></div>
@@ -112,10 +112,14 @@ into groups of highly associated predictors for a given threshold
 <li>
 <code><a href="../reference/sb_resample_groups.html">sb_resample_groups()</a></code> regenerates correlated predictors
 for each group by drawing from a multivariate normal approximation and
-re-normalising.</li>
+re-normalising. When all groups are singletons it now warns and simply
+returns repeated copies of the normalised design.</li>
 <li>
 <code><a href="../reference/sb_apply_selector_manual.html">sb_apply_selector_manual()</a></code> applies a selector to each
-resampled design and collects the resulting coefficient vectors.</li>
+resampled design and collects the resulting coefficient vectors. Set
+<code>keep_template = TRUE</code> (the default) to retain the base fit
+as column <code>sim0</code> without recomputing it on the first
+resample.</li>
 <li>
 <code><a href="../reference/sb_selection_frequency.html">sb_selection_frequency()</a></code> converts the matrix of
 coefficients into selection frequencies while respecting the selector’s

@@ -93,6 +93,7 @@ betareg_lasso_gamlss <- function(
   if (!is.null(beta_hat)) beta[names(beta_hat)] <- beta_hat
   c("(Intercept)" = intercept, beta)
 }
+attr(betareg_lasso_gamlss, "fun.name") <- "betareg_lasso_gamlss"
 
 #' Beta regression Elastic-Net via GAMLSS (gamlss.lasso)
 #'
@@ -162,3 +163,4 @@ betareg_enet_gamlss <- function(
   if (!is.null(beta_hat)) beta[names(beta_hat)] <- beta_hat
   c("(Intercept)" = intercept, beta)
 }
+attr(betareg_enet_gamlss, "fun.name") <- "betareg_enet_gamlss"

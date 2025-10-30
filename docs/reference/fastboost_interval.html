@@ -26,6 +26,7 @@ frequencies across B replicates."><meta property="og:image" content="https://fbe
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/selectboost-algorithms.html">SelectBoost.beta algorithms</a></li>
     <li><a class="dropdown-item" href="../articles/selectboost-beta.html">SelectBoost for Beta regression</a></li>
+    <li><a class="dropdown-item" href="../articles/selectboost-cran.html">Getting started with SelectBoost.beta</a></li>
     <li><a class="dropdown-item" href="../articles/simulate-interval-beta.html">Simulating interval Beta data</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -100,7 +101,8 @@ vector as in the other selectors (nonselected = 0).</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional RNG seed.</p></dd>
+<dd><p>Optional RNG seed. Scoped via <code><a href="https://withr.r-lib.org/reference/with_seed.html" class="external-link">withr::with_seed()</a></code> so the caller's
+RNG state is restored afterwards.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

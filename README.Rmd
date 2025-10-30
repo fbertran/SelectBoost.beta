@@ -9,7 +9,6 @@ knitr::opts_chunk$set(
   dpi=300,fig.width=7,
   fig.keep="all"
 )
-
 LOCAL <- identical(Sys.getenv("LOCAL"), "TRUE")
 
 knitr::opts_chunk$set(purl = LOCAL)
@@ -27,7 +26,6 @@ knitr::opts_chunk$set(purl = LOCAL)
 
 With the growth of big data, variable selection has become one of the major challenges in statistics. Although many methods have been proposed in the literature their performance in terms of recall and precision are limited in a context where the number of variables by far exceeds the number of observations or in a high correlated setting. 
 
-Results: 
 
 `SelectBoost.beta` brings the correlation-aware resampling strategy of the original SelectBoost package to **beta** regression by implementing an extension of the **SelectBoost** algorithm, F. Bertrand, I. Aouadi, N. Jung, R. Carapito, L. Vallat, S. Bahram, M. Maumy-Bertrand (2015) <https://doi.org/10.1093/bioinformatics/btaa855> and <https://doi.org/10.32614/CRAN.package.SelectBoost>.
 
@@ -175,10 +173,12 @@ head(freq)
 ```
 
 The `freq` column reports how often each variable was selected across the
-bootstrap replicates. Values close to 1 indicate highly stable discoveries,
-whereas small values suggest weak or noisy support. Increase `B` when you need
-finer resolution; a few dozen resamples suffice for quick checks, while several
-hundred deliver smoother estimates.
+bootstrap replicates, and the accompanying `n_success`/`n_fail` counts indicate
+how many resamples contributed to each estimate. Values close to 1 indicate
+highly stable discoveries, whereas small values suggest weak or noisy support.
+Inspect `attr(freq, "failures")` to review any selector errors. Increase `B`
+when you need finer resolution; a few dozen resamples suffice for quick checks,
+while several hundred deliver smoother estimates.
 
 ```{r, cache=TRUE, eval=LOCAL}
 plot_compare_coeff(single$table)

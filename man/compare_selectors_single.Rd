@@ -26,7 +26,8 @@ when available), and the pure glmnet IRLS selector, then collates coefficients
 into a long table for comparison. Observations containing \code{NA} in either \code{X}
 or \code{Y} are removed prior to fitting. Column names are temporarily shortened
 to satisfy selector requirements and avoid clashes; the outputs remap them to
-the original labels before returning.
+the original labels before returning so the reported variables always match
+the input design.
 }
 \examples{
 set.seed(1)

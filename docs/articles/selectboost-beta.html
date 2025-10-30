@@ -75,7 +75,7 @@ Bertrand</h4>
 Paris<br><a class="author_email" href="mailto:#"></a><a href="mailto:frederic.bertrand@lecnam.net" class="email">frederic.bertrand@lecnam.net</a>
       </address>
                   
-            <h4 data-toc-skip class="date">2025-10-29</h4>
+            <h4 data-toc-skip class="date">2025-10-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/fbertran/SelectBoost.beta/blob/HEAD/vignettes/selectboost-beta.Rmd" class="external-link"><code>vignettes/selectboost-beta.Rmd</code></a></small>
       <div class="d-none name"><code>selectboost-beta.Rmd</code></div>
@@ -138,6 +138,8 @@ selector. All of those stages are available directly in
 <span></span>
 <span><span class="co"># Draw eight correlated replicas for the grouped variables</span></span>
 <span><span class="va">X_draws</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sb_resample_groups.html">sb_resample_groups</a></span><span class="op">(</span><span class="va">X_norm</span>, <span class="va">raw_groups</span>, B <span class="op">=</span> <span class="fl">8</span>, seed <span class="op">=</span> <span class="fl">11</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: All groups are singletons; correlated resampling degenerates to</span></span>
+<span><span class="co">#&gt; repeated `X_norm`.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">X_draws</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 150   6</span></span></code></pre></div>
@@ -151,9 +153,9 @@ selector yields coefficient estimates for every resampled data set.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">coef_path</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 8 8</span></span>
+<span><span class="co">#&gt; [1] 8 9</span></span>
 <span><span class="va">coef_path</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
-<span><span class="co">#&gt;                        sim1        sim2        sim3</span></span>
+<span><span class="co">#&gt;                        sim0        sim1        sim2</span></span>
 <span><span class="co">#&gt; (Intercept)     -0.03588528 -0.03588528 -0.03588528</span></span>
 <span><span class="co">#&gt; x1              11.34931343 11.34931343 11.34931343</span></span>
 <span><span class="co">#&gt; x2              -8.95724666 -8.95724666 -8.95724666</span></span>
@@ -162,6 +164,9 @@ selector yields coefficient estimates for every resampled data set.</p>
 <span><span class="co">#&gt; x5               0.87055660  0.87055660  0.87055660</span></span>
 <span><span class="co">#&gt; x6               0.00000000  0.00000000  0.00000000</span></span>
 <span><span class="co">#&gt; phi|(Intercept)  2.95165950  2.95165950  2.95165950</span></span></code></pre></div>
+<p>The leading column <code>sim0</code> records the coefficients fitted
+on the original normalised design, providing a convenient baseline
+against which the resampled paths can be compared.</p>
 <p>Finally, the <code><a href="../reference/sb_selection_frequency.html">sb_selection_frequency()</a></code> helper counts how
 often each variable appears with a non-zero coefficient across the
 replicates. Because <code><a href="../reference/betareg_step_aic.html">betareg_step_aic()</a></code> returns a
@@ -209,12 +214,12 @@ function.</p>
 <span><span class="co">#&gt; Interval mode: none</span></span>
 <span><span class="co">#&gt; c0 grid: 1.0, 0.9, 0.7, 0.5, 0.0</span></span>
 <span><span class="co">#&gt; Inner thresholds: 0.9, 0.7, 0.5</span></span>
-<span><span class="co">#&gt;               x1    x2    x3    x4   x5    x6 phi|(Intercept)</span></span>
-<span><span class="co">#&gt; c0 = 1.000 1.000 1.000 1.000 0.000 1.00 0.000               1</span></span>
-<span><span class="co">#&gt; c0 = 0.900 1.000 1.000 1.000 0.000 1.00 0.000               1</span></span>
-<span><span class="co">#&gt; c0 = 0.700 1.000 1.000 1.000 0.000 1.00 0.000               1</span></span>
-<span><span class="co">#&gt; c0 = 0.500 1.000 1.000 1.000 0.000 1.00 0.000               1</span></span>
-<span><span class="co">#&gt; c0 = 0.000 0.117 0.133 0.117 0.167 0.15 0.167               1</span></span>
+<span><span class="co">#&gt;             x1    x2  x3   x4  x5  x6 phi|(Intercept)</span></span>
+<span><span class="co">#&gt; c0 = 1.000 1.0 1.000 1.0 0.00 1.0 0.0               1</span></span>
+<span><span class="co">#&gt; c0 = 0.900 1.0 1.000 1.0 0.00 1.0 0.0               1</span></span>
+<span><span class="co">#&gt; c0 = 0.700 1.0 1.000 1.0 0.00 1.0 0.0               1</span></span>
+<span><span class="co">#&gt; c0 = 0.500 1.0 1.000 1.0 0.00 1.0 0.0               1</span></span>
+<span><span class="co">#&gt; c0 = 0.000 0.2 0.167 0.2 0.25 0.2 0.2               1</span></span>
 <span><span class="co">#&gt; attr(,"c0.seq")</span></span>
 <span><span class="co">#&gt; [1] 1.0 0.9 0.7 0.5 0.0</span></span>
 <span><span class="co">#&gt; attr(,"steps.seq")</span></span>
@@ -252,7 +257,7 @@ function.</p>
 <span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig</span></span>
 <span><span class="co">#&gt; 1 x1,x2,x3,x4,x5,x6    6          60  FALSE          0.1189262</span></span>
 <span><span class="co">#&gt;   mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
-<span><span class="co">#&gt; 1               0.1403387          0.05889867</span></span>
+<span><span class="co">#&gt; 1               0.1375874          0.06768812</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"interval")</span></span>
 <span><span class="co">#&gt; [1] "none"</span></span></code></pre></div>
@@ -284,7 +289,7 @@ underlying <code><a href="../reference/betareg_glmnet.html">betareg_glmnet()</a>
 <span><span class="co">#&gt; [1] "betareg_glmnet"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">sb_enet</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         x1         x2         x3         x4         x5         x6 </span></span>
-<span><span class="co">#&gt; 0.33888889 0.34444444 0.33888889 0.35555556 0.34444444 0.01111111</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.35000000 0.33888889 0.33333333 0.34444444 0.34444444 0.01666667</span></span></code></pre></div>
 <p>Because the wrapper always builds on the same correlated resamples,
 results are directly comparable across selectors as long as they adopt
 the <code>glmnet</code>-style coefficient convention. This makes it

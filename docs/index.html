@@ -75,7 +75,6 @@
 <!-- [![CRAN status](https://www.r-pkg.org/badges/version/SelectBoost.beta)](https://cran.r-project.org/package=SelectBoost.beta) -->
 
 <p>With the growth of big data, variable selection has become one of the major challenges in statistics. Although many methods have been proposed in the literature their performance in terms of recall and precision are limited in a context where the number of variables by far exceeds the number of observations or in a high correlated setting.</p>
-<p>Results:</p>
 <p><code>SelectBoost.beta</code> brings the correlation-aware resampling strategy of the original SelectBoost package to <strong>beta</strong> regression by implementing an extension of the <strong>SelectBoost</strong> algorithm, F. Bertrand, I. Aouadi, N. Jung, R. Carapito, L. Vallat, S. Bahram, M. Maumy-Bertrand (2015) <a href="https://doi.org/10.1093/bioinformatics/btaa855" class="external-link uri">https://doi.org/10.1093/bioinformatics/btaa855</a> and <a href="https://doi.org/10.32614/CRAN.package.SelectBoost" class="external-link uri">https://doi.org/10.32614/CRAN.package.SelectBoost</a>.</p>
 <p>It ships with:</p>
 <ul>
@@ -164,6 +163,7 @@
 <span><span class="va">corr_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_normalize.html">sb_compute_corr</a></span><span class="op">(</span><span class="va">X_norm</span><span class="op">)</span></span>
 <span><span class="va">groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_normalize.html">sb_group_variables</a></span><span class="op">(</span><span class="va">corr_mat</span>, c0 <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
 <span><span class="va">resamples</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_resample_groups.html">sb_resample_groups</a></span><span class="op">(</span><span class="va">X_norm</span>, <span class="va">groups</span>, B <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: All groups are singletons; correlated resampling degenerates to repeated `X_norm`.</span></span>
 <span><span class="va">coef_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_apply_selector_manual.html">sb_apply_selector_manual</a></span><span class="op">(</span><span class="va">X_norm</span>, <span class="va">resamples</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, <span class="va">betareg_step_aic</span><span class="op">)</span></span>
 <span><span class="va">sel_freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sb_selection_frequency.html">sb_selection_frequency</a></span><span class="op">(</span><span class="va">coef_path</span>, version <span class="op">=</span> <span class="st">"glmnet"</span><span class="op">)</span></span>
 <span><span class="va">sel_freq</span></span>
@@ -206,60 +206,38 @@
 <span><span class="co">#&gt; [1] "betareg_step_aic"</span></span>
 <span><span class="co">#&gt; attr(,"resample_diagnostics")</span></span>
 <span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 1.000`</span></span>
-<span><span class="co">#&gt; [1] group                   size                    regenerated            </span></span>
-<span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
-<span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
+<span><span class="co">#&gt; [1] group                   size                    regenerated             cached                 </span></span>
+<span><span class="co">#&gt; [5] mean_abs_corr_orig      mean_abs_corr_surrogate mean_abs_corr_cross    </span></span>
 <span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.089`</span></span>
-<span><span class="co">#&gt;      group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
-<span><span class="co">#&gt; 1    x1,x4    2          50  FALSE         0.08894615              0.10146558</span></span>
-<span><span class="co">#&gt; 2 x2,x3,x6    3          50  FALSE         0.07694401              0.09829963</span></span>
-<span><span class="co">#&gt; 3 x2,x3,x5    3          50  FALSE         0.08217406              0.09634851</span></span>
-<span><span class="co">#&gt; 4    x3,x5    2          50  FALSE         0.09286939              0.09536360</span></span>
-<span><span class="co">#&gt; 5    x2,x6    2          50  FALSE         0.10556609              0.11060608</span></span>
-<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
-<span><span class="co">#&gt; 1          0.07089570</span></span>
-<span><span class="co">#&gt; 2          0.06673431</span></span>
-<span><span class="co">#&gt; 3          0.06390166</span></span>
-<span><span class="co">#&gt; 4          0.05329723</span></span>
-<span><span class="co">#&gt; 5          0.07179976</span></span>
+<span><span class="co">#&gt;      group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1    x1,x4    2          50  FALSE         0.08894615              0.10146558          0.07089570</span></span>
+<span><span class="co">#&gt; 2 x2,x3,x6    3          50  FALSE         0.07694401              0.09829963          0.06673431</span></span>
+<span><span class="co">#&gt; 3 x2,x3,x5    3          50  FALSE         0.08217406              0.09634851          0.06390166</span></span>
+<span><span class="co">#&gt; 4    x3,x5    2          50  FALSE         0.09286939              0.09536360          0.05329723</span></span>
+<span><span class="co">#&gt; 5    x2,x6    2          50  FALSE         0.10556609              0.11060608          0.07179976</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.059`</span></span>
-<span><span class="co">#&gt;            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
-<span><span class="co">#&gt; 1    x1,x2,x3,x4    4          50  FALSE         0.06136428              0.08621443</span></span>
-<span><span class="co">#&gt; 2 x1,x2,x3,x5,x6    5          50  FALSE         0.06152013              0.08582089</span></span>
-<span><span class="co">#&gt; 3    x1,x2,x3,x5    4          50  FALSE         0.07198271              0.08974742</span></span>
-<span><span class="co">#&gt; 4       x1,x4,x5    3          50  FALSE         0.06290784              0.07535777</span></span>
-<span><span class="co">#&gt; 5    x2,x3,x4,x5    4          50  FALSE         0.05766823              0.08028623</span></span>
-<span><span class="co">#&gt; 6          x2,x6    2           0   TRUE         0.10556609              0.11060608</span></span>
-<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
-<span><span class="co">#&gt; 1          0.06598362</span></span>
-<span><span class="co">#&gt; 2          0.06337853</span></span>
-<span><span class="co">#&gt; 3          0.06489135</span></span>
-<span><span class="co">#&gt; 4          0.06047434</span></span>
-<span><span class="co">#&gt; 5          0.06062214</span></span>
-<span><span class="co">#&gt; 6          0.07179976</span></span>
+<span><span class="co">#&gt;            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1    x1,x2,x3,x4    4          50  FALSE         0.06136428              0.08621443          0.06598362</span></span>
+<span><span class="co">#&gt; 2 x1,x2,x3,x5,x6    5          50  FALSE         0.06152013              0.08582089          0.06337853</span></span>
+<span><span class="co">#&gt; 3    x1,x2,x3,x5    4          50  FALSE         0.07198271              0.08974742          0.06489135</span></span>
+<span><span class="co">#&gt; 4       x1,x4,x5    3          50  FALSE         0.06290784              0.07535777          0.06047434</span></span>
+<span><span class="co">#&gt; 5    x2,x3,x4,x5    4          50  FALSE         0.05766823              0.08028623          0.06062214</span></span>
+<span><span class="co">#&gt; 6          x2,x6    2           0   TRUE         0.10556609              0.11060608          0.07179976</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.030`</span></span>
-<span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
-<span><span class="co">#&gt; 1    x1,x2,x3,x4,x5    5          50  FALSE         0.06203296              0.08360476</span></span>
-<span><span class="co">#&gt; 2    x1,x2,x3,x5,x6    5           0   TRUE         0.06152013              0.08582089</span></span>
-<span><span class="co">#&gt; 3       x1,x4,x5,x6    4          50  FALSE         0.04694388              0.07252823</span></span>
-<span><span class="co">#&gt; 4 x1,x2,x3,x4,x5,x6    6          50  FALSE         0.05666305              0.08518211</span></span>
-<span><span class="co">#&gt; 5    x2,x3,x4,x5,x6    5          50  FALSE         0.05591031              0.08187888</span></span>
-<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
-<span><span class="co">#&gt; 1          0.06487303</span></span>
-<span><span class="co">#&gt; 2          0.06337853</span></span>
-<span><span class="co">#&gt; 3          0.06954473</span></span>
-<span><span class="co">#&gt; 4          0.06383341</span></span>
-<span><span class="co">#&gt; 5          0.06182501</span></span>
+<span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1    x1,x2,x3,x4,x5    5          50  FALSE         0.06203296              0.08360476          0.06487303</span></span>
+<span><span class="co">#&gt; 2    x1,x2,x3,x5,x6    5           0   TRUE         0.06152013              0.08582089          0.06337853</span></span>
+<span><span class="co">#&gt; 3       x1,x4,x5,x6    4          50  FALSE         0.04694388              0.07252823          0.06954473</span></span>
+<span><span class="co">#&gt; 4 x1,x2,x3,x4,x5,x6    6          50  FALSE         0.05666305              0.08518211          0.06383341</span></span>
+<span><span class="co">#&gt; 5    x2,x3,x4,x5,x6    5          50  FALSE         0.05591031              0.08187888          0.06182501</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"resample_diagnostics")$`c0 = 0.000`</span></span>
-<span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
-<span><span class="co">#&gt; 1 x1,x2,x3,x4,x5,x6    6           0   TRUE         0.05666305              0.08518211</span></span>
-<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
-<span><span class="co">#&gt; 1          0.06383341</span></span>
+<span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1 x1,x2,x3,x4,x5,x6    6           0   TRUE         0.05666305              0.08518211          0.06383341</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"interval")</span></span>
 <span><span class="co">#&gt; [1] "none"</span></span></code></pre></div>
@@ -288,8 +266,8 @@
 <span>  <span class="fu"><a href="reference/sb_beta_methods.html">autoplot.sb_beta</a></span><span class="op">(</span><span class="va">sb</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <div class="figure">
-<img src="reference/figures/README-unnamed-chunk-33-1.png" alt="plot of chunk unnamed-chunk-33" width="100%"><p class="caption">
-plot of chunk unnamed-chunk-33
+<img src="reference/figures/README-unnamed-chunk-4-1.png" alt="plot of chunk unnamed-chunk-4" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-4
 </p>
 </div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -298,9 +276,8 @@ plot of chunk unnamed-chunk-33
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"c0.seq"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1.00000000 0.08894615 0.05949716 0.03010630 0.00000000</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sb</span>, <span class="st">"resample_diagnostics"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] group                   size                    regenerated            </span></span>
-<span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
-<span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
+<span><span class="co">#&gt; [1] group                   size                    regenerated             cached                 </span></span>
+<span><span class="co">#&gt; [5] mean_abs_corr_orig      mean_abs_corr_surrogate mean_abs_corr_cross    </span></span>
 <span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="understanding-the-sb_beta-output">Understanding the <code>sb_beta()</code> output<a class="anchor" aria-label="anchor" href="#understanding-the-sb_beta-output"></a>
@@ -329,26 +306,26 @@ plot of chunk unnamed-chunk-33
 <span>  <span class="va">sim</span><span class="op">$</span><span class="va">X</span>, <span class="va">sim</span><span class="op">$</span><span class="va">Y</span>, B <span class="op">=</span> <span class="fl">100</span>, include_enet <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">321</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    selector variable freq</span></span>
-<span><span class="co">#&gt; x1      AIC       x1 1.00</span></span>
-<span><span class="co">#&gt; x2      AIC       x2 1.00</span></span>
-<span><span class="co">#&gt; x3      AIC       x3 1.00</span></span>
-<span><span class="co">#&gt; x4      AIC       x4 0.27</span></span>
-<span><span class="co">#&gt; x5      AIC       x5 0.14</span></span>
-<span><span class="co">#&gt; x6      AIC       x6 0.19</span></span></code></pre></div>
-<p>The <code>freq</code> column reports how often each variable was selected across the bootstrap replicates. Values close to 1 indicate highly stable discoveries, whereas small values suggest weak or noisy support. Increase <code>B</code> when you need finer resolution; a few dozen resamples suffice for quick checks, while several hundred deliver smoother estimates.</p>
+<span><span class="co">#&gt;    selector variable freq n_success n_fail</span></span>
+<span><span class="co">#&gt; x1      AIC       x1 1.00       100      0</span></span>
+<span><span class="co">#&gt; x2      AIC       x2 1.00       100      0</span></span>
+<span><span class="co">#&gt; x3      AIC       x3 1.00       100      0</span></span>
+<span><span class="co">#&gt; x4      AIC       x4 0.27       100      0</span></span>
+<span><span class="co">#&gt; x5      AIC       x5 0.14       100      0</span></span>
+<span><span class="co">#&gt; x6      AIC       x6 0.19       100      0</span></span></code></pre></div>
+<p>The <code>freq</code> column reports how often each variable was selected across the bootstrap replicates, and the accompanying <code>n_success</code>/<code>n_fail</code> counts indicate how many resamples contributed to each estimate. Values close to 1 indicate highly stable discoveries, whereas small values suggest weak or noisy support. Inspect <code>attr(freq, "failures")</code> to review any selector errors. Increase <code>B</code> when you need finer resolution; a few dozen resamples suffice for quick checks, while several hundred deliver smoother estimates.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_coeff.html">plot_compare_coeff</a></span><span class="op">(</span><span class="va">single</span><span class="op">$</span><span class="va">table</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="reference/figures/README-unnamed-chunk-37-1.png" alt="plot of chunk unnamed-chunk-37" width="100%"><p class="caption">
-plot of chunk unnamed-chunk-37
+<img src="reference/figures/README-unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-8
 </p>
 </div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_compare_freq.html">plot_compare_freq</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="reference/figures/README-unnamed-chunk-38-1.png" alt="plot of chunk unnamed-chunk-38" width="100%"><p class="caption">
-plot of chunk unnamed-chunk-38
+<img src="reference/figures/README-unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-9
 </p>
 </div>
 </div>
@@ -369,32 +346,22 @@ plot of chunk unnamed-chunk-38
 <span><span class="co">#&gt; [1] "uniform"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">interval_fit</span>, <span class="st">"resample_diagnostics"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $`c0 = 1.000`</span></span>
-<span><span class="co">#&gt; [1] group                   size                    regenerated            </span></span>
-<span><span class="co">#&gt; [4] cached                  mean_abs_corr_orig      mean_abs_corr_surrogate</span></span>
-<span><span class="co">#&gt; [7] mean_abs_corr_cross    </span></span>
+<span><span class="co">#&gt; [1] group                   size                    regenerated             cached                 </span></span>
+<span><span class="co">#&gt; [5] mean_abs_corr_orig      mean_abs_corr_surrogate mean_abs_corr_cross    </span></span>
 <span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`c0 = 0.059`</span></span>
-<span><span class="co">#&gt;            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
-<span><span class="co">#&gt; 1    x1,x2,x3,x4    4          30  FALSE         0.06136428              0.08625551</span></span>
-<span><span class="co">#&gt; 2 x1,x2,x3,x5,x6    5          30  FALSE         0.06152013              0.08351693</span></span>
-<span><span class="co">#&gt; 3    x1,x2,x3,x5    4          30  FALSE         0.07198271              0.09395737</span></span>
-<span><span class="co">#&gt; 4       x1,x4,x5    3          30  FALSE         0.06290784              0.08889440</span></span>
-<span><span class="co">#&gt; 5    x2,x3,x4,x5    4          30  FALSE         0.05766823              0.08401650</span></span>
-<span><span class="co">#&gt; 6          x2,x6    2          30  FALSE         0.10556609              0.08760037</span></span>
-<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
-<span><span class="co">#&gt; 1          0.06004899</span></span>
-<span><span class="co">#&gt; 2          0.07278975</span></span>
-<span><span class="co">#&gt; 3          0.06294279</span></span>
-<span><span class="co">#&gt; 4          0.07196982</span></span>
-<span><span class="co">#&gt; 5          0.06221965</span></span>
-<span><span class="co">#&gt; 6          0.06647446</span></span>
+<span><span class="co">#&gt;            group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1    x1,x2,x3,x4    4          30  FALSE         0.06136428              0.08465482          0.06242124</span></span>
+<span><span class="co">#&gt; 2 x1,x2,x3,x5,x6    5          30  FALSE         0.06152013              0.08852213          0.07072896</span></span>
+<span><span class="co">#&gt; 3    x1,x2,x3,x5    4          30  FALSE         0.07198271              0.09486290          0.06465764</span></span>
+<span><span class="co">#&gt; 4       x1,x4,x5    3          30  FALSE         0.06290784              0.08437581          0.07146798</span></span>
+<span><span class="co">#&gt; 5    x2,x3,x4,x5    4          30  FALSE         0.05766823              0.07919466          0.07095218</span></span>
+<span><span class="co">#&gt; 6          x2,x6    2          30  FALSE         0.10556609              0.11117186          0.06506660</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`c0 = 0.000`</span></span>
-<span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate</span></span>
-<span><span class="co">#&gt; 1 x1,x2,x3,x4,x5,x6    6          30  FALSE         0.05666305              0.08808704</span></span>
-<span><span class="co">#&gt;   mean_abs_corr_cross</span></span>
-<span><span class="co">#&gt; 1          0.05790142</span></span></code></pre></div>
+<span><span class="co">#&gt;               group size regenerated cached mean_abs_corr_orig mean_abs_corr_surrogate mean_abs_corr_cross</span></span>
+<span><span class="co">#&gt; 1 x1,x2,x3,x4,x5,x6    6          30  FALSE         0.05666305              0.08767186           0.0650419</span></span></code></pre></div>
 <p>For a shortcut that always uses interval resampling, call <code>sb_beta_interval(sim$X, Y_low, Y_high, sample = "uniform")</code>. The lower-level <code><a href="reference/fastboost_interval.html">fastboost_interval()</a></code> helper remains available when you want to pair the interval resampling logic with a custom selector outside <code><a href="reference/sb_beta.html">sb_beta()</a></code>.</p>
 </div>
 <div class="section level3">

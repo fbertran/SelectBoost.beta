@@ -82,7 +82,9 @@ when <code>interval</code> is not <code>"none"</code>.</p></dd>
 
 
 <dt id="arg-selector">selector<a class="anchor" aria-label="anchor" href="#arg-selector"></a></dt>
-<dd><p>Selection routine. Defaults to <code><a href="betareg_step_aic.html">betareg_step_aic()</a></code>.</p></dd>
+<dd><p>Selection routine. Defaults to <code><a href="betareg_step_aic.html">betareg_step_aic()</a></code>.
+Function or character string. If it is a function, the selector name
+should be added as the fun.name attribute.</p></dd>
 
 
 <dt id="arg-sample">sample<a class="anchor" aria-label="anchor" href="#arg-sample"></a></dt>
@@ -119,7 +121,7 @@ resampling diagnostics, selector, and number of replicates.</p>
 <span class="r-in"><span>  <span class="va">sim</span><span class="op">$</span><span class="va">X</span>,</span></span>
 <span class="r-in"><span>  Y_low <span class="op">=</span> <span class="va">y_low</span>,</span></span>
 <span class="r-in"><span>  Y_high <span class="op">=</span> <span class="va">y_high</span>,</span></span>
-<span class="r-in"><span>  B <span class="op">=</span> <span class="fl">30</span>,</span></span>
+<span class="r-in"><span>  B <span class="op">=</span> <span class="fl">5</span>,</span></span>
 <span class="r-in"><span>  step.num <span class="op">=</span> <span class="fl">0.4</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">interval_fit</span>, <span class="st">"interval"</span><span class="op">)</span></span></span>

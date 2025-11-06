@@ -35,7 +35,7 @@ We use the built-in `simulation_DATA.beta()` helper to generate a correlated
 design with three truly associated predictors. The response lives in `(0, 1)` and
 is already compatible with the beta-regression selectors.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 sim <- simulation_DATA.beta(n = 120, p = 6, s = 3, rho = 0.35,
   beta_size = c(1.1, -0.9, 0.7))
 str(sim$X)
@@ -48,7 +48,7 @@ The `sb_beta()` wrapper orchestrates the full SelectBoost loop: it normalises th
 design matrix, groups correlated predictors, regenerates surrogate designs, and
 records selection frequencies for each threshold.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 sb <- sb_beta(sim$X, sim$Y, B = 40, step.num = 0.4, seed = 99)
 sb
 ```
@@ -56,7 +56,7 @@ sb
 The returned matrix has one row per correlation threshold. Attributes attached to
 the matrix document how the fit was produced:
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 attr(sb, "c0.seq")
 attr(sb, "B")
 attr(sb, "interval")
@@ -65,7 +65,7 @@ attr(sb, "interval")
 Use `summary()` to obtain per-threshold summaries and `autoplot.sb_beta()` (when
 `ggplot2` is available) to visualise the stability matrix.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 summary(sb)
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot.sb_beta(sb)
@@ -86,7 +86,7 @@ returns both raw coefficients and a tidy summary table. Column names are briefly
 shortened internally to satisfy each selector and then mapped back in the
 outputs.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 single <- compare_selectors_single(sim$X, sim$Y, include_enet = FALSE)
 head(single$table)
 ```
@@ -95,7 +95,7 @@ Bootstrap tallies add a stability perspective. The `freq` column in the table
 below measures the proportion of resamples where the variable was selected; values
 close to 1 indicate consistent discoveries.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 freq <- suppressWarnings(compare_selectors_bootstrap(sim$X, sim$Y, B = 100, 
                                                      include_enet = FALSE, seed = 99))
 head(freq)
@@ -104,7 +104,7 @@ head(freq)
 Merge both views with `compare_table()` and use `plot_compare_coeff()` or
 `plot_compare_freq()` for quick diagnostics.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 compare_table(single$table, freq)
 ```
 
@@ -114,7 +114,7 @@ If your outcome is interval-censored, run the `sb_beta_interval()` convenience
 wrapper. It enables the interval sampling logic inside `sb_beta()` while keeping
 the same output format and attributes.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 y_low <- pmax(sim$Y - 0.05, 0)
 y_high <- pmin(sim$Y + 0.05, 1)
 interval_fit <- sb_beta_interval(sim$X, y_low, y_high, B = 30,

@@ -43,8 +43,10 @@ freq <- compare_selectors_bootstrap(X, Y, B = 10, include_enet = FALSE)
 head(freq)
 subset(freq, freq > 0.8)
 
-# Increase `B` until the reported frequencies stabilise. For example,
-# freq_big <- compare_selectors_bootstrap(X, Y, B = 200, include_enet = FALSE)
-# stats::aggregate(freq ~ selector, freq_big, summary)
+\donttest{
+# Increase B until the reported frequencies stabilise. For example,
+freq_big <- compare_selectors_bootstrap(X, Y, B = 200, include_enet = FALSE)
+stats::aggregate(freq ~ selector, freq_big, summary)
+}
 
 }

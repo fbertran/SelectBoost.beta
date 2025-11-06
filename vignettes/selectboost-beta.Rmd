@@ -43,7 +43,7 @@ This vignette walks through two complementary perspectives:
 Throughout the examples we rely on the built-in simulator to generate correlated
 design matrices with a handful of truly associated predictors.
 
-```{r simulate-data}
+```{r, cache=TRUE, eval=LOCAL}
 sim <- simulation_DATA.beta(
   n = 150, p = 6, s = 3, beta_size = c(1, -0.8, 0.6),
   corr = "ar1", rho = 0.25,
@@ -60,7 +60,7 @@ pairwise correlations, groups variables above a chosen threshold and finally
 resamples the predictors before applying the selector. All of those stages are
 available directly in `SelectBoost.beta`.
 
-```{r manual-workflow}
+```{r, cache=TRUE, eval=LOCAL}
 # Normalise the predictors (centre + L2 scale)
 X_norm <- sb_normalize(sim$X)
 
@@ -81,7 +81,7 @@ Feeding these matrices to `sb_apply_selector_manual()` together with a
 beta-regression selector yields coefficient estimates for every resampled data
 set.
 
-```{r apply-selector}
+```{r, cache=TRUE, eval=LOCAL}
 coef_path <- sb_apply_selector_manual(
   X_norm, X_draws, sim$Y, selector = betareg_step_aic
 )
@@ -100,7 +100,7 @@ appears with a non-zero coefficient across the replicates. Because
 predictors), we set `version = "glmnet"` when computing the selection
 frequencies.
 
-```{r selection-frequencies}
+```{r, cache=TRUE, eval=LOCAL}
 sel_freq <- sb_selection_frequency(coef_path, version = "glmnet")
 sel_freq
 ```
@@ -117,7 +117,7 @@ arguments most relevant to beta regression. By default it uses
 (`"betareg_step_bic"`, `betareg_glmnet`, etc.) can be passed either by name or
 as a function.
 
-```{r sb-beta}
+```{r, cache=TRUE, eval=LOCAL}
 sb <- sb_beta(
   sim$X, sim$Y,
   B = 60,
@@ -143,7 +143,7 @@ Changing the selector is simply a matter of passing a different routine. The
 call below uses the GAMLSS-based elastic-net variant and asks `sb_beta()` to pass
 `choose = "bic"` to the underlying `betareg_glmnet()` implementation.
 
-```{r sb-alternative}
+```{r, cache=TRUE, eval=LOCAL}
 sb_enet <- sb_beta(
   sim$X, sim$Y,
   selector = betareg_glmnet,

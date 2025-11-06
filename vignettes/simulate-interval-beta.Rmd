@@ -40,7 +40,7 @@ truly associated with the response through coefficients specified in
 `rho`, which conveniently induces near-multicollinearity while remaining
 positive-definite.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 sim <- simulation_DATA.beta(
   n = 300, p = 10, s = 4, beta_size = c(1.0, -0.8, 0.6, -0.5),
   corr = "ar1", rho = 0.25,
@@ -73,7 +73,7 @@ The output contains the design matrix `X`, the fully observed latent response
 `Y`, and the interval bounds `Y_low`/`Y_high`. The following summaries check the
 distribution of the latent response and the frequency of interval-censoring.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 summary(sim$Y)
 mean(is.na(sim$Y_low) | is.na(sim$Y_high))
 ```
@@ -82,7 +82,7 @@ To better understand the resulting intervals we can look at a small excerpt of
 the censored rows. Observations with `NA` on one side correspond to
 one-sided censoring events.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 head(sim$Y_low, 10)
 head(sim$Y_high, 10)
 ```
@@ -95,7 +95,7 @@ interval carries. When an observation is fully observed the bounds coincide with
 modest base width of 0.03, the adaptive component in `delta()` creates a long
 right tail as the mean moves away from the centre of the unit interval.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 interval_width <- sim$Y_high - sim$Y_low
 hist(interval_width, breaks = 30, col = "#0A6AA6", border = "white",
      main = "Distribution of simulated interval widths",
@@ -110,7 +110,7 @@ intervals into pseudo-observations for classical selectors, how to obtain stable
 
 When only interval bounds are observed, a quick way to obtain a point response is to impute either the midpoint or the available bound in case of one-sided censoring. The helper below keeps the midpoint when both bounds are present and falls back to the observed edge otherwise.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 pseudo_y <- ifelse(
   is.na(sim$Y_low) | is.na(sim$Y_high),
   ifelse(is.na(sim$Y_low), sim$Y_high, sim$Y_low),
@@ -122,7 +122,7 @@ With this pseudo-response in hand, we can deploy the full suite of selectors
 shipped with the package. The `compare_selectors_single()` wrapper runs the
 stepwise AIC/BIC/AICc procedures, the GAMLSS-based LASSO and the IRLS/`glmnet` approach in one call. Setting `include_enet = FALSE` ensures the example remains lightweight even when the optional `gamlss.lasso` extension is not installed.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 single <- compare_selectors_single(sim$X, pseudo_y, include_enet = FALSE)
 head(single$table)
 ```
@@ -136,7 +136,7 @@ their original labels in the returned objects.
 
 The bootstrap helper `compare_selectors_bootstrap()` repeats this exercise over resampled datasets, providing empirical selection frequencies for each method.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 freq <- compare_selectors_bootstrap(
   sim$X, pseudo_y, B = 15, include_enet = FALSE, seed = 321
 )
@@ -149,7 +149,7 @@ and help prioritise predictors for follow-up modelling.
 
 Merging both outputs with `compare_table()` gives a compact summary containing the per-run coefficients and the associated bootstrap frequencies.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 summary_tab <- compare_table(single$table, freq)
 head(summary_tab)
 ```
@@ -160,14 +160,14 @@ The package offers quick visualisation helpers that default to base graphics
 but automatically use `ggplot2` when it is available. The coefficient heatmap
 highlights which variables are selected and their estimated effect sizes across selectors.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 plot_compare_coeff(single$table)
 ```
 
 Selection frequencies from the bootstrap stage can be plotted in the same
 manner, providing a stability-oriented counterpart to the coefficient map.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 plot_compare_freq(freq)
 ```
 
@@ -179,7 +179,7 @@ next to the single-run coefficients for easy inspection.
 Instead of reducing intervals to single values, the `fastboost_interval()`
 routine repeatedly samples pseudo-responses inside each interval before running the chosen selector. The resulting selection frequencies account for the uncertainty carried by the censored observations.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 fb <- fastboost_interval(
   sim$X, sim$Y_low, sim$Y_high,
   func = function(X, y) betareg_glmnet(X, y, choose = "bic", prestandardize = TRUE),
@@ -199,7 +199,7 @@ When you want to run the full SelectBoost workflow on interval data, the
 sampling mode under the hood. It keeps the same output structure as other
 `sb_beta()` runs, including the stability matrix and diagnostic attributes.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 comp_id <- complete.cases(sim$Y_low) & complete.cases(sim$Y_high)
 
 sb_interval <- sb_beta_interval(
@@ -217,7 +217,7 @@ head(sb_interval)
 Pair this output with the plotting methods (`autoplot.sb_beta()`, `summary()`) to inspect
 the stability matrix produced under interval resampling.
 
-```{r}
+```{r, cache=TRUE, eval=LOCAL}
 summary(sb_interval)
 autoplot.sb_beta(sb_interval)
 ```
